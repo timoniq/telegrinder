@@ -22,6 +22,8 @@ from telegrinder.api.error import APIError
 from telegrinder.api.token import Token
 from telegrinder.bot.cute_types.base import compose_method_params
 from telegrinder.bot.cute_types.managed_bot_updated import ManagedBotUpdatedCute
+from telegrinder.bot.cute_types.message import MessageCute
+from telegrinder.bot.cute_types.update import UpdateCute
 from telegrinder.bot.cute_types.utils import exclude_bound_parameters
 from telegrinder.bot.dispatch.context import Context
 from telegrinder.bot.dispatch.middleware.box import MiddlewareBox
@@ -115,6 +117,27 @@ class _Generic[T, *Ts]:  # PEP 695 generic where the TypeVarTuple is NOT the fir
 
 
 # --------------------------------------------------------------------------- dispatch & middleware
+
+
+def test_update_cute_decoding_uses_enum_value():
+    raw_update = msgspec.json.encode(
+        {
+            "update_id": 1,
+            "message": {
+                "message_id": 1,
+                "date": 1_713_971_200,
+                "chat": {"id": 1, "type": "private", "first_name": "Cute"},
+                "text": "hello",
+            },
+        },
+    )
+
+    api = API(Token("123:ABCdef"), http=MockedHttpClient())
+    update = UpdateCute.from_raw(raw_update, api)
+
+    assert update.update_type.value == "message"
+    assert isinstance(update.incoming_update, MessageCute)
+    assert update.incoming_update.message_id == 1
 
 
 @pytest.mark.asyncio()
