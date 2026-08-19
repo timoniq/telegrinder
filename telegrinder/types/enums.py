@@ -1,4 +1,26 @@
-from msgspex import BaseEnumMeta, IntEnum, StrEnum
+import enum
+import typing
+
+from msgspex import BaseEnumMeta as MsgspexBaseEnumMeta
+from msgspex import IntEnum, StrEnum
+
+
+def _get_enum_value(instance: object) -> typing.Any:
+    return object.__getattribute__(instance, "_value_")
+
+
+class BaseEnumMeta(MsgspexBaseEnumMeta):
+    """Restore the public enum value descriptor omitted by msgspex 1.7.0."""
+
+    def __new__(
+        metacls,
+        cls: str,
+        bases: tuple[type[typing.Any], ...],
+        classdict: enum.EnumDict,
+        **kwargs: typing.Any,
+    ) -> typing.Any:
+        classdict["value"] = property(_get_enum_value)
+        return super().__new__(metacls, cls, bases, classdict, **kwargs)
 
 
 class ProgrammingLanguage(StrEnum, metaclass=BaseEnumMeta):
