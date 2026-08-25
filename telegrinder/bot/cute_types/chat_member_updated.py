@@ -142,6 +142,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         can_post_stories: bool | None = None,
         can_promote_members: bool | None = None,
         can_restrict_members: bool | None = None,
+        can_send_welcome_messages: bool | None = None,
         chat_id: int | str | None = None,
         is_anonymous: bool | None = None,
         user_id: int | None = None,
@@ -185,7 +186,9 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
 
         :param can_manage_direct_messages: Pass True if the administrator can manage direct messages within the channeland decline suggested posts; for channels only.
 
-        :param can_manage_tags: Pass True if the administrator can edit the tags of regular members; forgroups and supergroups only."""
+        :param can_manage_tags: Pass True if the administrator can edit the tags of regular members; forgroups and supergroups only.
+
+        :param can_send_welcome_messages: Pass True if the administrator can manage chat welcome messages or directlysend them in the case of bots."""
         ...
 
     @shortcut(

@@ -54,6 +54,7 @@ class RichText(Model):
     - RichTextHashtag
     - RichTextCashtag
     - RichTextBotCommand
+    - RichTextButton
     - RichTextAnchor
     - RichTextAnchorLink
     - RichTextReference
@@ -86,14 +87,17 @@ class RichBlock(Model):
     - RichBlockAnchor
     - RichBlockList
     - RichBlockBlockQuotation
+    - RichBlockExpandableBlockQuotation
     - RichBlockPullQuotation
     - RichBlockCollage
     - RichBlockSlideshow
     - RichBlockTable
     - RichBlockDetails
     - RichBlockMap
+    - RichBlockButtons
     - RichBlockAnimation
     - RichBlockAudio
+    - RichBlockDocument
     - RichBlockPhoto
     - RichBlockVideo
     - RichBlockVoiceNote
@@ -223,14 +227,17 @@ class InputRichBlock(Model):
     - InputRichBlockAnchor
     - InputRichBlockList
     - InputRichBlockBlockQuotation
+    - InputRichBlockExpandableBlockQuotation
     - InputRichBlockPullQuotation
     - InputRichBlockCollage
     - InputRichBlockSlideshow
     - InputRichBlockTable
     - InputRichBlockDetails
     - InputRichBlockMap
+    - InputRichBlockButtons
     - InputRichBlockAnimation
     - InputRichBlockAudio
+    - InputRichBlockDocument
     - InputRichBlockPhoto
     - InputRichBlockVideo
     - InputRichBlockVoiceNote
@@ -512,6 +519,11 @@ class Update(Model):
 
     subscription: Option[BotSubscriptionUpdated] = field(default=..., converter=From["BotSubscriptionUpdated | None"])
     """Optional. User payment subscription has changed."""
+
+    stopped_message_generation: Option[MessageGenerationStopped] = field(
+        default=..., converter=From["MessageGenerationStopped | None"]
+    )
+    """Optional. A user asked the bot to stop the generation of a message."""
 
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
@@ -1291,12 +1303,17 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Service message: tasks were added to a checklist."""
 
     community_chat_added: Option[CommunityChatAdded] = field(default=..., converter=From["CommunityChatAdded | None"])
-    """Optional. Service message: chat added to a Community."""
+    """Optional. Service message: chat or bot added to a Community."""
+
+    community_chat_joined: Option[CommunityChatJoined] = field(
+        default=..., converter=From["CommunityChatJoined | None"]
+    )
+    """Optional. Service message: chat was joined by a user from a Community."""
 
     community_chat_removed: Option[CommunityChatRemoved] = field(
         default=..., converter=From["CommunityChatRemoved | None"]
     )
-    """Optional. Service message: chat removed from a Community."""
+    """Optional. Service message: chat or bot removed from a Community."""
 
     direct_message_price_changed: Option[DirectMessagePriceChanged] = field(
         default=..., converter=From["DirectMessagePriceChanged | None"]
@@ -1685,6 +1702,27 @@ class ReplyParameters(Model):
     to."""
 
 
+class EphemeralMessageParameters(Model):
+    """Object `EphemeralMessageParameters`, see the [documentation](https://core.telegram.org/bots/api#ephemeralmessageparameters).
+
+    No description yet.
+    """
+
+    receiver_user_id: int = field()
+    """Identifier of the user who will receive the message. It is not guaranteed
+    that the user will receive the message, especially if they are offline.
+    See here for more details."""
+
+    callback_query_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Identifier of the callback query which triggered the message,
+    if any."""
+
+    replace_callback_query_message: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the ephemeral message must be shown in place of the
+    original message. Must be False for callback queries from ephemeral messages,
+    which must be edited using regular editEphemeralMessage... methods."""
+
+
 class MessageOriginUser(MessageOrigin):
     """Object `MessageOriginUser`, see the [documentation](https://core.telegram.org/bots/api#messageoriginuser).
 
@@ -2015,7 +2053,7 @@ class Video(Model):
 class VideoNote(Model):
     """Object `VideoNote`, see the [documentation](https://core.telegram.org/bots/api#videonote).
 
-    This object represents a video message (available in Telegram apps as of v.4.0).
+    This object represents a video message.
     """
 
     file_id: str = field()
@@ -2676,6 +2714,23 @@ class BotSubscriptionUpdated(Model):
     failed."""
 
 
+class MessageGenerationStopped(Model):
+    """Object `MessageGenerationStopped`, see the [documentation](https://core.telegram.org/bots/api#messagegenerationstopped).
+
+    This object describes an update about a user stopping message generation.
+    """
+
+    chat: Chat = field()
+    """Chat in which the message is generated."""
+
+    draft_id: int = field()
+    """Unique identifier of the message draft which was stopped."""
+
+    message_thread_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Unique identifier of the message thread in which the message
+    is generated."""
+
+
 class PollOptionAdded(Model):
     """Object `PollOptionAdded`, see the [documentation](https://core.telegram.org/bots/api#polloptionadded).
 
@@ -2908,17 +2963,27 @@ class ChecklistTasksAdded(Model):
 class CommunityChatAdded(Model):
     """Object `CommunityChatAdded`, see the [documentation](https://core.telegram.org/bots/api#communitychatadded).
 
-    Describes a service message about a chat being added to a community.
+    Describes a service message about a chat or a bot being added to a community.
     """
 
     community: Community = field()
-    """The new community to which the chat belongs."""
+    """The new community to which the chat or the bot belongs."""
+
+
+class CommunityChatJoined(Model):
+    """Object `CommunityChatJoined`, see the [documentation](https://core.telegram.org/bots/api#communitychatjoined).
+
+    Describes a service message about a chat being joined by a user from a community.
+    """
+
+    community: Community = field()
+    """The community from which the chat was joined."""
 
 
 class CommunityChatRemoved(Model):
     """Object `CommunityChatRemoved`, see the [documentation](https://core.telegram.org/bots/api#communitychatremoved).
 
-    Describes a service message about a chat being removed from a community. Currently holds no information.
+    Describes a service message about a chat or a bot being removed from a community. Currently holds no information.
     """
 
 
@@ -3544,6 +3609,10 @@ class ReplyKeyboardMarkup(Model):
     change the bot's language, bot replies to the request with a keyboard to
     select the new language. Other users in the group don't see the keyboard."""
 
+    force_reply: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the reply interface must be shown to the user, as if
+    they had manually selected the bot's message and tapped 'Reply'."""
+
     @property
     def empty_markup(self) -> ReplyKeyboardRemove:
         """Empty keyboard to remove the custom keyboard."""
@@ -3757,6 +3826,11 @@ class InlineKeyboardMarkup(Model):
     """Array of button rows, each represented by an Array of InlineKeyboardButton
     objects."""
 
+    force_reply: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the reply interface must be shown to the user, as if
+    they had manually selected the bot's message and tapped 'Reply'. The value
+    of the field can't be changed when the inline keyboard is edited."""
+
 
 class InlineKeyboardButton(Model):
     """Object `InlineKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardbutton).
@@ -3796,7 +3870,8 @@ class InlineKeyboardButton(Model):
 
     login_url: Option[LoginUrl] = field(default=..., converter=From["LoginUrl | None"])
     """Optional. An HTTPS URL used to automatically authorize the user. Can be
-    used as a replacement for the Telegram Login Widget."""
+    used as a replacement for the Telegram Login Widget. Not supported for ephemeral
+    messages."""
 
     switch_inline_query: Option[str] = field(default=..., converter=From[str | None])
     """Optional. If set, pressing the button will prompt the user to select one
@@ -3837,12 +3912,14 @@ class InlineKeyboardButton(Model):
     type of button must always be the first button in the first row and can only
     be used in invoice messages."""
 
+    disabled: Option[DisabledButton] = field(default=..., converter=From["DisabledButton | None"])
+    """Optional. If set, then the button is disabled and does nothing."""
+
 
 class LoginUrl(Model):
     """Object `LoginUrl`, see the [documentation](https://core.telegram.org/bots/api#loginurl).
 
-    This object represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
-    Telegram apps support these buttons as of version 5.7.
+    This object represents a parameter of the inline keyboard button used to automatically authorize a user. It serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
     """
 
     url: str = field()
@@ -3857,10 +3934,11 @@ class LoginUrl(Model):
     """Optional. New text of the button in forwarded messages."""
 
     bot_username: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Username of a bot, which will be used for user authorization.
-    See Setting up a bot for more details. If not specified, the current bot's
-    username will be assumed. The url's domain must be the same as the domain
-    linked with the bot. See Linking your domain to the bot for more details."""
+    """Optional. Username of a bot, which will be used for user authorization;
+    not supported in RichMessageButton. See Setting up a bot for more details.
+    If not specified, the current bot's username will be assumed. The url's
+    domain must be the same as the domain linked with the bot. See Linking your
+    domain to the bot for more details."""
 
     request_write_access: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True to request the permission for your bot to send messages
@@ -3898,6 +3976,13 @@ class CopyTextButton(Model):
 
     text: str = field()
     """The text to be copied to the clipboard; 1-256 characters."""
+
+
+class DisabledButton(Model):
+    """Object `DisabledButton`, see the [documentation](https://core.telegram.org/bots/api#disabledbutton).
+
+    This object represents a disabled button which does nothing. Currently holds no information.
+    """
 
 
 class CallbackQuery(Model):
@@ -3942,7 +4027,7 @@ class ForceReply(Model):
     """
 
     force_reply: bool = field()
-    """Shows reply interface to the user, as if they manually selected the bot's
+    """Shows reply interface to the user, as if they had manually selected the bot's
     message and tapped 'Reply'."""
 
     input_field_placeholder: Option[str] = field(default=..., converter=From[str | None])
@@ -4090,6 +4175,10 @@ class ChatAdministratorRights(Model):
     can_delete_stories: bool = field()
     """True, if the administrator can delete stories posted by other users."""
 
+    can_send_welcome_messages: bool = field()
+    """True, if the administrator can manage chat welcome messages or directly
+    send them in the case of bots."""
+
     can_post_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can post messages in the channel,
     approve suggested posts, or access channel statistics; for channels only."""
@@ -4112,7 +4201,7 @@ class ChatAdministratorRights(Model):
 
     can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit the tags of regular members;
-    for groups and supergroups only. If omitted, defaults to the value of can_pin_messages."""
+    for groups and supergroups only."""
 
 
 class ChatMemberUpdated(Model):
@@ -4246,6 +4335,10 @@ class ChatMemberAdministrator(ChatMember):
     can_delete_stories: bool = field()
     """True, if the administrator can delete stories posted by other users."""
 
+    can_send_welcome_messages: bool = field()
+    """True, if the administrator can manage chat welcome messages or directly
+    send them in the case of bots."""
+
     status: Literal["administrator"] = field(default="administrator")
     """The member's status in the chat, always `administrator`."""
 
@@ -4271,7 +4364,7 @@ class ChatMemberAdministrator(ChatMember):
 
     can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit the tags of regular members;
-    for groups and supergroups only. If omitted, defaults to the value of can_pin_messages."""
+    for groups and supergroups only."""
 
     custom_title: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Custom title for this user."""
@@ -5191,6 +5284,16 @@ class UniqueGiftInfo(Model):
     `resale` for gifts bought from other users, `gifted_upgrade` for upgrades
     purchased after the gift was sent, or `offer` for gifts bought or sold through
     gift purchase offers."""
+
+    text: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Text of the message that was added to the gift."""
+
+    entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    """Optional. Special entities that appear in the text."""
+
+    is_private: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the sender and gift text are shown only to the gift receiver;
+    otherwise, everyone will be able to see them."""
 
     last_resale_currency: Option[Literal[Currency.XTR, Currency.TON]] = field(
         default=..., converter=From[Literal[Currency.XTR, Currency.TON] | None]
@@ -6643,14 +6746,17 @@ class InputRichMessage(Model):
                 InputRichBlockAnchor,
                 InputRichBlockList,
                 InputRichBlockBlockQuotation,
+                InputRichBlockExpandableBlockQuotation,
                 InputRichBlockPullQuotation,
                 InputRichBlockCollage,
                 InputRichBlockSlideshow,
                 InputRichBlockTable,
                 InputRichBlockDetails,
                 InputRichBlockMap,
+                InputRichBlockButtons,
                 InputRichBlockAnimation,
                 InputRichBlockAudio,
+                InputRichBlockDocument,
                 InputRichBlockPhoto,
                 InputRichBlockVideo,
                 InputRichBlockVoiceNote,
@@ -6660,7 +6766,7 @@ class InputRichMessage(Model):
     ] = field(
         default=...,
         converter=From[
-            "list[InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking] | None"
+            "list[InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking] | None"
         ],
     )
     """Optional. Content of the rich message to send described as a list of blocks."""
@@ -6679,7 +6785,8 @@ class InputRichMessage(Model):
         default=..., converter=From["list[InputRichMessageMedia] | None"]
     )
     """Optional. List of media that are specified in the markdown or html fields
-    using tg://photo?id=, tg://video?id=, and tg://audio?id= links."""
+    using tg://photo?id=, tg://video?id=, tg://document?id=, and tg://audio?id=
+    links."""
 
     is_rtl: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the rich message must be shown right-to-left."""
@@ -6698,16 +6805,85 @@ class InputRichMessageMedia(Model):
 
     id: str = field()
     """Unique identifier of the media used in a tg://photo?id=, tg://video?id=,
-    or tg://audio?id= link. 1-64 characters, only A-Z, a-z, 0-9, _ and - are
-    allowed."""
+    tg://document?id=, or tg://audio?id= link. 1-64 characters, only A-Z,
+    a-z, 0-9, _ and - are allowed."""
 
-    media: Sum[InputMediaAnimation, InputMediaAudio, InputMediaPhoto, InputMediaVideo, InputMediaVoiceNote] = field(
+    media: Sum[
+        InputMediaAnimation, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, InputMediaVoiceNote
+    ] = field(
         converter=From[
-            "InputMediaAnimation | InputMediaAudio | InputMediaPhoto | InputMediaVideo | InputMediaVoiceNote"
+            "InputMediaAnimation | InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo | InputMediaVoiceNote"
         ]
     )
     """The media to be sent. Everything except the media itself and its properties
     is ignored."""
+
+
+class RichMessageButton(Model):
+    """Object `RichMessageButton`, see the [documentation](https://core.telegram.org/bots/api#richmessagebutton).
+
+    This object represents a button in a RichMessage. Exactly one of the fields other than text and style must be used to specify the type of the button.
+    """
+
+    text: RichText = field()
+    """Text of the button. May contain only plain text, RichTextCustomEmoji and
+    RichTextDateTime entities."""
+
+    style: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Style of the button. Must be one of `danger` (red), `success`
+    (green), `primary` (blue) or `link` (the button is shown as a regular link
+    without borders). If omitted, then an app-specific style is used. The style
+    `link` is allowed only for callback buttons."""
+
+    url: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. HTTP or tg:// URL to be opened when the button is pressed. Links
+    tg://user?id=<user_id> can be used to mention a user by their identifier
+    without using a username, if this is allowed by their privacy settings."""
+
+    callback_data: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Data to be sent in a callback query to the bot when the button is
+    pressed, 1-64 bytes."""
+
+    web_app: Option[WebAppInfo] = field(default=..., converter=From["WebAppInfo | None"])
+    """Optional. Description of the Web App that will be launched when the user
+    presses the button. The Web App will be able to send an arbitrary message
+    on behalf of the user using the method answerWebAppQuery. Available only
+    in private chats between a user and the bot. Not supported for messages sent
+    on behalf of a business account."""
+
+    login_url: Option[LoginUrl] = field(default=..., converter=From["LoginUrl | None"])
+    """Optional. An HTTPS URL used to automatically authorize the user. Can be
+    used as a replacement for the Telegram Login Widget. Not supported for ephemeral
+    messages."""
+
+    switch_inline_query: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. If set, pressing the button will prompt the user to select one
+    of their chats, open that chat and insert the bot's username and the specified
+    inline query in the input field. May be empty, in which case just the bot's
+    username will be inserted. Not supported for messages sent in channel direct
+    messages chats and on behalf of a business account."""
+
+    switch_inline_query_current_chat: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. If set, pressing the button will insert the bot's username and
+    the specified inline query in the current chat's input field. May be empty,
+    in which case only the bot's username will be inserted. Not supported in
+    channels and for messages sent in channel direct messages chats and on behalf
+    of a business account."""
+
+    switch_inline_query_chosen_chat: Option[SwitchInlineQueryChosenChat] = field(
+        default=..., converter=From["SwitchInlineQueryChosenChat | None"]
+    )
+    """Optional. If set, pressing the button will prompt the user to select one
+    of their chats of the specified type, open that chat and insert the bot's
+    username and the specified inline query in the input field. Not supported
+    for messages sent in channel direct messages chats and on behalf of a business
+    account."""
+
+    copy_text: Option[CopyTextButton] = field(default=..., converter=From["CopyTextButton | None"])
+    """Optional. A button that copies the specified text to the clipboard."""
+
+    disabled: Option[DisabledButton] = field(default=..., converter=From["DisabledButton | None"])
+    """Optional. If set, then the button is disabled and does nothing."""
 
 
 class RichTextBold(RichText):
@@ -7021,6 +7197,19 @@ class RichTextBotCommand(RichText):
     """The bot command."""
 
 
+class RichTextButton(RichText):
+    """Object `RichTextButton`, see the [documentation](https://core.telegram.org/bots/api#richtextbutton).
+
+    A button.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `button`."""
+
+    button: RichMessageButton = field()
+    """The button."""
+
+
 class RichTextAnchor(RichText):
     """Object `RichTextAnchor`, see the [documentation](https://core.telegram.org/bots/api#richtextanchor).
 
@@ -7273,6 +7462,22 @@ class RichBlockBlockQuotation(RichBlock):
     """Optional. Credit of the block."""
 
 
+class RichBlockExpandableBlockQuotation(RichBlock):
+    """Object `RichBlockExpandableBlockQuotation`, see the [documentation](https://core.telegram.org/bots/api#richblockexpandableblockquotation).
+
+    A block quotation, corresponding to the HTML tag <blockquote> with custom attribute "collapsed".
+    """
+
+    type: str = field()
+    """Type of the block, always `expandable_blockquote`."""
+
+    text: RichText = field()
+    """Content of the block."""
+
+    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Credit of the block."""
+
+
 class RichBlockPullQuotation(RichBlock):
     """Object `RichBlockPullQuotation`, see the [documentation](https://core.telegram.org/bots/api#richblockpullquotation).
 
@@ -7339,6 +7544,9 @@ class RichBlockTable(RichBlock):
     is_striped: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the table is striped."""
 
+    is_compact: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if table cells have smaller indents."""
+
     caption: Option[RichText] = field(default=..., converter=From["RichText | None"])
     """Optional. Caption of the table."""
 
@@ -7375,7 +7583,7 @@ class RichBlockMap(RichBlock):
     """Location of the center of the map."""
 
     zoom: int = field()
-    """Map zoom level; 13-20."""
+    """Map zoom level."""
 
     width: int = field()
     """Expected width of the map."""
@@ -7385,6 +7593,23 @@ class RichBlockMap(RichBlock):
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
+
+
+class RichBlockButtons(RichBlock):
+    """Object `RichBlockButtons`, see the [documentation](https://core.telegram.org/bots/api#richblockbuttons).
+
+    A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag <tg-button-row>.
+    """
+
+    type: str = field()
+    """Type of the block, always `buttons`."""
+
+    buttons: list[RichMessageButton] = field()
+    """The buttons."""
+
+    align: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Horizontal alignment of the buttons. Currently, must be one
+    of `left`, `center`, or `right`."""
 
 
 class RichBlockAnimation(RichBlock):
@@ -7417,6 +7642,22 @@ class RichBlockAudio(RichBlock):
 
     audio: Audio = field()
     """The audio."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class RichBlockDocument(RichBlock):
+    """Object `RichBlockDocument`, see the [documentation](https://core.telegram.org/bots/api#richblockdocument).
+
+    A block with a general file, corresponding to the custom HTML tag <tg-document>.
+    """
+
+    type: str = field()
+    """Type of the block, always `document`."""
+
+    document: Document = field()
+    """The document."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -7507,14 +7748,17 @@ class InputRichBlockListItem(Model):
             InputRichBlockAnchor,
             InputRichBlockList,
             InputRichBlockBlockQuotation,
+            InputRichBlockExpandableBlockQuotation,
             InputRichBlockPullQuotation,
             InputRichBlockCollage,
             InputRichBlockSlideshow,
             InputRichBlockTable,
             InputRichBlockDetails,
             InputRichBlockMap,
+            InputRichBlockButtons,
             InputRichBlockAnimation,
             InputRichBlockAudio,
+            InputRichBlockDocument,
             InputRichBlockPhoto,
             InputRichBlockVideo,
             InputRichBlockVoiceNote,
@@ -7523,7 +7767,7 @@ class InputRichBlockListItem(Model):
     ] = field(
         converter=From[
             list[
-                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
             ]
         ]
     )
@@ -7671,14 +7915,17 @@ class InputRichBlockBlockQuotation(InputRichBlock):
             InputRichBlockAnchor,
             InputRichBlockList,
             InputRichBlockBlockQuotation,
+            InputRichBlockExpandableBlockQuotation,
             InputRichBlockPullQuotation,
             InputRichBlockCollage,
             InputRichBlockSlideshow,
             InputRichBlockTable,
             InputRichBlockDetails,
             InputRichBlockMap,
+            InputRichBlockButtons,
             InputRichBlockAnimation,
             InputRichBlockAudio,
+            InputRichBlockDocument,
             InputRichBlockPhoto,
             InputRichBlockVideo,
             InputRichBlockVoiceNote,
@@ -7687,10 +7934,26 @@ class InputRichBlockBlockQuotation(InputRichBlock):
     ] = field(
         converter=From[
             list[
-                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
             ]
         ]
     )
+    """Content of the block."""
+
+    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    """Optional. Credit of the block."""
+
+
+class InputRichBlockExpandableBlockQuotation(InputRichBlock):
+    """Object `InputRichBlockExpandableBlockQuotation`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockexpandableblockquotation).
+
+    A block quotation, corresponding to the HTML tag <blockquote> with custom attribute "collapsed".
+    """
+
+    type: str = field()
+    """Type of the block, always `expandable_blockquote`."""
+
+    text: RichText = field()
     """Content of the block."""
 
     credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
@@ -7733,14 +7996,17 @@ class InputRichBlockCollage(InputRichBlock):
             InputRichBlockAnchor,
             InputRichBlockList,
             InputRichBlockBlockQuotation,
+            InputRichBlockExpandableBlockQuotation,
             InputRichBlockPullQuotation,
             InputRichBlockCollage,
             InputRichBlockSlideshow,
             InputRichBlockTable,
             InputRichBlockDetails,
             InputRichBlockMap,
+            InputRichBlockButtons,
             InputRichBlockAnimation,
             InputRichBlockAudio,
+            InputRichBlockDocument,
             InputRichBlockPhoto,
             InputRichBlockVideo,
             InputRichBlockVoiceNote,
@@ -7749,7 +8015,7 @@ class InputRichBlockCollage(InputRichBlock):
     ] = field(
         converter=From[
             list[
-                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
             ]
         ]
     )
@@ -7779,14 +8045,17 @@ class InputRichBlockSlideshow(InputRichBlock):
             InputRichBlockAnchor,
             InputRichBlockList,
             InputRichBlockBlockQuotation,
+            InputRichBlockExpandableBlockQuotation,
             InputRichBlockPullQuotation,
             InputRichBlockCollage,
             InputRichBlockSlideshow,
             InputRichBlockTable,
             InputRichBlockDetails,
             InputRichBlockMap,
+            InputRichBlockButtons,
             InputRichBlockAnimation,
             InputRichBlockAudio,
+            InputRichBlockDocument,
             InputRichBlockPhoto,
             InputRichBlockVideo,
             InputRichBlockVoiceNote,
@@ -7795,7 +8064,7 @@ class InputRichBlockSlideshow(InputRichBlock):
     ] = field(
         converter=From[
             list[
-                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
             ]
         ]
     )
@@ -7822,6 +8091,9 @@ class InputRichBlockTable(InputRichBlock):
 
     is_striped: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the table is striped."""
+
+    is_compact: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if table cells must have smaller indents."""
 
     caption: Option[RichText] = field(default=..., converter=From["RichText | None"])
     """Optional. Caption of the table."""
@@ -7850,14 +8122,17 @@ class InputRichBlockDetails(InputRichBlock):
             InputRichBlockAnchor,
             InputRichBlockList,
             InputRichBlockBlockQuotation,
+            InputRichBlockExpandableBlockQuotation,
             InputRichBlockPullQuotation,
             InputRichBlockCollage,
             InputRichBlockSlideshow,
             InputRichBlockTable,
             InputRichBlockDetails,
             InputRichBlockMap,
+            InputRichBlockButtons,
             InputRichBlockAnimation,
             InputRichBlockAudio,
+            InputRichBlockDocument,
             InputRichBlockPhoto,
             InputRichBlockVideo,
             InputRichBlockVoiceNote,
@@ -7866,7 +8141,7 @@ class InputRichBlockDetails(InputRichBlock):
     ] = field(
         converter=From[
             list[
-                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
             ]
         ]
     )
@@ -7888,17 +8163,34 @@ class InputRichBlockMap(InputRichBlock):
     location: Location = field()
     """Location of the center of the map."""
 
-    zoom: int = field()
-    """Map zoom level; 0-24."""
+    zoom: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Map zoom level; 0-24."""
 
-    width: int = field()
-    """Map width; 0-10000."""
+    width: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Map width; 0-10000."""
 
-    height: int = field()
-    """Map height; 0-10000."""
+    height: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Map height; 0-10000."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
+
+
+class InputRichBlockButtons(InputRichBlock):
+    """Object `InputRichBlockButtons`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockbuttons).
+
+    A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag <tg-button-row>.
+    """
+
+    type: str = field()
+    """Type of the block, always `buttons`."""
+
+    buttons: list[RichMessageButton] = field()
+    """List of 1-8 buttons to send."""
+
+    align: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Horizontal alignment of the buttons. Currently, must be one
+    of `left`, `center`, or `right`."""
 
 
 class InputRichBlockAnimation(InputRichBlock):
@@ -7928,6 +8220,22 @@ class InputRichBlockAudio(InputRichBlock):
 
     audio: InputMediaAudio = field()
     """The audio. Caption is ignored."""
+
+    caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
+    """Optional. Caption of the block."""
+
+
+class InputRichBlockDocument(InputRichBlock):
+    """Object `InputRichBlockDocument`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockdocument).
+
+    A block with a general file, corresponding to the custom HTML tag <tg-document>.
+    """
+
+    type: str = field()
+    """Type of the block, always `document`."""
+
+    document: InputMediaDocument = field()
+    """The document. Caption is ignored."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -9302,7 +9610,8 @@ class InputRichMessageContent(InputMessageContent):
     """
 
     rich_message: InputRichMessage = field()
-    """The message to be sent."""
+    """The message to be sent. Only previously uploaded files may be used in the
+    message."""
 
 
 class InputLocationMessageContent(InputMessageContent):
@@ -10437,6 +10746,7 @@ __all__ = (
     "ChosenInlineResult",
     "Community",
     "CommunityChatAdded",
+    "CommunityChatJoined",
     "CommunityChatRemoved",
     "Contact",
     "CopyTextButton",
@@ -10444,9 +10754,11 @@ __all__ = (
     "Dice",
     "DirectMessagePriceChanged",
     "DirectMessagesTopic",
+    "DisabledButton",
     "Document",
     "EncryptedCredentials",
     "EncryptedPassportElement",
+    "EphemeralMessageParameters",
     "ExternalReplyInfo",
     "File",
     "ForceReply",
@@ -10527,9 +10839,12 @@ __all__ = (
     "InputRichBlockAnimation",
     "InputRichBlockAudio",
     "InputRichBlockBlockQuotation",
+    "InputRichBlockButtons",
     "InputRichBlockCollage",
     "InputRichBlockDetails",
     "InputRichBlockDivider",
+    "InputRichBlockDocument",
+    "InputRichBlockExpandableBlockQuotation",
     "InputRichBlockFooter",
     "InputRichBlockList",
     "InputRichBlockListItem",
@@ -10578,6 +10893,7 @@ __all__ = (
     "Message",
     "MessageAutoDeleteTimerChanged",
     "MessageEntity",
+    "MessageGenerationStopped",
     "MessageId",
     "MessageOrigin",
     "MessageOriginChannel",
@@ -10642,10 +10958,13 @@ __all__ = (
     "RichBlockAnimation",
     "RichBlockAudio",
     "RichBlockBlockQuotation",
+    "RichBlockButtons",
     "RichBlockCaption",
     "RichBlockCollage",
     "RichBlockDetails",
     "RichBlockDivider",
+    "RichBlockDocument",
+    "RichBlockExpandableBlockQuotation",
     "RichBlockFooter",
     "RichBlockList",
     "RichBlockListItem",
@@ -10663,12 +10982,14 @@ __all__ = (
     "RichBlockVideo",
     "RichBlockVoiceNote",
     "RichMessage",
+    "RichMessageButton",
     "RichText",
     "RichTextAnchor",
     "RichTextAnchorLink",
     "RichTextBankCardNumber",
     "RichTextBold",
     "RichTextBotCommand",
+    "RichTextButton",
     "RichTextCashtag",
     "RichTextCode",
     "RichTextCustomEmoji",
