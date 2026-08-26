@@ -255,6 +255,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
@@ -283,9 +284,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Audio caption, 0-1024 characters after entities parsing.
@@ -333,6 +332,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
@@ -361,9 +361,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent animation in seconds.
@@ -414,6 +412,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
@@ -439,9 +438,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
@@ -484,6 +481,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         has_spoiler: bool | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
@@ -507,9 +505,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
@@ -552,6 +548,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         emoji: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
@@ -573,9 +570,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
 
@@ -615,6 +610,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
         emoji: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
@@ -645,9 +641,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent video in seconds.
@@ -702,6 +696,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         length: int | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
@@ -715,9 +710,8 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
-        As of v.4.0, Telegram clients support rounded square MPEG4 videos of up
-        to 1 minute long. Use this method to send video messages. On success, the
-        sent Message is returned.
+        Use this method to send a rounded square MPEG4 video of up to 1 minute long.
+        On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
@@ -726,9 +720,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
 
@@ -769,6 +761,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
@@ -795,9 +788,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
@@ -957,6 +948,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         foursquare_id: str | None = None,
         foursquare_type: str | None = None,
         google_place_id: str | None = None,
@@ -982,9 +974,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param latitude: Latitude of the venue.
 
@@ -1309,6 +1299,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         heading: int | None = None,
         horizontal_accuracy: float | None = None,
         live_period: int | None = None,
@@ -1333,9 +1324,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param latitude: Latitude of the location.
 
@@ -1377,6 +1366,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         last_name: str | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
@@ -1399,9 +1389,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param phone_number: Contact's phone number.
 
@@ -1443,6 +1431,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         has_spoiler: bool | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
@@ -1466,9 +1455,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
 
@@ -1620,6 +1607,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
@@ -1648,9 +1636,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Audio caption, 0-1024 characters after entities parsing.
@@ -1698,6 +1684,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
@@ -1726,9 +1713,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent animation in seconds.
@@ -1779,6 +1764,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_content_type_detection: bool | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
@@ -1804,9 +1790,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
@@ -1849,6 +1833,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         has_spoiler: bool | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
@@ -1872,9 +1857,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
@@ -1917,6 +1900,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         emoji: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
@@ -1938,9 +1922,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
 
@@ -1980,6 +1962,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
         emoji: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         has_spoiler: bool | None = None,
         height: int | None = None,
         message_effect_id: str | None = None,
@@ -2010,9 +1993,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param duration: Duration of sent video in seconds.
@@ -2067,6 +2048,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         length: int | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
@@ -2080,9 +2062,8 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     ) -> Result[MessageCute, APIError]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
-        As of v.4.0, Telegram clients support rounded square MPEG4 videos of up
-        to 1 minute long. Use this method to send video messages. On success, the
-        sent Message is returned.
+        Use this method to send a rounded square MPEG4 video of up to 1 minute long.
+        On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
         :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
@@ -2091,9 +2072,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
 
@@ -2134,6 +2113,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
@@ -2160,9 +2140,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
         :param caption: Voice message caption, 0-1024 characters after entities parsing.
@@ -2322,6 +2300,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         foursquare_id: str | None = None,
         foursquare_type: str | None = None,
         google_place_id: str | None = None,
@@ -2347,9 +2326,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param latitude: Latitude of the venue.
 
@@ -2647,6 +2624,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         heading: int | None = None,
         horizontal_accuracy: float | None = None,
         live_period: int | None = None,
@@ -2671,9 +2649,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param latitude: Latitude of the location.
 
@@ -2715,6 +2691,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         last_name: str | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
@@ -2737,9 +2714,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param phone_number: Contact's phone number.
 
@@ -2781,6 +2756,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         has_spoiler: bool | None = None,
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
@@ -2804,9 +2780,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
 
@@ -3349,6 +3323,7 @@ class MessageCute(
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         entities: list[MessageEntity] | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         link_preview_options: LinkPreviewOptions | None = API.default_params["link_preview_options"],
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
@@ -3371,9 +3346,7 @@ class MessageCute(
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
@@ -3435,6 +3408,7 @@ class MessageCute(
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         entities: list[MessageEntity] | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         link_preview_options: LinkPreviewOptions | None = API.default_params["link_preview_options"],
         message_effect_id: str | None = None,
         message_id: int | None = None,
@@ -3458,9 +3432,7 @@ class MessageCute(
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who willreceive the message; for group and supergroup chats only. It is not guaranteedthat the user will receive the message, especially if they are offline.See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query whichtriggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
 
         :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
@@ -3492,8 +3464,10 @@ class MessageCute(
         self,
         *,
         draft_id: int,
+        can_stop: bool | None = None,
         chat_id: int | None = None,
         entities: list[MessageEntity] | None = None,
+        keep_on_stop: bool | None = None,
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         text: str | None = None,
@@ -3510,13 +3484,16 @@ class MessageCute(
 
         :param message_thread_id: Unique identifier for the target message thread.
 
-        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes to draftswith the same identifier are animated.
+        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes to draftswith the same identifier are animated. Otherwise, the draft is replacedwithout animation.
 
         :param text: Text of the message to be sent, 0-4096 characters after entities parsing.Pass an empty text to show a `Thinking...` placeholder.
 
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
 
-        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode."""
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param can_stop: Pass True to show the user a button to stop further drafts. The bot will receivean Update `stopped_message_generation` if the user presses the button.
+        :param keep_on_stop: Pass True to keep the draft in the chat when the button is pressed. The draftwill still disappear after a short time or if the bot sends a message. To fullypreserve the partial draft, the bot should send it as a new message."""
         ...
 
     @shortcut("delete_message", custom_params={"message_thread_id", "chat_id", "message_id"})
@@ -3662,7 +3639,7 @@ class MessageCute(
 
         :param link_preview_options: Link preview generation options for the message.
 
-        :param rich_message: New rich content of the message; required if text isn't specified. Directupload of new files isn't supported when an inline message is edited.
+        :param rich_message: New rich content of the message; required if text isn't specified. Directupload of new files and explicit upload of files by a URL isn't supportedwhen an inline message is edited.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...

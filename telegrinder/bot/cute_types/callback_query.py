@@ -207,7 +207,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
         :param url: URL that will be opened by the user's client. If you have created a Game andaccepted the conditions via @BotFather, specify the URL that opens yourgame - note that this will only work if the query comes from a callback_gamebutton. Otherwise, you may use links like t.me/your_bot?start=XXXX thatopen your bot with a parameter.
 
-        :param cache_time: The maximum amount of time in seconds that the result of the callback querymay be cached client-side. Telegram apps will support caching startingin version 3.14. Defaults to 0."""
+        :param cache_time: The maximum amount of time in seconds that the result of the callback querymay be cached client-side. Defaults to 0."""
         params = compose_method_params(get_params(locals()), self, default_params={("callback_query_id", "id")})
         return await self.bound_api.answer_callback_query(**params)
 
@@ -358,7 +358,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
 
         :param link_preview_options: Link preview generation options for the message.
 
-        :param rich_message: New rich content of the message; required if text isn't specified. Directupload of new files isn't supported when an inline message is edited.
+        :param rich_message: New rich content of the message; required if text isn't specified. Directupload of new files and explicit upload of files by a URL isn't supportedwhen an inline message is edited.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...

@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
 
 
 class APIMethods:
-    """Telegram Bot API version `10.2`, released `July 14, 2026`."""
+    """Telegram Bot API version `10.3`, released `August 24, 2026`."""
 
     default_params = DEFAULT_PARAMETERS
 
@@ -215,8 +215,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
         entities: list[MessageEntity] | None = None,
         link_preview_options: LinkPreviewOptions | None = DEFAULT_PARAMETERS["link_preview_options"],
@@ -246,13 +245,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param text: Text of the message to be sent, 1-4096 characters after entities parsing. \
 
@@ -546,8 +540,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         caption: str | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -579,13 +572,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
@@ -644,8 +632,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         caption: str | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -677,13 +664,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and must \
         not exceed 10 MB in size. Pass a file_id as String to send a video that exists \
@@ -745,8 +727,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         caption: str | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -784,13 +765,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param audio: Audio file to send. Pass a file_id as String to send an audio file that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
@@ -855,8 +831,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         thumbnail: InputFile | str | None = None,
         caption: str | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
@@ -890,13 +865,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param document: File to send. Pass a file_id as String to send a file that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
@@ -959,8 +929,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         duration: int | None = None,
         width: int | None = None,
         height: int | None = None,
@@ -1002,13 +971,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegram \
         servers (recommended), pass an HTTP URL as a String for Telegram to get a \
@@ -1088,8 +1052,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         duration: int | None = None,
         width: int | None = None,
         height: int | None = None,
@@ -1127,13 +1090,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param animation: Animation to send. Pass a file_id as String to send an animation that exists \
         on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
@@ -1203,8 +1161,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         caption: str | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
@@ -1240,13 +1197,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param voice: Audio file to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
@@ -1299,8 +1251,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         duration: int | None = None,
         length: int | None = None,
         thumbnail: InputFile | str | None = None,
@@ -1315,9 +1266,8 @@ class APIMethods:
     ) -> Result[Message, APIError]:
         """Method `sendVideoNote`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
-        As of v.4.0, Telegram clients support rounded square MPEG4 videos of up
-        to 1 minute long. Use this method to send video messages. On success, the
-        sent Message is returned.
+        Use this method to send a rounded square MPEG4 video of up to 1 minute long.
+        On success, the sent Message is returned.
 
         :param business_connection_id: Unique identifier of the business connection on behalf of which the message \
         will be sent.
@@ -1332,13 +1282,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param video_note: Video note to send. Pass a file_id as String to send a video note that exists \
         on the Telegram servers (recommended) or upload a new video using multipart/form-data. \
@@ -1536,8 +1481,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         horizontal_accuracy: float | None = None,
         live_period: int | None = None,
         heading: int | None = None,
@@ -1568,13 +1512,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param latitude: Latitude of the location.
 
@@ -1631,8 +1570,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         foursquare_id: str | None = None,
         foursquare_type: str | None = None,
         google_place_id: str | None = None,
@@ -1664,13 +1602,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param latitude: Latitude of the venue.
 
@@ -1726,8 +1659,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         last_name: str | None = None,
         vcard: str | None = None,
         disable_notification: bool | None = DEFAULT_PARAMETERS["disable_notification"],
@@ -1756,13 +1688,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param phone_number: Contact's phone number.
 
@@ -2067,6 +1994,8 @@ class APIMethods:
         text: str | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
         entities: list[MessageEntity] | None = None,
+        can_stop: bool | None = None,
+        keep_on_stop: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Method `sendMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendmessagedraft)
@@ -2082,7 +2011,8 @@ class APIMethods:
         :param message_thread_id: Unique identifier for the target message thread.
 
         :param draft_id: Unique identifier of the message draft; must be non-zero. Changes to drafts \
-        with the same identifier are animated.
+        with the same identifier are animated. Otherwise, the draft is replaced \
+        without animation.
 
         :param text: Text of the message to be sent, 0-4096 characters after entities parsing. \
         Pass an empty text to show a `Thinking...` placeholder.
@@ -2092,6 +2022,13 @@ class APIMethods:
 
         :param entities: A JSON-serialized list of special entities that appear in message text, \
         which can be specified instead of parse_mode.
+
+        :param can_stop: Pass True to show the user a button to stop further drafts. The bot will receive \
+        an Update `stopped_message_generation` if the user presses the button. \
+
+        :param keep_on_stop: Pass True to keep the draft in the chat when the button is pressed. The draft \
+        will still disappear after a short time or if the bot sends a message. To fully \
+        preserve the partial draft, the bot should send it as a new message.
         """
 
         method_response = await self.api.request_raw(
@@ -2420,6 +2357,7 @@ class APIMethods:
         can_manage_topics: bool | None = None,
         can_manage_direct_messages: bool | None = None,
         can_manage_tags: bool | None = None,
+        can_send_welcome_messages: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Method `promoteChatMember`, see the [documentation](https://core.telegram.org/bots/api#promotechatmember)
@@ -2481,6 +2419,9 @@ class APIMethods:
 
         :param can_manage_tags: Pass True if the administrator can edit the tags of regular members; for \
         groups and supergroups only.
+
+        :param can_send_welcome_messages: Pass True if the administrator can manage chat welcome messages or directly \
+        send them in the case of bots.
         """
 
         method_response = await self.api.request_raw(
@@ -3681,8 +3622,7 @@ class APIMethods:
         open your bot with a parameter.
 
         :param cache_time: The maximum amount of time in seconds that the result of the callback query \
-        may be cached client-side. Telegram apps will support caching starting \
-        in version 3.14. Defaults to 0.
+        may be cached client-side. Defaults to 0.
         """
 
         method_response = await self.api.request_raw(
@@ -5176,7 +5116,8 @@ class APIMethods:
         :param link_preview_options: Link preview generation options for the message.
 
         :param rich_message: New rich content of the message; required if text isn't specified. Direct \
-        upload of new files isn't supported when an inline message is edited.
+        upload of new files and explicit upload of files by a URL isn't supported \
+        when an inline message is edited.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
@@ -5503,18 +5444,19 @@ class APIMethods:
         chat_id: int | str,
         receiver_user_id: int,
         ephemeral_message_id: int,
-        text: str,
+        text: str | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
         entities: list[MessageEntity] | None = None,
+        rich_message: InputRichMessage | None = None,
         link_preview_options: LinkPreviewOptions | None = DEFAULT_PARAMETERS["link_preview_options"],
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Method `editEphemeralMessageText`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagetext)
 
-        Use this method to edit an ephemeral text message. Note that it is not guaranteed
-        that the user will receive the message edit event, especially if they are
-        offline. On success, True is returned.
+        Use this method to edit an ephemeral text or rich message. Note that it is
+        not guaranteed that the user will receive the message edit event, especially
+        if they are offline. On success, True is returned.
 
         :param chat_id: Unique identifier for the target chat or username of the target supergroup \
         in the format @username.
@@ -5523,13 +5465,16 @@ class APIMethods:
 
         :param ephemeral_message_id: Identifier of the ephemeral message to edit.
 
-        :param text: New text of the message, 1-4096 characters after entity parsing.
+        :param text: New text of the message, 1-4096 characters after entity parsing; required \
+        if rich_message isn't specified.
 
         :param parse_mode: Mode for parsing entities in the message text. See formatting options for \
         more details.
 
         :param entities: A JSON-serialized list of special entities that appear in message text, \
         which can be specified instead of parse_mode.
+
+        :param rich_message: New rich content of the message; required if text isn't specified.
 
         :param link_preview_options: Link preview generation options for the message.
 
@@ -5565,9 +5510,7 @@ class APIMethods:
 
         :param ephemeral_message_id: Identifier of the ephemeral message to edit.
 
-        :param media: A JSON-serialized object for the new media content of the message. A new \
-        file can't be uploaded; use a previously uploaded file via its file_id or \
-        specify a URL.
+        :param media: A JSON-serialized object for the new media content of the message.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
@@ -5587,6 +5530,7 @@ class APIMethods:
         caption: str | None = None,
         parse_mode: str | None = DEFAULT_PARAMETERS["parse_mode"],
         caption_entities: list[MessageEntity] | None = None,
+        show_caption_above_media: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
@@ -5610,6 +5554,9 @@ class APIMethods:
 
         :param caption_entities: A JSON-serialized list of special entities that appear in the caption, \
         which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media. Supported \
+        only for animation, photo and video messages.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard.
         """
@@ -5868,8 +5815,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
-        receiver_user_id: int | None = None,
-        callback_query_id: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         emoji: str | None = None,
         disable_notification: bool | None = DEFAULT_PARAMETERS["disable_notification"],
         protect_content: bool | None = DEFAULT_PARAMETERS["protect_content"],
@@ -5898,13 +5844,8 @@ class APIMethods:
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
 
-        :param receiver_user_id: For outgoing ephemeral messages, unique identifier of the user who will \
-        receive the message; for group and supergroup chats only. It is not guaranteed \
-        that the user will receive the message, especially if they are offline. \
-        See ephemeral message sending for more details.
-
-        :param callback_query_id: For outgoing ephemeral messages, identifier of the callback query which \
-        triggered the message if any.
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on the \
         Telegram servers (recommended), pass an HTTP URL as a String for Telegram \
@@ -6348,6 +6289,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         direct_messages_topic_id: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
         disable_notification: bool | None = DEFAULT_PARAMETERS["disable_notification"],
         protect_content: bool | None = DEFAULT_PARAMETERS["protect_content"],
         allow_paid_broadcast: bool | None = DEFAULT_PARAMETERS["allow_paid_broadcast"],
@@ -6376,6 +6318,9 @@ class APIMethods:
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent; \
         required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral message \
+        to send.
 
         :param rich_message: The message to be sent.
 
@@ -6414,6 +6359,8 @@ class APIMethods:
         draft_id: int,
         rich_message: InputRichMessage,
         message_thread_id: int | None = None,
+        can_stop: bool | None = None,
+        keep_on_stop: bool | None = None,
         **other: typing.Any,
     ) -> Result[bool, APIError]:
         """Method `sendRichMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessagedraft)
@@ -6429,9 +6376,18 @@ class APIMethods:
         :param message_thread_id: Unique identifier for the target message thread.
 
         :param draft_id: Unique identifier of the message draft; must be non-zero. Changes to drafts \
-        with the same identifier are animated.
+        with the same identifier are animated. Otherwise, the draft is replaced \
+        without animation.
 
-        :param rich_message: The partial message to be streamed. Direct upload of new files isn't supported. \
+        :param rich_message: The partial message to be streamed. Direct upload of new files and explicit \
+        upload of files by a URL isn't supported.
+
+        :param can_stop: Pass True to show the user a button to stop further drafts. The bot will receive \
+        an Update `stopped_message_generation` if the user presses the button. \
+
+        :param keep_on_stop: Pass True to keep the draft in the chat when the button is pressed. The draft \
+        will still disappear after a short time or if the bot sends a message. To fully \
+        preserve the partial draft, the bot should send it as a new message.
         """
 
         method_response = await self.api.request_raw(
