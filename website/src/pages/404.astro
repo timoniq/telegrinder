@@ -1,0 +1,18 @@
+---
+import { href } from "../docs/content";
+import { T } from "../docs/i18n";
+import Base from "../layouts/Base.astro";
+import { glassMark } from "../render/glass";
+
+const s = T.en;
+---
+
+<Base lang="en" title={s.notFound} current="404" alternate={{ lang: "ru", href: href("ru", "") }}>
+  <section class="not-found">
+    <div class="not-found-mark" set:html={glassMark("100%", "arrive", "glass")} />
+    <span class="doc-num" aria-hidden="true">404</span>
+    <h1>{s.notFound}</h1>
+    <p>{s.notFoundText}</p>
+    <p><a class="cell-link" href={href("en", "")}>{s.home}</a></p>
+  </section>
+</Base>

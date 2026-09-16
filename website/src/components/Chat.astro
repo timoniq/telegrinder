@@ -1,0 +1,34 @@
+---
+import { type Lang, T } from "../docs/i18n";
+import type { PageScenes } from "../render/chat";
+import { markSvg } from "../render/pixel";
+
+interface Props {
+  lang: Lang;
+  scenes: PageScenes;
+  class?: string;
+}
+
+const { lang, scenes, class: cls } = Astro.props;
+const s = T[lang];
+const strings = { edited: s.edited, popup: s.popup, photo: s.photo, sticker: s.sticker, deleted: s.deleted, status: s.status, typing: s.typing };
+---
+
+<aside class:list={["chat", cls]} aria-label={s.chatName} data-chat>
+  <div class="chat-head">
+    <span class="chat-avatar"><Fragment set:html={markSvg()} /></span>
+    <div class="chat-who">
+      <span class="chat-name">{s.chatName}</span>
+      <span class="chat-status"><span class="chat-status-text">{s.status}</span><i></i><i></i><i></i></span>
+    </div>
+    <button class="chat-replay" type="button" aria-label={s.replayLabel}>{s.replay}</button>
+  </div>
+  <div class="chat-body">
+    <div class="chat-log" aria-live="polite"></div>
+  </div>
+  <div class="chat-compose">
+    <div class="chat-kb"></div>
+    <div class="chat-input">{s.message}</div>
+  </div>
+  <script is:inline type="application/json" class="chat-data" set:html={JSON.stringify({ scenes, strings }).replace(/</g, "\\u003c")}></script>
+</aside>

@@ -1,0 +1,106 @@
+---
+import Chat from "./Chat.astro";
+import { BOT_API, PYTHON, README_EXAMPLE, VERSION, href, pages, tutorialChapters } from "../docs/content";
+import { type Lang, T } from "../docs/i18n";
+import { glassIcon, glassMark, iconFor } from "../render/glass";
+import { renderMarkdown } from "../render/markdown";
+import { scenes as en } from "../scenes/en";
+import { scenes as ru } from "../scenes/ru";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = T[lang];
+const homeScenes = (lang === "ru" ? ru : en).home;
+const demo = renderMarkdown("```python\n" + README_EXAMPLE + "\n```", { lang, file: "index.md", strings: s, scenes: homeScenes });
+const chapters = tutorialChapters(lang);
+const more = pages(lang).filter((p) => p.inNav && p.section !== "tutorial");
+const facts = [
+  [s.version, VERSION],
+  ["Bot API", BOT_API],
+  [s.python, PYTHON ? `${PYTHON}+` : ""],
+  [s.license, "MIT"],
+].filter(([, v]) => v);
+---
+
+<section class="hero">
+  <div class="stage" set:html={glassMark("100%", "scroll", "pixel", "hero-mark", true)} />
+  <div class="intro">
+    <h1 class="wordmark">telegrinder</h1>
+    <p>{s.tagline}</p>
+    <div class="install">
+      <b>$</b>uv add telegrinder
+      <button class="copy" type="button" data-copy="uv add telegrinder" data-done={s.copied} data-fail={s.copyFailed}>{s.copy}</button>
+    </div>
+    <dl class="facts">
+      {
+        facts.map(([k, v]) => (
+          <div>
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<section class="home-section">
+  <h2>{s.demo}</h2>
+  <p>{s.demoText}</p>
+  <div class="demo">
+    <div class="prose demo-code" set:html={demo.html} />
+    <Chat lang={lang} scenes={homeScenes} class="chat-home" />
+  </div>
+</section>
+
+<section class="home-section">
+  <h2>{s.chapters}</h2>
+  <p>{s.chaptersText}</p>
+  <div class="table-wrap">
+    <table class="chapters">
+      <thead>
+        <tr>
+          <th scope="col">{s.tableHead[0]}</th>
+          <th scope="col" colspan="2">{s.tableHead[1]}</th>
+          <th scope="col" class="lead">{s.tableHead[2]}</th>
+          <th scope="col" class="num">{s.tableHead[3]}</th>
+          <th scope="col" class="num">{s.tableHead[4]}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          chapters.map((p) => {
+            const to = href(lang, p.route);
+            return (
+              <tr data-gp-host>
+                <td class="n"><a href={to} tabindex="-1">{String(p.number).padStart(2, "0")}</a></td>
+                <td class="icon"><a href={to} tabindex="-1" set:html={glassIcon(iconFor(p.key), "48px")} /></td>
+                <td><a href={to}>{p.short}</a></td>
+                <td class="lead"><a href={to} tabindex="-1">{p.lead}</a></td>
+                <td class="num"><a href={to} tabindex="-1">{p.minutes}</a></td>
+                <td class="num"><a href={to} tabindex="-1">{p.codeCount}</a></td>
+              </tr>
+            );
+          })
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="home-section">
+  <h2>{s.tools} · {s.reference}</h2>
+  <div class="tiles">
+    {
+      more.map((p) => (
+        <a class="tile" href={href(lang, p.route)} data-gp-host>
+          <Fragment set:html={glassIcon(iconFor(p.key), "72px")} />
+          <span>{p.short}</span>
+        </a>
+      ))
+    }
+  </div>
+</section>
