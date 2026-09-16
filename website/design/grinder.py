@@ -13,7 +13,7 @@ import bmesh
 import bpy
 from mathutils import Vector
 
-argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
 FAST = "--fast" in argv
 TURN = 0
 SIZE = 1400
@@ -25,9 +25,11 @@ while i < len(argv):
     if a in ("--fast", "--clear", "--frost"):
         pass
     elif a == "--turn":
-        TURN = int(argv[i + 1]); i += 1
+        TURN = int(argv[i + 1])
+        i += 1
     elif a == "--size":
-        SIZE = int(argv[i + 1]); i += 1
+        SIZE = int(argv[i + 1])
+        i += 1
     else:
         rest.append(a)
     i += 1
@@ -105,7 +107,7 @@ def slab(name, cells, depth, mat, bevel):
             verts[key] = bm.verts.new((px, -depth / 2, pz))
         return verts[key]
 
-    for (y, x) in cells:
+    for y, x in cells:
         bm.faces.new((v(y, x), v(y + 1, x), v(y + 1, x + 1), v(y, x + 1)))
     bm.normal_update()
     ext = bmesh.ops.extrude_face_region(bm, geom=bm.faces[:])
@@ -218,8 +220,10 @@ def world():
     e = ramp.color_ramp.elements
     e[0].position, e[0].color = 0.40, (0.02, 0.025, 0.035, 1)
     e[1].position, e[1].color = 0.52, (1.0, 1.0, 1.0, 1)
-    mid = e.new(0.47); mid.color = (0.35, 0.45, 0.62, 1)
-    top = e.new(0.8); top.color = (0.55, 0.6, 0.68, 1)
+    mid = e.new(0.47)
+    mid.color = (0.35, 0.45, 0.62, 1)
+    top = e.new(0.8)
+    top.color = (0.55, 0.6, 0.68, 1)
     bg.inputs["Strength"].default_value = 0.7
     nt.links.new(coord.outputs["Generated"], sep.inputs[0])
     nt.links.new(sep.outputs["Z"], ramp.inputs["Fac"])

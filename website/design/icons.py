@@ -15,7 +15,7 @@ import bmesh
 import bpy
 from mathutils import Vector
 
-argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
 FAST = "--fast" in argv
 args = [a for a in argv if not a.startswith("--")]
 OUT = args[0] if args else "/tmp/telegrinder-icons"
@@ -85,7 +85,7 @@ def slab(name, cells, depth, mat, bevel):
             verts[(y, x)] = bm.verts.new(((x - GRID / 2) * CELL, -depth / 2, (GRID / 2 - y) * CELL))
         return verts[(y, x)]
 
-    for (y, x) in cells:
+    for y, x in cells:
         bm.faces.new((v(y, x), v(y + 1, x), v(y + 1, x + 1), v(y, x + 1)))
     ext = bmesh.ops.extrude_face_region(bm, geom=bm.faces[:])
     moved = [e for e in ext["geom"] if isinstance(e, bmesh.types.BMVert)]
@@ -151,7 +151,11 @@ def scene():
     w.use_nodes = True
     nt = w.node_tree
     nt.nodes.clear()
-    coord, sep, ramp = nt.nodes.new("ShaderNodeTexCoord"), nt.nodes.new("ShaderNodeSeparateXYZ"), nt.nodes.new("ShaderNodeValToRGB")
+    coord, sep, ramp = (
+        nt.nodes.new("ShaderNodeTexCoord"),
+        nt.nodes.new("ShaderNodeSeparateXYZ"),
+        nt.nodes.new("ShaderNodeValToRGB"),
+    )
     bg, out = nt.nodes.new("ShaderNodeBackground"), nt.nodes.new("ShaderNodeOutputWorld")
     e = ramp.color_ramp.elements
     e[0].position, e[0].color = 0.40, (0.02, 0.025, 0.035, 1)
