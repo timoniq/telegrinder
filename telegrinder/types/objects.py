@@ -56,7 +56,6 @@ class RichText(Model):
     - RichTextCashtag
     - RichTextBotCommand
     - RichTextButton
-    - RichTextButton
     - RichTextAnchor
     - RichTextAnchorLink
     - RichTextReference
@@ -90,7 +89,6 @@ class RichBlock(Model):
     - RichBlockList
     - RichBlockBlockQuotation
     - RichBlockExpandableBlockQuotation
-    - RichBlockExpandableBlockQuotation
     - RichBlockPullQuotation
     - RichBlockCollage
     - RichBlockSlideshow
@@ -98,10 +96,8 @@ class RichBlock(Model):
     - RichBlockDetails
     - RichBlockMap
     - RichBlockButtons
-    - RichBlockButtons
     - RichBlockAnimation
     - RichBlockAudio
-    - RichBlockDocument
     - RichBlockDocument
     - RichBlockPhoto
     - RichBlockVideo
@@ -216,37 +212,6 @@ class InputStoryContent(Model):
     This object describes the content of a story to post. Currently, it can be one of
     - InputStoryContentPhoto
     - InputStoryContentVideo
-    """
-
-
-class InputRichBlock(Model):
-    """Base object `InputRichBlock`, see the [documentation](https://core.telegram.org/bots/api#inputrichblock).
-
-    This object represents a block in a rich formatted message to be sent. Currently, it can be any of the following types:
-    - InputRichBlockParagraph
-    - InputRichBlockSectionHeading
-    - InputRichBlockPreformatted
-    - InputRichBlockFooter
-    - InputRichBlockDivider
-    - InputRichBlockMathematicalExpression
-    - InputRichBlockAnchor
-    - InputRichBlockList
-    - InputRichBlockBlockQuotation
-    - InputRichBlockExpandableBlockQuotation
-    - InputRichBlockPullQuotation
-    - InputRichBlockCollage
-    - InputRichBlockSlideshow
-    - InputRichBlockTable
-    - InputRichBlockDetails
-    - InputRichBlockMap
-    - InputRichBlockButtons
-    - InputRichBlockAnimation
-    - InputRichBlockAudio
-    - InputRichBlockDocument
-    - InputRichBlockPhoto
-    - InputRichBlockVideo
-    - InputRichBlockVoiceNote
-    - InputRichBlockThinking
     """
 
 
@@ -552,14 +517,6 @@ class Update(Model):
     managed_bot: Option[ManagedBotUpdated] = field(default=..., converter=From["ManagedBotUpdated | None"])
     """Optional. A new bot was created to be managed by the bot, or token or owner
     of a managed bot was changed."""
-
-    subscription: Option[BotSubscriptionUpdated] = field(default=..., converter=From["BotSubscriptionUpdated | None"])
-    """Optional. User payment subscription has changed."""
-
-    stopped_message_generation: Option[MessageGenerationStopped] = field(
-        default=..., converter=From["MessageGenerationStopped | None"]
-    )
-    """Optional. A user asked the bot to stop the generation of a message."""
 
     subscription: Option[BotSubscriptionUpdated] = field(default=..., converter=From["BotSubscriptionUpdated | None"])
     """Optional. User payment subscription has changed."""
@@ -961,9 +918,6 @@ class ChatFullInfo(Model):
     community: Option[Community] = field(default=..., converter=From["Community | None"])
     """Optional. The Community to which the chat belongs."""
 
-    community: Option[Community] = field(default=..., converter=From["Community | None"])
-    """Optional. The Community to which the chat belongs."""
-
 
 class Message(MaybeInaccessibleMessage):
     """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message).
@@ -972,11 +926,6 @@ class Message(MaybeInaccessibleMessage):
     """
 
     message_id: int = field()
-    """Unique message identifier inside this chat; 0 for ephemeral messages.
-    In specific instances (e.g., a message containing a video sent to a big chat),
-    the server might automatically schedule a message instead of sending it
-    immediately. In such cases, this field will be 0 and the relevant message
-    will be unusable until it is actually sent."""
     """Unique message identifier inside this chat; 0 for ephemeral messages.
     In specific instances (e.g., a message containing a video sent to a big chat),
     the server might automatically schedule a message instead of sending it
@@ -1034,14 +983,6 @@ class Message(MaybeInaccessibleMessage):
     inside this chat. The identifier may be reused for another ephemeral message
     after the message is deleted or expires."""
 
-    receiver_user: Option[User] = field(default=..., converter=From["User | None"])
-    """Optional. For ephemeral messages, the user who received the message."""
-
-    ephemeral_message_id: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. For ephemeral messages, identifier of the ephemeral message
-    inside this chat. The identifier may be reused for another ephemeral message
-    after the message is deleted or expires."""
-
     guest_query_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The unique identifier for the guest query. Use this identifier
     with the method answerGuestQuery to send a response message. If non-empty,
@@ -1075,8 +1016,6 @@ class Message(MaybeInaccessibleMessage):
     reply_to_message: Option[Message] = field(default=..., converter=From["Message | None"])
     """Optional. For replies in the same chat and message thread, the original
     message. Note that the Message object in this field will not contain further
-    reply_to_message fields even if it itself is a reply. If the message is a
-    reply to an ephemeral message, then this field may be omitted."""
     reply_to_message fields even if it itself is a reply. If the message is a
     reply to an ephemeral message, then this field may be omitted."""
 
@@ -1347,7 +1286,6 @@ class Message(MaybeInaccessibleMessage):
         default=..., converter=From["ProximityAlertTriggered | None"]
     )
     """Optional. Service message: a user in the chat triggered another user's
-    """Optional. Service message: a user in the chat triggered another user's
     proximity alert while sharing Live Location."""
 
     boost_added: Option[ChatBoostAdded] = field(default=..., converter=From["ChatBoostAdded | None"])
@@ -1364,19 +1302,6 @@ class Message(MaybeInaccessibleMessage):
         default=..., converter=From["ChecklistTasksAdded | None"]
     )
     """Optional. Service message: tasks were added to a checklist."""
-
-    community_chat_added: Option[CommunityChatAdded] = field(default=..., converter=From["CommunityChatAdded | None"])
-    """Optional. Service message: chat or bot added to a Community."""
-
-    community_chat_joined: Option[CommunityChatJoined] = field(
-        default=..., converter=From["CommunityChatJoined | None"]
-    )
-    """Optional. Service message: chat was joined by a user from a Community."""
-
-    community_chat_removed: Option[CommunityChatRemoved] = field(
-        default=..., converter=From["CommunityChatRemoved | None"]
-    )
-    """Optional. Service message: chat or bot removed from a Community."""
 
     community_chat_added: Option[CommunityChatAdded] = field(default=..., converter=From["CommunityChatAdded | None"])
     """Optional. Service message: chat or bot added to a Community."""
@@ -1733,22 +1658,11 @@ class ReplyParameters(Model):
     """Optional. Identifier of the message that will be replied to in the current
     chat, or in the chat chat_id if it is specified. Required if ephemeral_message_id
     isn't specified."""
-    message_id: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Identifier of the message that will be replied to in the current
-    chat, or in the chat chat_id if it is specified. Required if ephemeral_message_id
-    isn't specified."""
 
     chat_id: Option[TypeAliases.ChatId] = field(default=..., converter=From[int | str | None])
     """Optional. If the message to be replied to is from a different chat, unique
     identifier for the chat or username of the bot, supergroup or channel in
     the format @username. Not supported for messages sent on behalf of a business
-    account, messages from channel direct messages chats and ephemeral messages."""
-
-    ephemeral_message_id: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Identifier of the incoming ephemeral message that will be replied
-    to in the current chat. A reply to an ephemeral message must itself be an ephemeral
-    message. An ephemeral message may only be replied to within 15 seconds of
-    being sent. Required if message_id isn't specified."""
     account, messages from channel direct messages chats and ephemeral messages."""
 
     ephemeral_message_id: Option[int] = field(default=..., converter=From[int | None])
@@ -1762,15 +1676,12 @@ class ReplyParameters(Model):
     to be replied to is not found. Always False for replies in another chat or
     forum topic, and sent ephemeral messages. Always True for messages sent
     on behalf of a business account."""
-    forum topic, and sent ephemeral messages. Always True for messages sent
-    on behalf of a business account."""
 
     quote: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Quoted part of the message to be replied to; 0-1024 characters
     after entities parsing. The quote must be an exact substring of the message
     to be replied to, including bold, italic, underline, strikethrough, spoiler,
     custom_emoji, and date_time entities. The message will fail to send if
-    the quote isn't found in the original message. Ignored for ephemeral messages."""
     the quote isn't found in the original message. Ignored for ephemeral messages."""
 
     quote_parse_mode: Option[str] = field(default=..., converter=From[str | None])
@@ -1790,27 +1701,6 @@ class ReplyParameters(Model):
     poll_option_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Persistent identifier of the specific poll option to be replied
     to."""
-
-
-class EphemeralMessageParameters(Model):
-    """Object `EphemeralMessageParameters`, see the [documentation](https://core.telegram.org/bots/api#ephemeralmessageparameters).
-
-    No description yet.
-    """
-
-    receiver_user_id: int = field()
-    """Identifier of the user who will receive the message. It is not guaranteed
-    that the user will receive the message, especially if they are offline.
-    See here for more details."""
-
-    callback_query_id: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Identifier of the callback query which triggered the message,
-    if any."""
-
-    replace_callback_query_message: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the ephemeral message must be shown in place of the
-    original message. Must be False for callback queries from ephemeral messages,
-    which must be edited using regular editEphemeralMessage... methods."""
 
 
 class EphemeralMessageParameters(Model):
@@ -2164,7 +2054,6 @@ class Video(Model):
 class VideoNote(Model):
     """Object `VideoNote`, see the [documentation](https://core.telegram.org/bots/api#videonote).
 
-    This object represents a video message.
     This object represents a video message.
     """
 
@@ -2843,42 +2732,6 @@ class MessageGenerationStopped(Model):
     is generated."""
 
 
-class BotSubscriptionUpdated(Model):
-    """Object `BotSubscriptionUpdated`, see the [documentation](https://core.telegram.org/bots/api#botsubscriptionupdated).
-
-    This object contains information about changes to a user payment subscription toward the current bot.
-    """
-
-    user: User = field()
-    """User who subscribed for payments toward the bot."""
-
-    invoice_payload: str = field()
-    """Bot-specified invoice payload."""
-
-    state: str = field()
-    """The new state of the subscription. Currently, it can be one of `canceled`
-    if the user canceled the subscription, `active` if the user re-enabled
-    a previously canceled subscription, or `failed` if payment for the subscription
-    failed."""
-
-
-class MessageGenerationStopped(Model):
-    """Object `MessageGenerationStopped`, see the [documentation](https://core.telegram.org/bots/api#messagegenerationstopped).
-
-    This object describes an update about a user stopping message generation.
-    """
-
-    chat: Chat = field()
-    """Chat in which the message is generated."""
-
-    draft_id: int = field()
-    """Unique identifier of the message draft which was stopped."""
-
-    message_thread_id: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Unique identifier of the message thread in which the message
-    is generated."""
-
-
 class PollOptionAdded(Model):
     """Object `PollOptionAdded`, see the [documentation](https://core.telegram.org/bots/api#polloptionadded).
 
@@ -3073,66 +2926,6 @@ class ChatBackground(Model):
         converter=From["BackgroundTypeFill | BackgroundTypeWallpaper | BackgroundTypePattern | BackgroundTypeChatTheme"]
     )
     """Type of the background."""
-
-
-class ChecklistTasksDone(Model):
-    """Object `ChecklistTasksDone`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksdone).
-
-    Describes a service message about checklist tasks marked as done or not done.
-    """
-
-    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
-    """Optional. Message containing the checklist whose tasks were marked as
-    done or not done. Note that the Message object in this field will not contain
-    the reply_to_message field even if it itself is a reply."""
-
-    marked_as_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
-    """Optional. Identifiers of the tasks that were marked as done."""
-
-    marked_as_not_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
-    """Optional. Identifiers of the tasks that were marked as not done."""
-
-
-class ChecklistTasksAdded(Model):
-    """Object `ChecklistTasksAdded`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksadded).
-
-    Describes a service message about tasks added to a checklist.
-    """
-
-    tasks: list[ChecklistTask] = field()
-    """List of tasks added to the checklist."""
-
-    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
-    """Optional. Message containing the checklist to which the tasks were added.
-    Note that the Message object in this field will not contain the reply_to_message
-    field even if it itself is a reply."""
-
-
-class CommunityChatAdded(Model):
-    """Object `CommunityChatAdded`, see the [documentation](https://core.telegram.org/bots/api#communitychatadded).
-
-    Describes a service message about a chat or a bot being added to a community.
-    """
-
-    community: Community = field()
-    """The new community to which the chat or the bot belongs."""
-
-
-class CommunityChatJoined(Model):
-    """Object `CommunityChatJoined`, see the [documentation](https://core.telegram.org/bots/api#communitychatjoined).
-
-    Describes a service message about a chat being joined by a user from a community.
-    """
-
-    community: Community = field()
-    """The community from which the chat was joined."""
-
-
-class CommunityChatRemoved(Model):
-    """Object `CommunityChatRemoved`, see the [documentation](https://core.telegram.org/bots/api#communitychatremoved).
-
-    Describes a service message about a chat or a bot being removed from a community. Currently holds no information.
-    """
 
 
 class ChecklistTasksDone(Model):
@@ -3403,7 +3196,6 @@ class DirectMessagePriceChanged(Model):
 
     are_direct_messages_enabled: bool = field()
     """True, if direct messages are enabled for the channel chat; False otherwise."""
-    """True, if direct messages are enabled for the channel chat; False otherwise."""
 
     direct_message_star_count: Option[int] = field(default=..., converter=From[int | None])
     """Optional. The new number of Telegram Stars that must be paid by users for
@@ -3468,7 +3260,6 @@ class SuggestedPostPaid(Model):
     currency: Literal[Currency.XTR, Currency.TON] = field()
     """Currency in which the payment was made. Currently, one of `XTR` for Telegram
     Stars or `TON` for TON grams."""
-    Stars or `TON` for TON grams."""
 
     suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
     """Optional. Message containing the suggested post. Note that the Message
@@ -3477,7 +3268,6 @@ class SuggestedPostPaid(Model):
 
     amount: Option[int] = field(default=..., converter=From[int | None])
     """Optional. The amount of the currency that was received by the channel in
-    nanograms; for payments in TON grams only."""
     nanograms; for payments in TON grams only."""
 
     star_amount: Option[StarAmount] = field(default=..., converter=From["StarAmount | None"])
@@ -3659,13 +3449,9 @@ class SuggestedPostPrice(Model):
     currency: Literal[Currency.XTR, Currency.TON] = field()
     """Currency in which the post will be paid. Currently, must be one of `XTR` for
     Telegram Stars or `TON` for TON grams."""
-    Telegram Stars or `TON` for TON grams."""
 
     amount: int = field()
     """The amount of the currency that will be paid for the post in the smallest units
-    of the currency, i.e. Telegram Stars or nanograms. Currently, price in
-    Telegram Stars must be between 5 and 100000, and price in nanograms must
-    be between 10000000 and 10000000000000."""
     of the currency, i.e. Telegram Stars or nanograms. Currently, price in
     Telegram Stars must be between 5 and 100000, and price in nanograms must
     be between 10000000 and 10000000000000."""
@@ -3798,13 +3584,11 @@ class ReplyKeyboardMarkup(Model):
     is_persistent: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Requests clients to always show the keyboard when the regular
     keyboard is hidden. Defaults to False, in which case the custom keyboard
-    keyboard is hidden. Defaults to False, in which case the custom keyboard
     can be hidden and opened with a keyboard icon."""
 
     resize_keyboard: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Requests clients to resize the keyboard vertically for optimal
     fit (e.g., make the keyboard smaller if there are just two rows of buttons).
-    Defaults to False, in which case the custom keyboard is always of the same
     Defaults to False, in which case the custom keyboard is always of the same
     height as the app's standard keyboard."""
 
@@ -3812,7 +3596,6 @@ class ReplyKeyboardMarkup(Model):
     """Optional. Requests clients to hide the keyboard as soon as it's been used.
     The keyboard will still be available, but clients will automatically display
     the usual letter-keyboard in the chat - the user can press a special button
-    in the input field to see the custom keyboard again. Defaults to False."""
     in the input field to see the custom keyboard again. Defaults to False."""
 
     input_field_placeholder: Option[str] = field(default=..., converter=From[str | None])
@@ -3826,10 +3609,6 @@ class ReplyKeyboardMarkup(Model):
     forum topic, sender of the original message. Example: A user requests to
     change the bot's language, bot replies to the request with a keyboard to
     select the new language. Other users in the group don't see the keyboard."""
-
-    force_reply: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the reply interface must be shown to the user, as if
-    they had manually selected the bot's message and tapped 'Reply'."""
 
     force_reply: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the reply interface must be shown to the user, as if
@@ -4053,11 +3832,6 @@ class InlineKeyboardMarkup(Model):
     they had manually selected the bot's message and tapped 'Reply'. The value
     of the field can't be changed when the inline keyboard is edited."""
 
-    force_reply: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the reply interface must be shown to the user, as if
-    they had manually selected the bot's message and tapped 'Reply'. The value
-    of the field can't be changed when the inline keyboard is edited."""
-
 
 class InlineKeyboardButton(Model):
     """Object `InlineKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardbutton).
@@ -4097,8 +3871,6 @@ class InlineKeyboardButton(Model):
 
     login_url: Option[LoginUrl] = field(default=..., converter=From["LoginUrl | None"])
     """Optional. An HTTPS URL used to automatically authorize the user. Can be
-    used as a replacement for the Telegram Login Widget. Not supported for ephemeral
-    messages."""
     used as a replacement for the Telegram Login Widget. Not supported for ephemeral
     messages."""
 
@@ -4144,14 +3916,10 @@ class InlineKeyboardButton(Model):
     disabled: Option[DisabledButton] = field(default=..., converter=From["DisabledButton | None"])
     """Optional. If set, then the button is disabled and does nothing."""
 
-    disabled: Option[DisabledButton] = field(default=..., converter=From["DisabledButton | None"])
-    """Optional. If set, then the button is disabled and does nothing."""
-
 
 class LoginUrl(Model):
     """Object `LoginUrl`, see the [documentation](https://core.telegram.org/bots/api#loginurl).
 
-    This object represents a parameter of the inline keyboard button used to automatically authorize a user. It serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
     This object represents a parameter of the inline keyboard button used to automatically authorize a user. It serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
     """
 
@@ -4167,11 +3935,6 @@ class LoginUrl(Model):
     """Optional. New text of the button in forwarded messages."""
 
     bot_username: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Username of a bot, which will be used for user authorization;
-    not supported in RichMessageButton. See Setting up a bot for more details.
-    If not specified, the current bot's username will be assumed. The url's
-    domain must be the same as the domain linked with the bot. See Linking your
-    domain to the bot for more details."""
     """Optional. Username of a bot, which will be used for user authorization;
     not supported in RichMessageButton. See Setting up a bot for more details.
     If not specified, the current bot's username will be assumed. The url's
@@ -4214,13 +3977,6 @@ class CopyTextButton(Model):
 
     text: str = field()
     """The text to be copied to the clipboard; 1-256 characters."""
-
-
-class DisabledButton(Model):
-    """Object `DisabledButton`, see the [documentation](https://core.telegram.org/bots/api#disabledbutton).
-
-    This object represents a disabled button which does nothing. Currently holds no information.
-    """
 
 
 class DisabledButton(Model):
@@ -4273,7 +4029,6 @@ class ForceReply(Model):
 
     force_reply: bool = field()
     """Shows reply interface to the user, as if they had manually selected the bot's
-    """Shows reply interface to the user, as if they had manually selected the bot's
     message and tapped 'Reply'."""
 
     input_field_placeholder: Option[str] = field(default=..., converter=From[str | None])
@@ -4285,23 +4040,6 @@ class ForceReply(Model):
     only. Targets: 1) users that are @mentioned in the text of the Message object;
     2) if the bot's message is a reply to a message in the same chat and forum topic,
     sender of the original message."""
-
-
-class Community(Model):
-    """Object `Community`, see the [documentation](https://core.telegram.org/bots/api#community).
-
-    Represents a community (a group of chats).
-    """
-
-    id: int = field()
-    """Unique identifier for this community. This number may have more than 32
-    significant bits and some programming languages may have difficulty/silent
-    defects in interpreting it. But it has at most 52 significant bits, so a signed
-    64-bit integer or double-precision float type are safe for storing this
-    identifier."""
-
-    name: str = field()
-    """Name of the community."""
 
 
 class Community(Model):
@@ -4442,10 +4180,6 @@ class ChatAdministratorRights(Model):
     """True, if the administrator can manage chat welcome messages or directly
     send them in the case of bots."""
 
-    can_send_welcome_messages: bool = field()
-    """True, if the administrator can manage chat welcome messages or directly
-    send them in the case of bots."""
-
     can_post_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can post messages in the channel,
     approve suggested posts, or access channel statistics; for channels only."""
@@ -4468,7 +4202,6 @@ class ChatAdministratorRights(Model):
 
     can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit the tags of regular members;
-    for groups and supergroups only."""
     for groups and supergroups only."""
 
 
@@ -4593,10 +4326,6 @@ class ChatMemberAdministrator(ChatMember):
     """True, if the administrator can manage chat welcome messages or directly
     send them in the case of bots."""
 
-    can_send_welcome_messages: bool = field()
-    """True, if the administrator can manage chat welcome messages or directly
-    send them in the case of bots."""
-
     status: Literal["administrator"] = field(default="administrator")
     """The member's status in the chat, always `administrator`."""
 
@@ -4622,7 +4351,6 @@ class ChatMemberAdministrator(ChatMember):
 
     can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit the tags of regular members;
-    for groups and supergroups only."""
     for groups and supergroups only."""
 
     custom_title: Option[str] = field(default=..., converter=From[str | None])
@@ -4784,7 +4512,6 @@ class ChatJoinRequest(Model):
     query_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Identifier of the join request query; for bots assigned to process
     join requests only. If present, then the bot must call sendChatJoinRequestWebApp
-    join requests only. If present, then the bot must call sendChatJoinRequestWebApp
     or directly call answerChatJoinRequestQuery within 10 seconds."""
 
     @property
@@ -4851,7 +4578,6 @@ class ChatPermissions(Model):
     supergroups."""
 
     can_manage_topics: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the user is allowed to create forum topics. If omitted,
     """Optional. True, if the user is allowed to create forum topics. If omitted,
     defaults to the value of can_pin_messages."""
 
@@ -5560,11 +5286,9 @@ class UniqueGiftInfo(Model):
     """Optional. For gifts bought from other users, the currency in which the payment
     for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON`
     for TON grams."""
-    for TON grams."""
 
     last_resale_amount: Option[int] = field(default=..., converter=From[int | None])
     """Optional. For gifts bought from other users, the price paid for the gift
-    in either Telegram Stars or nanograms."""
     in either Telegram Stars or nanograms."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
@@ -5762,10 +5486,6 @@ class BotCommand(Model):
 
     description: str = field()
     """Description of the command; 1-256 characters."""
-
-    is_ephemeral: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the command sends an ephemeral message, which can be
-    seen only by the sender of the message and the bot."""
 
     is_ephemeral: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the command sends an ephemeral message, which can be
@@ -6279,7 +5999,6 @@ class InputMediaAnimation(InputPollMedia, InputPollOptionMedia, InputMedia):
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
-    """Optional. Pass True if the caption must be shown above the message media."""
 
     width: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Animation width."""
@@ -6452,7 +6171,6 @@ class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
-    """Optional. Pass True if the caption must be shown above the message media."""
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the live photo needs to be covered with a spoiler animation."""
@@ -6512,7 +6230,6 @@ class InputMediaPhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
@@ -6627,7 +6344,6 @@ class InputMediaVideo(InputPollMedia, InputPollOptionMedia, InputMedia):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     width: Option[int] = field(default=..., converter=From[int | None])
@@ -7051,8 +6767,6 @@ class InputRichMessage(Model):
 
     html: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Content of the rich message to send described using HTML formatting.
-    See rich message formatting options for more details. Use media field to
-    specify the media used in the message."""
     See rich message formatting options for more details. Use media field to
     specify the media used in the message."""
 
@@ -8134,7 +7848,6 @@ class RichBlockMap(RichBlock):
 
     zoom: int = field()
     """Map zoom level."""
-    """Map zoom level."""
 
     width: int = field()
     """Expected width of the map."""
@@ -8147,23 +7860,6 @@ class RichBlockMap(RichBlock):
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
-
-
-class RichBlockButtons(RichBlock):
-    """Object `RichBlockButtons`, see the [documentation](https://core.telegram.org/bots/api#richblockbuttons).
-
-    A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag <tg-button-row>.
-    """
-
-    type: str = field()
-    """Type of the block, always `buttons`."""
-
-    buttons: list[RichMessageButton] = field()
-    """The buttons."""
-
-    align: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Horizontal alignment of the buttons. Currently, must be one
-    of `left`, `center`, or `right`."""
 
 
 class RichBlockButtons(RichBlock):
@@ -9434,7 +9130,6 @@ class InlineQueryResultPhoto(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
-    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -9503,7 +9198,6 @@ class InlineQueryResultGif(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
@@ -9574,7 +9268,6 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
-    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -9631,7 +9324,6 @@ class InlineQueryResultVideo(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     video_width: Option[int] = field(default=..., converter=From[int | None])
@@ -10050,7 +9742,6 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
-    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -10102,7 +9793,6 @@ class InlineQueryResultCachedGif(InlineQueryResult):
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
-    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
@@ -10153,7 +9843,6 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
@@ -10286,7 +9975,6 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
@@ -10434,8 +10122,6 @@ class InputRichMessageContent(InputMessageContent):
     rich_message: InputRichMessage = field()
     """The message to be sent. Only previously uploaded files may be used in the
     message."""
-    """The message to be sent. Only previously uploaded files may be used in the
-    message."""
 
 
 class InputLocationMessageContent(InputMessageContent):
@@ -10559,7 +10245,6 @@ class InputInvoiceMessageContent(InputMessageContent):
     in Telegram Stars."""
 
     suggested_tip_amounts: Option[list[int]] = field(default=..., converter=From[list[int] | None])
-    """Optional. A JSON-serialized Array of suggested amounts of tip in the smallest
     """Optional. A JSON-serialized Array of suggested amounts of tip in the smallest
     units of the currency (integer, not float/double). At most 4 suggested
     tip amounts can be specified. The suggested tip amounts must be positive,
@@ -11606,7 +11291,6 @@ __all__ = (
     "BotName",
     "BotShortDescription",
     "BotSubscriptionUpdated",
-    "BotSubscriptionUpdated",
     "BusinessBotRights",
     "BusinessConnection",
     "BusinessIntro",
@@ -11653,10 +11337,6 @@ __all__ = (
     "CommunityChatAdded",
     "CommunityChatJoined",
     "CommunityChatRemoved",
-    "Community",
-    "CommunityChatAdded",
-    "CommunityChatJoined",
-    "CommunityChatRemoved",
     "Contact",
     "CopyTextButton",
     "DateTimeFormatSeq",
@@ -11664,11 +11344,9 @@ __all__ = (
     "DirectMessagePriceChanged",
     "DirectMessagesTopic",
     "DisabledButton",
-    "DisabledButton",
     "Document",
     "EncryptedCredentials",
     "EncryptedPassportElement",
-    "EphemeralMessageParameters",
     "EphemeralMessageParameters",
     "ExternalReplyInfo",
     "File",
@@ -11734,7 +11412,6 @@ __all__ = (
     "InputMediaVenue",
     "InputMediaVideo",
     "InputMediaVoiceNote",
-    "InputMediaVoiceNote",
     "InputMessageContent",
     "InputPaidMedia",
     "InputPaidMediaLivePhoto",
@@ -11772,35 +11449,8 @@ __all__ = (
     "InputRichBlockThinking",
     "InputRichBlockVideo",
     "InputRichBlockVoiceNote",
-    "InputRichBlock",
-    "InputRichBlockAnchor",
-    "InputRichBlockAnimation",
-    "InputRichBlockAudio",
-    "InputRichBlockBlockQuotation",
-    "InputRichBlockButtons",
-    "InputRichBlockCollage",
-    "InputRichBlockDetails",
-    "InputRichBlockDivider",
-    "InputRichBlockDocument",
-    "InputRichBlockExpandableBlockQuotation",
-    "InputRichBlockFooter",
-    "InputRichBlockList",
-    "InputRichBlockListItem",
-    "InputRichBlockMap",
-    "InputRichBlockMathematicalExpression",
-    "InputRichBlockParagraph",
-    "InputRichBlockPhoto",
-    "InputRichBlockPreformatted",
-    "InputRichBlockPullQuotation",
-    "InputRichBlockSectionHeading",
-    "InputRichBlockSlideshow",
-    "InputRichBlockTable",
-    "InputRichBlockThinking",
-    "InputRichBlockVideo",
-    "InputRichBlockVoiceNote",
     "InputRichMessage",
     "InputRichMessageContent",
-    "InputRichMessageMedia",
     "InputRichMessageMedia",
     "InputSticker",
     "InputStoryContent",
@@ -11832,7 +11482,6 @@ __all__ = (
     "Message",
     "MessageAutoDeleteTimerChanged",
     "MessageEntity",
-    "MessageGenerationStopped",
     "MessageGenerationStopped",
     "MessageId",
     "MessageOrigin",
@@ -11899,13 +11548,10 @@ __all__ = (
     "RichBlockAudio",
     "RichBlockBlockQuotation",
     "RichBlockButtons",
-    "RichBlockButtons",
     "RichBlockCaption",
     "RichBlockCollage",
     "RichBlockDetails",
     "RichBlockDivider",
-    "RichBlockDocument",
-    "RichBlockExpandableBlockQuotation",
     "RichBlockDocument",
     "RichBlockExpandableBlockQuotation",
     "RichBlockFooter",
@@ -11926,14 +11572,12 @@ __all__ = (
     "RichBlockVoiceNote",
     "RichMessage",
     "RichMessageButton",
-    "RichMessageButton",
     "RichText",
     "RichTextAnchor",
     "RichTextAnchorLink",
     "RichTextBankCardNumber",
     "RichTextBold",
     "RichTextBotCommand",
-    "RichTextButton",
     "RichTextButton",
     "RichTextCashtag",
     "RichTextCode",
