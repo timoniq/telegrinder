@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import secrets
 import typing
+from datetime import datetime
 from functools import cached_property
 
 from kungfu.library import Sum
@@ -10,7 +11,7 @@ from msgspex.model import UNSET, DefaultFactory, From, Model, field
 from msgspex.tools import is_none
 
 from telegrinder.types.date_time_format import DateTimeFormatSeq
-from telegrinder.types.enums import *  # noqa: F403
+from telegrinder.types.enums import *
 from telegrinder.types.input_file import InputFile
 from telegrinder.types.utils import default_parameter_as_option_for_field
 
@@ -55,6 +56,7 @@ class RichText(Model):
     - RichTextCashtag
     - RichTextBotCommand
     - RichTextButton
+    - RichTextButton
     - RichTextAnchor
     - RichTextAnchorLink
     - RichTextReference
@@ -88,6 +90,7 @@ class RichBlock(Model):
     - RichBlockList
     - RichBlockBlockQuotation
     - RichBlockExpandableBlockQuotation
+    - RichBlockExpandableBlockQuotation
     - RichBlockPullQuotation
     - RichBlockCollage
     - RichBlockSlideshow
@@ -95,8 +98,10 @@ class RichBlock(Model):
     - RichBlockDetails
     - RichBlockMap
     - RichBlockButtons
+    - RichBlockButtons
     - RichBlockAnimation
     - RichBlockAudio
+    - RichBlockDocument
     - RichBlockDocument
     - RichBlockPhoto
     - RichBlockVideo
@@ -211,6 +216,37 @@ class InputStoryContent(Model):
     This object describes the content of a story to post. Currently, it can be one of
     - InputStoryContentPhoto
     - InputStoryContentVideo
+    """
+
+
+class InputRichBlock(Model):
+    """Base object `InputRichBlock`, see the [documentation](https://core.telegram.org/bots/api#inputrichblock).
+
+    This object represents a block in a rich formatted message to be sent. Currently, it can be any of the following types:
+    - InputRichBlockParagraph
+    - InputRichBlockSectionHeading
+    - InputRichBlockPreformatted
+    - InputRichBlockFooter
+    - InputRichBlockDivider
+    - InputRichBlockMathematicalExpression
+    - InputRichBlockAnchor
+    - InputRichBlockList
+    - InputRichBlockBlockQuotation
+    - InputRichBlockExpandableBlockQuotation
+    - InputRichBlockPullQuotation
+    - InputRichBlockCollage
+    - InputRichBlockSlideshow
+    - InputRichBlockTable
+    - InputRichBlockDetails
+    - InputRichBlockMap
+    - InputRichBlockButtons
+    - InputRichBlockAnimation
+    - InputRichBlockAudio
+    - InputRichBlockDocument
+    - InputRichBlockPhoto
+    - InputRichBlockVideo
+    - InputRichBlockVoiceNote
+    - InputRichBlockThinking
     """
 
 
@@ -525,6 +561,14 @@ class Update(Model):
     )
     """Optional. A user asked the bot to stop the generation of a message."""
 
+    subscription: Option[BotSubscriptionUpdated] = field(default=..., converter=From["BotSubscriptionUpdated | None"])
+    """Optional. User payment subscription has changed."""
+
+    stopped_message_generation: Option[MessageGenerationStopped] = field(
+        default=..., converter=From["MessageGenerationStopped | None"]
+    )
+    """Optional. A user asked the bot to stop the generation of a message."""
+
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
@@ -658,12 +702,12 @@ class User(Model):
     @property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
-        return DefaultAccentColor(self.id % 7)
+        return DefaultAccentColor(self.id % len(DefaultAccentColor))
 
     @property
     def full_name(self) -> str:
         """User's or bot's full name (`first_name` + `last_name`)."""
-        return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
+        return self.first_name + self.last_name.map(" ".__add__).unwrap_or("")
 
 
 class Chat(Model):
@@ -786,8 +830,8 @@ class ChatFullInfo(Model):
     """Optional. Information about the corresponding channel chat; for direct
     messages chats only."""
 
-    available_reactions: Option[list[Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]]] = field(
-        default=..., converter=From["list[ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid] | None"]
+    available_reactions: Option[list[TypeAliases.Reaction]] = field(
+        default=..., converter=From[list["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"] | None]
     )
     """Optional. List of available reactions allowed in the chat. If omitted,
     then all emoji reactions are allowed."""
@@ -917,6 +961,9 @@ class ChatFullInfo(Model):
     community: Option[Community] = field(default=..., converter=From["Community | None"])
     """Optional. The Community to which the chat belongs."""
 
+    community: Option[Community] = field(default=..., converter=From["Community | None"])
+    """Optional. The Community to which the chat belongs."""
+
 
 class Message(MaybeInaccessibleMessage):
     """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message).
@@ -925,6 +972,11 @@ class Message(MaybeInaccessibleMessage):
     """
 
     message_id: int = field()
+    """Unique message identifier inside this chat; 0 for ephemeral messages.
+    In specific instances (e.g., a message containing a video sent to a big chat),
+    the server might automatically schedule a message instead of sending it
+    immediately. In such cases, this field will be 0 and the relevant message
+    will be unusable until it is actually sent."""
     """Unique message identifier inside this chat; 0 for ephemeral messages.
     In specific instances (e.g., a message containing a video sent to a big chat),
     the server might automatically schedule a message instead of sending it
@@ -982,6 +1034,14 @@ class Message(MaybeInaccessibleMessage):
     inside this chat. The identifier may be reused for another ephemeral message
     after the message is deleted or expires."""
 
+    receiver_user: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. For ephemeral messages, the user who received the message."""
+
+    ephemeral_message_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. For ephemeral messages, identifier of the ephemeral message
+    inside this chat. The identifier may be reused for another ephemeral message
+    after the message is deleted or expires."""
+
     guest_query_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The unique identifier for the guest query. Use this identifier
     with the method answerGuestQuery to send a response message. If non-empty,
@@ -1015,6 +1075,8 @@ class Message(MaybeInaccessibleMessage):
     reply_to_message: Option[Message] = field(default=..., converter=From["Message | None"])
     """Optional. For replies in the same chat and message thread, the original
     message. Note that the Message object in this field will not contain further
+    reply_to_message fields even if it itself is a reply. If the message is a
+    reply to an ephemeral message, then this field may be omitted."""
     reply_to_message fields even if it itself is a reply. If the message is a
     reply to an ephemeral message, then this field may be omitted."""
 
@@ -1077,7 +1139,7 @@ class Message(MaybeInaccessibleMessage):
     text: Option[str] = field(default=..., converter=From[str | None])
     """Optional. For text messages, the actual UTF-8 text of the message."""
 
-    entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. For text messages, special entities like usernames, URLs, bot
     commands, etc. that appear in the text."""
 
@@ -1121,7 +1183,7 @@ class Message(MaybeInaccessibleMessage):
     paid_media: Option[PaidMediaInfo] = field(default=..., converter=From["PaidMediaInfo | None"])
     """Optional. Message contains paid media; information about the paid media."""
 
-    photo: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=..., converter=From[list["PhotoSize"] | None])
     """Optional. Message is a photo, available sizes of the photo."""
 
     sticker: Option[Sticker] = field(default=..., converter=From["Sticker | None"])
@@ -1143,7 +1205,7 @@ class Message(MaybeInaccessibleMessage):
     """Optional. Caption for the animation, audio, document, paid media, photo,
     video or voice."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. For messages with a caption, special entities like usernames,
     URLs, bot commands, etc. that appear in the caption."""
 
@@ -1176,7 +1238,7 @@ class Message(MaybeInaccessibleMessage):
     location: Option[Location] = field(default=..., converter=From["Location | None"])
     """Optional. Message is a shared location, information about the location."""
 
-    new_chat_members: Option[list[User]] = field(default=..., converter=From["list[User] | None"])
+    new_chat_members: Option[list[User]] = field(default=..., converter=From[list["User"] | None])
     """Optional. New members that were added to the group or supergroup and information
     about them (the bot itself may be one of these members)."""
 
@@ -1193,7 +1255,7 @@ class Message(MaybeInaccessibleMessage):
     new_chat_title: Option[str] = field(default=..., converter=From[str | None])
     """Optional. A chat title was changed to this value."""
 
-    new_chat_photo: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    new_chat_photo: Option[list[PhotoSize]] = field(default=..., converter=From[list["PhotoSize"] | None])
     """Optional. A chat photo was change to this value."""
 
     delete_chat_photo: Option[bool] = field(default=..., converter=From[bool | None])
@@ -1234,7 +1296,7 @@ class Message(MaybeInaccessibleMessage):
     it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision
     float type are safe for storing this identifier."""
 
-    pinned_message: Option[Sum[Message, InaccessibleMessage]] = field(
+    pinned_message: Option[TypeAliases.AccessibleMessage] = field(
         default=..., converter=From["Message | InaccessibleMessage | None"]
     )
     """Optional. Specified message was pinned. Note that the Message object in
@@ -1285,6 +1347,7 @@ class Message(MaybeInaccessibleMessage):
         default=..., converter=From["ProximityAlertTriggered | None"]
     )
     """Optional. Service message: a user in the chat triggered another user's
+    """Optional. Service message: a user in the chat triggered another user's
     proximity alert while sharing Live Location."""
 
     boost_added: Option[ChatBoostAdded] = field(default=..., converter=From["ChatBoostAdded | None"])
@@ -1301,6 +1364,19 @@ class Message(MaybeInaccessibleMessage):
         default=..., converter=From["ChecklistTasksAdded | None"]
     )
     """Optional. Service message: tasks were added to a checklist."""
+
+    community_chat_added: Option[CommunityChatAdded] = field(default=..., converter=From["CommunityChatAdded | None"])
+    """Optional. Service message: chat or bot added to a Community."""
+
+    community_chat_joined: Option[CommunityChatJoined] = field(
+        default=..., converter=From["CommunityChatJoined | None"]
+    )
+    """Optional. Service message: chat was joined by a user from a Community."""
+
+    community_chat_removed: Option[CommunityChatRemoved] = field(
+        default=..., converter=From["CommunityChatRemoved | None"]
+    )
+    """Optional. Service message: chat or bot removed from a Community."""
 
     community_chat_added: Option[CommunityChatAdded] = field(default=..., converter=From["CommunityChatAdded | None"])
     """Optional. Service message: chat or bot added to a Community."""
@@ -1539,7 +1615,7 @@ class TextQuote(Model):
     """Approximate quote position in the original message in UTF-16 code units
     as specified by the sender."""
 
-    entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the quote. Currently, only bold,
     italic, underline, strikethrough, spoiler, custom_emoji, and date_time
     entities are kept in quotes."""
@@ -1593,7 +1669,7 @@ class ExternalReplyInfo(Model):
     paid_media: Option[PaidMediaInfo] = field(default=..., converter=From["PaidMediaInfo | None"])
     """Optional. Message contains paid media; information about the paid media."""
 
-    photo: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=..., converter=From[list["PhotoSize"] | None])
     """Optional. Message is a photo, available sizes of the photo."""
 
     sticker: Option[Sticker] = field(default=..., converter=From["Sticker | None"])
@@ -1657,11 +1733,22 @@ class ReplyParameters(Model):
     """Optional. Identifier of the message that will be replied to in the current
     chat, or in the chat chat_id if it is specified. Required if ephemeral_message_id
     isn't specified."""
+    message_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Identifier of the message that will be replied to in the current
+    chat, or in the chat chat_id if it is specified. Required if ephemeral_message_id
+    isn't specified."""
 
-    chat_id: Option[Sum[int, str]] = field(default=..., converter=From[int | str | None])
+    chat_id: Option[TypeAliases.ChatId] = field(default=..., converter=From[int | str | None])
     """Optional. If the message to be replied to is from a different chat, unique
     identifier for the chat or username of the bot, supergroup or channel in
     the format @username. Not supported for messages sent on behalf of a business
+    account, messages from channel direct messages chats and ephemeral messages."""
+
+    ephemeral_message_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Identifier of the incoming ephemeral message that will be replied
+    to in the current chat. A reply to an ephemeral message must itself be an ephemeral
+    message. An ephemeral message may only be replied to within 15 seconds of
+    being sent. Required if message_id isn't specified."""
     account, messages from channel direct messages chats and ephemeral messages."""
 
     ephemeral_message_id: Option[int] = field(default=..., converter=From[int | None])
@@ -1675,6 +1762,8 @@ class ReplyParameters(Model):
     to be replied to is not found. Always False for replies in another chat or
     forum topic, and sent ephemeral messages. Always True for messages sent
     on behalf of a business account."""
+    forum topic, and sent ephemeral messages. Always True for messages sent
+    on behalf of a business account."""
 
     quote: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Quoted part of the message to be replied to; 0-1024 characters
@@ -1682,12 +1771,13 @@ class ReplyParameters(Model):
     to be replied to, including bold, italic, underline, strikethrough, spoiler,
     custom_emoji, and date_time entities. The message will fail to send if
     the quote isn't found in the original message. Ignored for ephemeral messages."""
+    the quote isn't found in the original message. Ignored for ephemeral messages."""
 
     quote_parse_mode: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Mode for parsing entities in the quote. See formatting options
     for more details."""
 
-    quote_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    quote_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. A JSON-serialized list of special entities that appear in the
     quote. It can be specified instead of quote_parse_mode."""
 
@@ -1700,6 +1790,27 @@ class ReplyParameters(Model):
     poll_option_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Persistent identifier of the specific poll option to be replied
     to."""
+
+
+class EphemeralMessageParameters(Model):
+    """Object `EphemeralMessageParameters`, see the [documentation](https://core.telegram.org/bots/api#ephemeralmessageparameters).
+
+    No description yet.
+    """
+
+    receiver_user_id: int = field()
+    """Identifier of the user who will receive the message. It is not guaranteed
+    that the user will receive the message, especially if they are offline.
+    See here for more details."""
+
+    callback_query_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Identifier of the callback query which triggered the message,
+    if any."""
+
+    replace_callback_query_message: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the ephemeral message must be shown in place of the
+    original message. Must be False for callback queries from ephemeral messages,
+    which must be edited using regular editEphemeralMessage... methods."""
 
 
 class EphemeralMessageParameters(Model):
@@ -1947,7 +2058,7 @@ class LivePhoto(Model):
     duration: int = field()
     """Duration of the video in seconds as defined by the sender."""
 
-    photo: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=..., converter=From[list["PhotoSize"] | None])
     """Optional. Available sizes of the corresponding static photo."""
 
     mime_type: Option[str] = field(default=..., converter=From[str | None])
@@ -2028,13 +2139,13 @@ class Video(Model):
     thumbnail: Option[PhotoSize] = field(default=..., converter=From["PhotoSize | None"])
     """Optional. Video thumbnail."""
 
-    cover: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    cover: Option[list[PhotoSize]] = field(default=..., converter=From[list["PhotoSize"] | None])
     """Optional. Available sizes of the cover of the video in the message."""
 
     start_timestamp: Option[timedelta] = field(default=..., converter=From[timedelta | int | None])
     """Optional. Timestamp in seconds from which the video will play in the message."""
 
-    qualities: Option[list[VideoQuality]] = field(default=..., converter=From["list[VideoQuality] | None"])
+    qualities: Option[list[VideoQuality]] = field(default=..., converter=From[list["VideoQuality"] | None])
     """Optional. List of available qualities of the video."""
 
     file_name: Option[str] = field(default=..., converter=From[str | None])
@@ -2053,6 +2164,7 @@ class Video(Model):
 class VideoNote(Model):
     """Object `VideoNote`, see the [documentation](https://core.telegram.org/bots/api#videonote).
 
+    This object represents a video message.
     This object represents a video message.
     """
 
@@ -2251,7 +2363,7 @@ class PollMedia(Model):
     location: Option[Location] = field(default=..., converter=From["Location | None"])
     """Optional. Media is a shared location, information about the location."""
 
-    photo: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=..., converter=From[list["PhotoSize"] | None])
     """Optional. Media is a photo, available sizes of the photo."""
 
     sticker: Option[Sticker] = field(default=..., converter=From["Sticker | None"])
@@ -2280,7 +2392,7 @@ class PollOption(Model):
     voter_count: int = field()
     """Number of users who voted for this option; may be 0 if unknown."""
 
-    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the option text. Currently,
     only custom emoji entities are allowed in poll option texts."""
 
@@ -2319,7 +2431,7 @@ class InputPollOption(Model):
     """Optional. Mode for parsing entities in the text. See formatting options
     for more details. Currently, only custom emoji entities are allowed."""
 
-    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. A JSON-serialized list of special entities that appear in the
     poll option text. It can be specified instead of text_parse_mode."""
 
@@ -2402,7 +2514,7 @@ class Poll(Model):
     """True if voting is limited to users who have been members of the chat where
     the poll was originally sent for more than 24 hours."""
 
-    question_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    question_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the question. Currently, only
     custom emoji entities are allowed in poll questions."""
 
@@ -2424,7 +2536,7 @@ class Poll(Model):
     """Optional. Text that is shown when a user chooses an incorrect answer or taps
     on the lamp icon in a quiz-style poll, 0-200 characters."""
 
-    explanation_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    explanation_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities like usernames, URLs, bot commands, etc. that
     appear in the explanation."""
 
@@ -2442,7 +2554,7 @@ class Poll(Model):
     """Optional. Description of the poll; for polls inside the Message object
     only."""
 
-    description_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    description_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities like usernames, URLs, bot commands, etc. that
     appear in the description."""
 
@@ -2463,7 +2575,7 @@ class ChecklistTask(Model):
     text: str = field()
     """Text of the task."""
 
-    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the task text."""
 
     completed_by_user: Option[User] = field(default=..., converter=From["User | None"])
@@ -2491,7 +2603,7 @@ class Checklist(Model):
     tasks: list[ChecklistTask] = field()
     """List of tasks in the checklist."""
 
-    title_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    title_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the checklist title."""
 
     others_can_add_tasks: Option[bool] = field(default=..., converter=From[bool | None])
@@ -2526,7 +2638,7 @@ class InputChecklistTask(Model):
     """Optional. Mode for parsing entities in the text. See formatting options
     for more details."""
 
-    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the text, which can be
     specified instead of parse_mode. Currently, only bold, italic, underline,
     strikethrough, spoiler, custom_emoji, and date_time entities are allowed."""
@@ -2554,7 +2666,7 @@ class InputChecklist(Model):
     """Optional. Mode for parsing entities in the title. See formatting options
     for more details."""
 
-    title_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    title_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the title, which can be
     specified instead of parse_mode. Currently, only bold, italic, underline,
     strikethrough, spoiler, custom_emoji, and date_time entities are allowed."""
@@ -2731,6 +2843,42 @@ class MessageGenerationStopped(Model):
     is generated."""
 
 
+class BotSubscriptionUpdated(Model):
+    """Object `BotSubscriptionUpdated`, see the [documentation](https://core.telegram.org/bots/api#botsubscriptionupdated).
+
+    This object contains information about changes to a user payment subscription toward the current bot.
+    """
+
+    user: User = field()
+    """User who subscribed for payments toward the bot."""
+
+    invoice_payload: str = field()
+    """Bot-specified invoice payload."""
+
+    state: str = field()
+    """The new state of the subscription. Currently, it can be one of `canceled`
+    if the user canceled the subscription, `active` if the user re-enabled
+    a previously canceled subscription, or `failed` if payment for the subscription
+    failed."""
+
+
+class MessageGenerationStopped(Model):
+    """Object `MessageGenerationStopped`, see the [documentation](https://core.telegram.org/bots/api#messagegenerationstopped).
+
+    This object describes an update about a user stopping message generation.
+    """
+
+    chat: Chat = field()
+    """Chat in which the message is generated."""
+
+    draft_id: int = field()
+    """Unique identifier of the message draft which was stopped."""
+
+    message_thread_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Unique identifier of the message thread in which the message
+    is generated."""
+
+
 class PollOptionAdded(Model):
     """Object `PollOptionAdded`, see the [documentation](https://core.telegram.org/bots/api#polloptionadded).
 
@@ -2743,14 +2891,14 @@ class PollOptionAdded(Model):
     option_text: str = field()
     """Option text."""
 
-    poll_message: Option[Sum[Message, InaccessibleMessage]] = field(
+    poll_message: Option[TypeAliases.AccessibleMessage] = field(
         default=..., converter=From["Message | InaccessibleMessage | None"]
     )
     """Optional. Message containing the poll to which the option was added, if
     known. Note that the Message object in this field will not contain the reply_to_message
     field even if it itself is a reply."""
 
-    option_text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    option_text_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the option_text."""
 
 
@@ -2766,14 +2914,14 @@ class PollOptionDeleted(Model):
     option_text: str = field()
     """Option text."""
 
-    poll_message: Option[Sum[Message, InaccessibleMessage]] = field(
+    poll_message: Option[TypeAliases.AccessibleMessage] = field(
         default=..., converter=From["Message | InaccessibleMessage | None"]
     )
     """Optional. Message containing the poll from which the option was deleted,
     if known. Note that the Message object in this field will not contain the
     reply_to_message field even if it itself is a reply."""
 
-    option_text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    option_text_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the option_text."""
 
 
@@ -2839,7 +2987,7 @@ class BackgroundTypeFill(BackgroundType):
     The background is automatically filled based on the selected colors.
     """
 
-    fill: Sum[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field(
+    fill: TypeAliases.BackgroundFill = field(
         converter=From["BackgroundFillSolid | BackgroundFillGradient | BackgroundFillFreeformGradient"]
     )
     """The background fill."""
@@ -2883,7 +3031,7 @@ class BackgroundTypePattern(BackgroundType):
     document: Document = field()
     """Document with the pattern."""
 
-    fill: Sum[BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient] = field(
+    fill: TypeAliases.BackgroundFill = field(
         converter=From["BackgroundFillSolid | BackgroundFillGradient | BackgroundFillFreeformGradient"]
     )
     """The background fill that is combined with the pattern."""
@@ -2925,6 +3073,66 @@ class ChatBackground(Model):
         converter=From["BackgroundTypeFill | BackgroundTypeWallpaper | BackgroundTypePattern | BackgroundTypeChatTheme"]
     )
     """Type of the background."""
+
+
+class ChecklistTasksDone(Model):
+    """Object `ChecklistTasksDone`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksdone).
+
+    Describes a service message about checklist tasks marked as done or not done.
+    """
+
+    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the checklist whose tasks were marked as
+    done or not done. Note that the Message object in this field will not contain
+    the reply_to_message field even if it itself is a reply."""
+
+    marked_as_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
+    """Optional. Identifiers of the tasks that were marked as done."""
+
+    marked_as_not_done_task_ids: Option[list[int]] = field(default=..., converter=From[list[int] | None])
+    """Optional. Identifiers of the tasks that were marked as not done."""
+
+
+class ChecklistTasksAdded(Model):
+    """Object `ChecklistTasksAdded`, see the [documentation](https://core.telegram.org/bots/api#checklisttasksadded).
+
+    Describes a service message about tasks added to a checklist.
+    """
+
+    tasks: list[ChecklistTask] = field()
+    """List of tasks added to the checklist."""
+
+    checklist_message: Option[Message] = field(default=..., converter=From["Message | None"])
+    """Optional. Message containing the checklist to which the tasks were added.
+    Note that the Message object in this field will not contain the reply_to_message
+    field even if it itself is a reply."""
+
+
+class CommunityChatAdded(Model):
+    """Object `CommunityChatAdded`, see the [documentation](https://core.telegram.org/bots/api#communitychatadded).
+
+    Describes a service message about a chat or a bot being added to a community.
+    """
+
+    community: Community = field()
+    """The new community to which the chat or the bot belongs."""
+
+
+class CommunityChatJoined(Model):
+    """Object `CommunityChatJoined`, see the [documentation](https://core.telegram.org/bots/api#communitychatjoined).
+
+    Describes a service message about a chat being joined by a user from a community.
+    """
+
+    community: Community = field()
+    """The community from which the chat was joined."""
+
+
+class CommunityChatRemoved(Model):
+    """Object `CommunityChatRemoved`, see the [documentation](https://core.telegram.org/bots/api#communitychatremoved).
+
+    Describes a service message about a chat or a bot being removed from a community. Currently holds no information.
+    """
 
 
 class ChecklistTasksDone(Model):
@@ -3072,7 +3280,7 @@ class SharedUser(Model):
     username: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Username of the user, if the username was requested by the bot."""
 
-    photo: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=..., converter=From[list["PhotoSize"] | None])
     """Optional. Available sizes of the chat photo, if the photo was requested
     by the bot."""
 
@@ -3114,7 +3322,7 @@ class ChatShared(Model):
     """Optional. Username of the chat, if the username was requested by the bot
     and available."""
 
-    photo: Option[list[PhotoSize]] = field(default=..., converter=From["list[PhotoSize] | None"])
+    photo: Option[list[PhotoSize]] = field(default=..., converter=From[list["PhotoSize"] | None])
     """Optional. Available sizes of the chat photo, if the photo was requested
     by the bot."""
 
@@ -3195,6 +3403,7 @@ class DirectMessagePriceChanged(Model):
 
     are_direct_messages_enabled: bool = field()
     """True, if direct messages are enabled for the channel chat; False otherwise."""
+    """True, if direct messages are enabled for the channel chat; False otherwise."""
 
     direct_message_star_count: Option[int] = field(default=..., converter=From[int | None])
     """Optional. The new number of Telegram Stars that must be paid by users for
@@ -3259,6 +3468,7 @@ class SuggestedPostPaid(Model):
     currency: Literal[Currency.XTR, Currency.TON] = field()
     """Currency in which the payment was made. Currently, one of `XTR` for Telegram
     Stars or `TON` for TON grams."""
+    Stars or `TON` for TON grams."""
 
     suggested_post_message: Option[Message] = field(default=..., converter=From["Message | None"])
     """Optional. Message containing the suggested post. Note that the Message
@@ -3267,6 +3477,7 @@ class SuggestedPostPaid(Model):
 
     amount: Option[int] = field(default=..., converter=From[int | None])
     """Optional. The amount of the currency that was received by the channel in
+    nanograms; for payments in TON grams only."""
     nanograms; for payments in TON grams only."""
 
     star_amount: Option[StarAmount] = field(default=..., converter=From["StarAmount | None"])
@@ -3448,9 +3659,13 @@ class SuggestedPostPrice(Model):
     currency: Literal[Currency.XTR, Currency.TON] = field()
     """Currency in which the post will be paid. Currently, must be one of `XTR` for
     Telegram Stars or `TON` for TON grams."""
+    Telegram Stars or `TON` for TON grams."""
 
     amount: int = field()
     """The amount of the currency that will be paid for the post in the smallest units
+    of the currency, i.e. Telegram Stars or nanograms. Currently, price in
+    Telegram Stars must be between 5 and 100000, and price in nanograms must
+    be between 10000000 and 10000000000000."""
     of the currency, i.e. Telegram Stars or nanograms. Currently, price in
     Telegram Stars must be between 5 and 100000, and price in nanograms must
     be between 10000000 and 10000000000000."""
@@ -3583,11 +3798,13 @@ class ReplyKeyboardMarkup(Model):
     is_persistent: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Requests clients to always show the keyboard when the regular
     keyboard is hidden. Defaults to False, in which case the custom keyboard
+    keyboard is hidden. Defaults to False, in which case the custom keyboard
     can be hidden and opened with a keyboard icon."""
 
     resize_keyboard: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Requests clients to resize the keyboard vertically for optimal
     fit (e.g., make the keyboard smaller if there are just two rows of buttons).
+    Defaults to False, in which case the custom keyboard is always of the same
     Defaults to False, in which case the custom keyboard is always of the same
     height as the app's standard keyboard."""
 
@@ -3595,6 +3812,7 @@ class ReplyKeyboardMarkup(Model):
     """Optional. Requests clients to hide the keyboard as soon as it's been used.
     The keyboard will still be available, but clients will automatically display
     the usual letter-keyboard in the chat - the user can press a special button
+    in the input field to see the custom keyboard again. Defaults to False."""
     in the input field to see the custom keyboard again. Defaults to False."""
 
     input_field_placeholder: Option[str] = field(default=..., converter=From[str | None])
@@ -3608,6 +3826,10 @@ class ReplyKeyboardMarkup(Model):
     forum topic, sender of the original message. Example: A user requests to
     change the bot's language, bot replies to the request with a keyboard to
     select the new language. Other users in the group don't see the keyboard."""
+
+    force_reply: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the reply interface must be shown to the user, as if
+    they had manually selected the bot's message and tapped 'Reply'."""
 
     force_reply: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the reply interface must be shown to the user, as if
@@ -3831,6 +4053,11 @@ class InlineKeyboardMarkup(Model):
     they had manually selected the bot's message and tapped 'Reply'. The value
     of the field can't be changed when the inline keyboard is edited."""
 
+    force_reply: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the reply interface must be shown to the user, as if
+    they had manually selected the bot's message and tapped 'Reply'. The value
+    of the field can't be changed when the inline keyboard is edited."""
+
 
 class InlineKeyboardButton(Model):
     """Object `InlineKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#inlinekeyboardbutton).
@@ -3870,6 +4097,8 @@ class InlineKeyboardButton(Model):
 
     login_url: Option[LoginUrl] = field(default=..., converter=From["LoginUrl | None"])
     """Optional. An HTTPS URL used to automatically authorize the user. Can be
+    used as a replacement for the Telegram Login Widget. Not supported for ephemeral
+    messages."""
     used as a replacement for the Telegram Login Widget. Not supported for ephemeral
     messages."""
 
@@ -3915,10 +4144,14 @@ class InlineKeyboardButton(Model):
     disabled: Option[DisabledButton] = field(default=..., converter=From["DisabledButton | None"])
     """Optional. If set, then the button is disabled and does nothing."""
 
+    disabled: Option[DisabledButton] = field(default=..., converter=From["DisabledButton | None"])
+    """Optional. If set, then the button is disabled and does nothing."""
+
 
 class LoginUrl(Model):
     """Object `LoginUrl`, see the [documentation](https://core.telegram.org/bots/api#loginurl).
 
+    This object represents a parameter of the inline keyboard button used to automatically authorize a user. It serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
     This object represents a parameter of the inline keyboard button used to automatically authorize a user. It serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
     """
 
@@ -3934,6 +4167,11 @@ class LoginUrl(Model):
     """Optional. New text of the button in forwarded messages."""
 
     bot_username: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Username of a bot, which will be used for user authorization;
+    not supported in RichMessageButton. See Setting up a bot for more details.
+    If not specified, the current bot's username will be assumed. The url's
+    domain must be the same as the domain linked with the bot. See Linking your
+    domain to the bot for more details."""
     """Optional. Username of a bot, which will be used for user authorization;
     not supported in RichMessageButton. See Setting up a bot for more details.
     If not specified, the current bot's username will be assumed. The url's
@@ -3985,6 +4223,13 @@ class DisabledButton(Model):
     """
 
 
+class DisabledButton(Model):
+    """Object `DisabledButton`, see the [documentation](https://core.telegram.org/bots/api#disabledbutton).
+
+    This object represents a disabled button which does nothing. Currently holds no information.
+    """
+
+
 class CallbackQuery(Model):
     """Object `CallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#callbackquery).
 
@@ -4001,7 +4246,7 @@ class CallbackQuery(Model):
     """Global identifier, uniquely corresponding to the chat to which the message
     with the callback button was sent. Useful for high scores in games."""
 
-    message: Option[Sum[Message, InaccessibleMessage]] = field(
+    message: Option[TypeAliases.AccessibleMessage] = field(
         default=..., converter=From["Message | InaccessibleMessage | None"]
     )
     """Optional. Message sent by the bot with the callback button that originated
@@ -4028,6 +4273,7 @@ class ForceReply(Model):
 
     force_reply: bool = field()
     """Shows reply interface to the user, as if they had manually selected the bot's
+    """Shows reply interface to the user, as if they had manually selected the bot's
     message and tapped 'Reply'."""
 
     input_field_placeholder: Option[str] = field(default=..., converter=From[str | None])
@@ -4039,6 +4285,23 @@ class ForceReply(Model):
     only. Targets: 1) users that are @mentioned in the text of the Message object;
     2) if the bot's message is a reply to a message in the same chat and forum topic,
     sender of the original message."""
+
+
+class Community(Model):
+    """Object `Community`, see the [documentation](https://core.telegram.org/bots/api#community).
+
+    Represents a community (a group of chats).
+    """
+
+    id: int = field()
+    """Unique identifier for this community. This number may have more than 32
+    significant bits and some programming languages may have difficulty/silent
+    defects in interpreting it. But it has at most 52 significant bits, so a signed
+    64-bit integer or double-precision float type are safe for storing this
+    identifier."""
+
+    name: str = field()
+    """Name of the community."""
 
 
 class Community(Model):
@@ -4179,6 +4442,10 @@ class ChatAdministratorRights(Model):
     """True, if the administrator can manage chat welcome messages or directly
     send them in the case of bots."""
 
+    can_send_welcome_messages: bool = field()
+    """True, if the administrator can manage chat welcome messages or directly
+    send them in the case of bots."""
+
     can_post_messages: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can post messages in the channel,
     approve suggested posts, or access channel statistics; for channels only."""
@@ -4202,6 +4469,7 @@ class ChatAdministratorRights(Model):
     can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit the tags of regular members;
     for groups and supergroups only."""
+    for groups and supergroups only."""
 
 
 class ChatMemberUpdated(Model):
@@ -4219,28 +4487,14 @@ class ChatMemberUpdated(Model):
     date: datetime = field(converter=From[datetime | int])
     """Date the change was done in Unix time."""
 
-    old_chat_member: Sum[
-        ChatMemberOwner,
-        ChatMemberAdministrator,
-        ChatMemberMember,
-        ChatMemberRestricted,
-        ChatMemberLeft,
-        ChatMemberBanned,
-    ] = field(
+    old_chat_member: TypeAliases.ChatMember = field(
         converter=From[
             "ChatMemberOwner | ChatMemberAdministrator | ChatMemberMember | ChatMemberRestricted | ChatMemberLeft | ChatMemberBanned"
         ]
     )
     """Previous information about the chat member."""
 
-    new_chat_member: Sum[
-        ChatMemberOwner,
-        ChatMemberAdministrator,
-        ChatMemberMember,
-        ChatMemberRestricted,
-        ChatMemberLeft,
-        ChatMemberBanned,
-    ] = field(
+    new_chat_member: TypeAliases.ChatMember = field(
         converter=From[
             "ChatMemberOwner | ChatMemberAdministrator | ChatMemberMember | ChatMemberRestricted | ChatMemberLeft | ChatMemberBanned"
         ]
@@ -4339,6 +4593,10 @@ class ChatMemberAdministrator(ChatMember):
     """True, if the administrator can manage chat welcome messages or directly
     send them in the case of bots."""
 
+    can_send_welcome_messages: bool = field()
+    """True, if the administrator can manage chat welcome messages or directly
+    send them in the case of bots."""
+
     status: Literal["administrator"] = field(default="administrator")
     """The member's status in the chat, always `administrator`."""
 
@@ -4364,6 +4622,7 @@ class ChatMemberAdministrator(ChatMember):
 
     can_manage_tags: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the administrator can edit the tags of regular members;
+    for groups and supergroups only."""
     for groups and supergroups only."""
 
     custom_title: Option[str] = field(default=..., converter=From[str | None])
@@ -4525,6 +4784,7 @@ class ChatJoinRequest(Model):
     query_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Identifier of the join request query; for bots assigned to process
     join requests only. If present, then the bot must call sendChatJoinRequestWebApp
+    join requests only. If present, then the bot must call sendChatJoinRequestWebApp
     or directly call answerChatJoinRequestQuery within 10 seconds."""
 
     @property
@@ -4591,6 +4851,7 @@ class ChatPermissions(Model):
     supergroups."""
 
     can_manage_topics: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the user is allowed to create forum topics. If omitted,
     """Optional. True, if the user is allowed to create forum topics. If omitted,
     defaults to the value of can_pin_messages."""
 
@@ -4772,7 +5033,7 @@ class StoryAreaTypeSuggestedReaction(StoryAreaType):
     Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas.
     """
 
-    reaction_type: Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field(
+    reaction_type: TypeAliases.Reaction = field(
         converter=From["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]
     )
     """Type of the reaction."""
@@ -4915,9 +5176,7 @@ class ReactionCount(Model):
     Represents a reaction added to a message along with the number of times it was added.
     """
 
-    type: Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid] = field(
-        converter=From["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]
-    )
+    type: TypeAliases.Reaction = field(converter=From["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"])
     """Type of the reaction."""
 
     total_count: int = field()
@@ -4939,12 +5198,12 @@ class MessageReactionUpdated(Model):
     date: datetime = field(converter=From[datetime | int])
     """Date of the change in Unix time."""
 
-    old_reaction: list[Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field(
+    old_reaction: list[TypeAliases.Reaction] = field(
         converter=From[list["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]]
     )
     """Previous list of reaction types that were set by the user."""
 
-    new_reaction: list[Sum[ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid]] = field(
+    new_reaction: list[TypeAliases.Reaction] = field(
         converter=From[list["ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid"]]
     )
     """New list of reaction types that have been set by the user."""
@@ -5257,7 +5516,7 @@ class GiftInfo(Model):
     text: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Text of the message that was added to the gift."""
 
-    entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the text."""
 
     is_private: Option[bool] = field(default=..., converter=From[bool | None])
@@ -5288,7 +5547,7 @@ class UniqueGiftInfo(Model):
     text: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Text of the message that was added to the gift."""
 
-    entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the text."""
 
     is_private: Option[bool] = field(default=..., converter=From[bool | None])
@@ -5301,9 +5560,11 @@ class UniqueGiftInfo(Model):
     """Optional. For gifts bought from other users, the currency in which the payment
     for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON`
     for TON grams."""
+    for TON grams."""
 
     last_resale_amount: Option[int] = field(default=..., converter=From[int | None])
     """Optional. For gifts bought from other users, the price paid for the gift
+    in either Telegram Stars or nanograms."""
     in either Telegram Stars or nanograms."""
 
     owned_gift_id: Option[str] = field(default=..., converter=From[str | None])
@@ -5344,7 +5605,7 @@ class OwnedGiftRegular(OwnedGift):
     text: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Text of the message that was added to the gift."""
 
-    entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the text."""
 
     is_private: Option[bool] = field(default=..., converter=From[bool | None])
@@ -5447,7 +5708,7 @@ class BotAccessSettings(Model):
     """True, if only selected users can access the bot. The bot's owner can always
     access it."""
 
-    added_users: Option[list[User]] = field(default=..., converter=From["list[User] | None"])
+    added_users: Option[list[User]] = field(default=..., converter=From[list["User"] | None])
     """Optional. The list of other users who have access to the bot if the access
     is restricted."""
 
@@ -5506,6 +5767,10 @@ class BotCommand(Model):
     """Optional. True, if the command sends an ephemeral message, which can be
     seen only by the sender of the message and the bot."""
 
+    is_ephemeral: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. True, if the command sends an ephemeral message, which can be
+    seen only by the sender of the message and the bot."""
+
 
 class BotCommandScopeDefault(BotCommandScope):
     """Object `BotCommandScopeDefault`, see the [documentation](https://core.telegram.org/bots/api#botcommandscopedefault).
@@ -5553,7 +5818,7 @@ class BotCommandScopeChat(BotCommandScope):
     Represents the scope of bot commands, covering a specific chat.
     """
 
-    chat_id: Sum[int, str] = field(converter=From[int | str])
+    chat_id: TypeAliases.ChatId = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
     in the format @username. Channel direct messages chats and channel chats
     aren't supported."""
@@ -5568,7 +5833,7 @@ class BotCommandScopeChatAdministrators(BotCommandScope):
     Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
     """
 
-    chat_id: Sum[int, str] = field(converter=From[int | str])
+    chat_id: TypeAliases.ChatId = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
     in the format @username. Channel direct messages chats and channel chats
     aren't supported."""
@@ -5583,7 +5848,7 @@ class BotCommandScopeChatMember(BotCommandScope):
     Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
     """
 
-    chat_id: Sum[int, str] = field(converter=From[int | str])
+    chat_id: TypeAliases.ChatId = field(converter=From[int | str])
     """Unique identifier for the target chat or username of the target supergroup
     in the format @username. Channel direct messages chats and channel chats
     aren't supported."""
@@ -5733,7 +5998,7 @@ class ChatBoost(Model):
     """Point in time (Unix timestamp) when the boost will automatically expire,
     unless the booster's Telegram Premium subscription is prolonged."""
 
-    source: Sum[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field(
+    source: TypeAliases.ChatBoostSource = field(
         converter=From["ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway"]
     )
     """Source of the added boost."""
@@ -5767,7 +6032,7 @@ class ChatBoostRemoved(Model):
     remove_date: datetime = field(converter=From[datetime | int])
     """Point in time (Unix timestamp) when the boost was removed."""
 
-    source: Sum[ChatBoostSourcePremium, ChatBoostSourceGiftCode, ChatBoostSourceGiveaway] = field(
+    source: TypeAliases.ChatBoostSource = field(
         converter=From["ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway"]
     )
     """Source of the removed boost."""
@@ -5976,7 +6241,7 @@ class InputMediaAnimation(InputPollMedia, InputPollOptionMedia, InputMedia):
     Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -5985,7 +6250,7 @@ class InputMediaAnimation(InputPollMedia, InputPollOptionMedia, InputMedia):
     type: Literal["animation"] = field(default="animation")
     """Type of the media, must be animation."""
 
-    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[TypeAliases.InputFileSource] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -6008,11 +6273,12 @@ class InputMediaAnimation(InputPollMedia, InputPollOptionMedia, InputMedia):
     """Optional. Mode for parsing entities in the animation caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     width: Option[int] = field(default=..., converter=From[int | None])
@@ -6034,7 +6300,7 @@ class InputMediaAudio(InputPollMedia, InputMedia):
     Represents an audio file to be treated as music to be sent.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -6043,7 +6309,7 @@ class InputMediaAudio(InputPollMedia, InputMedia):
     type: Literal["audio"] = field(default="audio")
     """Type of the media, must be audio."""
 
-    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[TypeAliases.InputFileSource] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -6066,7 +6332,7 @@ class InputMediaAudio(InputPollMedia, InputMedia):
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6086,7 +6352,7 @@ class InputMediaDocument(InputPollMedia, InputMedia):
     Represents a general file to be sent.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -6095,7 +6361,7 @@ class InputMediaDocument(InputPollMedia, InputMedia):
     type: Literal["document"] = field(default="document")
     """Type of the media, must be document."""
 
-    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[TypeAliases.InputFileSource] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -6118,7 +6384,7 @@ class InputMediaDocument(InputPollMedia, InputMedia):
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6149,14 +6415,14 @@ class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     Represents a live photo to be sent.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """Video of the live photo to send. Pass a file_id to send a file that exists on
     the Telegram servers (recommended) or pass `attach://<file_attach_name>`
     to upload a new one using multipart/form-data under <file_attach_name>
     name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
     Sending live photos by a URL is currently unsupported."""
 
-    photo: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    photo: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """The static photo to send. Pass a file_id to send a file that exists on the Telegram
     servers (recommended) or pass `attach://<file_attach_name>` to upload
     a new one using multipart/form-data under <file_attach_name> name. More
@@ -6180,11 +6446,12 @@ class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     """Optional. Mode for parsing entities in the live photo caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
@@ -6217,7 +6484,7 @@ class InputMediaPhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     Represents a photo to be sent.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -6240,11 +6507,12 @@ class InputMediaPhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
@@ -6257,7 +6525,7 @@ class InputMediaSticker(InputPollOptionMedia):
     Represents a sticker file to be sent.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from
     the Internet, or pass `attach://<file_attach_name>` to upload a new .WEBP,
@@ -6312,7 +6580,7 @@ class InputMediaVideo(InputPollMedia, InputPollOptionMedia, InputMedia):
     Represents a video to be sent.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -6321,7 +6589,7 @@ class InputMediaVideo(InputPollMedia, InputPollOptionMedia, InputMedia):
     type: Literal["video"] = field(default="video")
     """Type of the media, must be video."""
 
-    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[TypeAliases.InputFileSource] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -6330,7 +6598,7 @@ class InputMediaVideo(InputPollMedia, InputPollOptionMedia, InputMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    cover: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    cover: Option[TypeAliases.InputFileSource] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
@@ -6354,11 +6622,12 @@ class InputMediaVideo(InputPollMedia, InputPollOptionMedia, InputMedia):
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     width: Option[int] = field(default=..., converter=From[int | None])
@@ -6406,7 +6675,7 @@ class InputMediaVoiceNote(Model):
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -6420,14 +6689,14 @@ class InputPaidMediaLivePhoto(InputPaidMedia):
     The paid media to send is a live photo.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """Video of the live photo to send. Pass a file_id to send a file that exists on
     the Telegram servers (recommended) or pass `attach://<file_attach_name>`
     to upload a new one using multipart/form-data under <file_attach_name>
     name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
     Sending live photos by a URL is currently unsupported."""
 
-    photo: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    photo: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """The static photo to send. Pass a file_id to send a file that exists on the Telegram
     servers (recommended) or pass `attach://<file_attach_name>` to upload
     a new one using multipart/form-data under <file_attach_name> name. More
@@ -6444,7 +6713,7 @@ class InputPaidMediaPhoto(InputPaidMedia):
     The paid media to send is a photo.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -6460,7 +6729,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     The paid media to send is a video.
     """
 
-    media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    media: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
@@ -6469,7 +6738,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     type: Literal["video"] = field(default="video")
     """Type of the media, must be video."""
 
-    thumbnail: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    thumbnail: Option[TypeAliases.InputFileSource] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Thumbnail of the file sent; can be ignored if thumbnail generation
     for the file is supported server-side. The thumbnail should be in JPEG format
     and less than 200 kB in size. A thumbnail's width and height should not exceed
@@ -6478,7 +6747,7 @@ class InputPaidMediaVideo(InputPaidMedia):
     if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
     More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
 
-    cover: Option[Sum[str, InputFile]] = field(default=..., converter=From["str | InputFile | None"])
+    cover: Option[TypeAliases.InputFileSource] = field(default=..., converter=From["str | InputFile | None"])
     """Optional. Cover for the video in the message. Pass a file_id to send a file
     that exists on the Telegram servers (recommended), pass an HTTP URL for
     Telegram to get a file from the Internet, or pass `attach://<file_attach_name>`
@@ -6507,7 +6776,7 @@ class InputProfilePhotoStatic(InputProfilePhoto):
     A static profile photo in the .JPG format.
     """
 
-    photo: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    photo: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """The static profile photo. Profile photos can't be reused and can only be
     uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
@@ -6523,7 +6792,7 @@ class InputProfilePhotoAnimated(InputProfilePhoto):
     An animated profile photo in the MPEG4 format.
     """
 
-    animation: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    animation: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """The animated profile photo. Profile photos can't be reused and can only
     be uploaded as a new file, so you can pass `attach://<file_attach_name>`
     if the photo was uploaded using multipart/form-data under <file_attach_name>.
@@ -6543,7 +6812,7 @@ class InputStoryContentPhoto(InputStoryContent):
     Describes a photo to post as a story.
     """
 
-    photo: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    photo: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """The photo to post as a story. The photo must be of the size 1080x1920 and must
     not exceed 10 MB. The photo can't be reused and can only be uploaded as a new
     file, so you can pass `attach://<file_attach_name>` if the photo was uploaded
@@ -6560,7 +6829,7 @@ class InputStoryContentVideo(InputStoryContent):
     Describes a video to post as a story.
     """
 
-    video: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    video: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """The video to post as a story. The video must be of the size 720x1280, streamable,
     encoded with H.265 codec, with key frames added each second in the MPEG4
     format, and must not exceed 30 MB. The video can't be reused and can only be
@@ -6691,7 +6960,7 @@ class InputSticker(Model):
     This object describes a sticker to be added to a sticker set.
     """
 
-    sticker: Sum[str, InputFile] = field(converter=From["str | InputFile"])
+    sticker: TypeAliases.InputFileSource = field(converter=From["str | InputFile"])
     """The added sticker. Pass a file_id as a String to send a file that already exists
     on the Telegram servers, pass an HTTP URL as a String for Telegram to get a
     file from the Internet, or pass `attach://<file_attach_name>` to upload
@@ -6721,7 +6990,13 @@ class RichMessage(Model):
     Rich formatted message.
     """
 
-    blocks: list[RichBlock] = field()
+    blocks: list[TypeAliases.RichBlock] = field(
+        converter=From[
+            list[
+                "RichBlockParagraph | RichBlockSectionHeading | RichBlockPreformatted | RichBlockFooter | RichBlockDivider | RichBlockMathematicalExpression | RichBlockAnchor | RichBlockList | RichBlockBlockQuotation | RichBlockExpandableBlockQuotation | RichBlockPullQuotation | RichBlockCollage | RichBlockSlideshow | RichBlockTable | RichBlockDetails | RichBlockMap | RichBlockButtons | RichBlockAnimation | RichBlockAudio | RichBlockDocument | RichBlockPhoto | RichBlockVideo | RichBlockVoiceNote | RichBlockThinking"
+            ]
+        ]
+    )
     """Content of the message."""
 
     is_rtl: Option[bool] = field(default=..., converter=From[bool | None])
@@ -6766,13 +7041,18 @@ class InputRichMessage(Model):
     ] = field(
         default=...,
         converter=From[
-            "list[InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking] | None"
+            list[
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+            ]
+            | None
         ],
     )
     """Optional. Content of the rich message to send described as a list of blocks."""
 
     html: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Content of the rich message to send described using HTML formatting.
+    See rich message formatting options for more details. Use media field to
+    specify the media used in the message."""
     See rich message formatting options for more details. Use media field to
     specify the media used in the message."""
 
@@ -6782,7 +7062,7 @@ class InputRichMessage(Model):
     media field to specify the media used in the message."""
 
     media: Option[list[InputRichMessageMedia]] = field(
-        default=..., converter=From["list[InputRichMessageMedia] | None"]
+        default=..., converter=From[list["InputRichMessageMedia"] | None]
     )
     """Optional. List of media that are specified in the markdown or html fields
     using tg://photo?id=, tg://video?id=, tg://document?id=, and tg://audio?id=
@@ -6825,7 +7105,40 @@ class RichMessageButton(Model):
     This object represents a button in a RichMessage. Exactly one of the fields other than text and style must be used to specify the type of the button.
     """
 
-    text: RichText = field()
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the button. May contain only plain text, RichTextCustomEmoji and
     RichTextDateTime entities."""
 
@@ -6892,11 +7205,15 @@ class RichTextBold(RichText):
     A bold text.
     """
 
-    type: str = field()
-    """Type of the rich text, always `bold`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
+
+    type: Literal["bold"] = field(default="bold")
+    """Type of the rich text, always `bold`."""
 
 
 class RichTextItalic(RichText):
@@ -6905,11 +7222,15 @@ class RichTextItalic(RichText):
     An italicized text.
     """
 
-    type: str = field()
-    """Type of the rich text, always `italic`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
+
+    type: Literal["italic"] = field(default="italic")
+    """Type of the rich text, always `italic`."""
 
 
 class RichTextUnderline(RichText):
@@ -6918,11 +7239,15 @@ class RichTextUnderline(RichText):
     An underlined text.
     """
 
-    type: str = field()
-    """Type of the rich text, always `underline`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
+
+    type: Literal["underline"] = field(default="underline")
+    """Type of the rich text, always `underline`."""
 
 
 class RichTextStrikethrough(RichText):
@@ -6931,11 +7256,15 @@ class RichTextStrikethrough(RichText):
     A strikethrough text.
     """
 
-    type: str = field()
-    """Type of the rich text, always `strikethrough`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
+
+    type: Literal["strikethrough"] = field(default="strikethrough")
+    """Type of the rich text, always `strikethrough`."""
 
 
 class RichTextSpoiler(RichText):
@@ -6944,11 +7273,15 @@ class RichTextSpoiler(RichText):
     A text covered by a spoiler.
     """
 
-    type: str = field()
-    """Type of the rich text, always `spoiler`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
+
+    type: Literal["spoiler"] = field(default="spoiler")
+    """Type of the rich text, always `spoiler`."""
 
 
 class RichTextDateTime(RichText):
@@ -6957,10 +7290,11 @@ class RichTextDateTime(RichText):
     Formatted date and time.
     """
 
-    type: str = field()
-    """Type of the rich text, always `date_time`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     unix_time: datetime = field(converter=From[datetime | int])
@@ -6970,6 +7304,9 @@ class RichTextDateTime(RichText):
     """The string that defines the formatting of the date and time. See date-time
     entity formatting for more details."""
 
+    type: Literal["date_time"] = field(default="date_time")
+    """Type of the rich text, always `date_time`."""
+
 
 class RichTextTextMention(RichText):
     """Object `RichTextTextMention`, see the [documentation](https://core.telegram.org/bots/api#richtexttextmention).
@@ -6977,14 +7314,18 @@ class RichTextTextMention(RichText):
     A mention of a Telegram user by their identifier.
     """
 
-    type: str = field()
-    """Type of the rich text, always `text_mention`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     user: User = field()
     """The mentioned user."""
+
+    type: Literal["text_mention"] = field(default="text_mention")
+    """Type of the rich text, always `text_mention`."""
 
 
 class RichTextSubscript(RichText):
@@ -6993,11 +7334,15 @@ class RichTextSubscript(RichText):
     A subscript text.
     """
 
-    type: str = field()
-    """Type of the rich text, always `subscript`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
+
+    type: Literal["subscript"] = field(default="subscript")
+    """Type of the rich text, always `subscript`."""
 
 
 class RichTextSuperscript(RichText):
@@ -7006,11 +7351,15 @@ class RichTextSuperscript(RichText):
     A superscript text.
     """
 
-    type: str = field()
-    """Type of the rich text, always `superscript`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
+
+    type: Literal["superscript"] = field(default="superscript")
+    """Type of the rich text, always `superscript`."""
 
 
 class RichTextMarked(RichText):
@@ -7019,11 +7368,15 @@ class RichTextMarked(RichText):
     A marked text.
     """
 
-    type: str = field()
-    """Type of the rich text, always `marked`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
+
+    type: Literal["marked"] = field(default="marked")
+    """Type of the rich text, always `marked`."""
 
 
 class RichTextCode(RichText):
@@ -7032,11 +7385,15 @@ class RichTextCode(RichText):
     A monowidth text.
     """
 
-    type: str = field()
-    """Type of the rich text, always `code`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
+
+    type: Literal["code"] = field(default="code")
+    """Type of the rich text, always `code`."""
 
 
 class RichTextCustomEmoji(RichText):
@@ -7045,15 +7402,15 @@ class RichTextCustomEmoji(RichText):
     A custom emoji.
     """
 
-    type: str = field()
-    """Type of the rich text, always `custom_emoji`."""
-
     custom_emoji_id: str = field()
     """Unique identifier of the custom emoji. Use getCustomEmojiStickers to
     get full information about the sticker."""
 
     alternative_text: str = field()
     """Alternative emoji for the custom emoji."""
+
+    type: Literal["custom_emoji"] = field(default="custom_emoji")
+    """Type of the rich text, always `custom_emoji`."""
 
 
 class RichTextMathematicalExpression(RichText):
@@ -7062,11 +7419,11 @@ class RichTextMathematicalExpression(RichText):
     A mathematical expression.
     """
 
-    type: str = field()
-    """Type of the rich text, always `mathematical_expression`."""
-
     expression: str = field()
     """The expression in LaTeX format."""
+
+    type: Literal["mathematical_expression"] = field(default="mathematical_expression")
+    """Type of the rich text, always `mathematical_expression`."""
 
 
 class RichTextUrl(RichText):
@@ -7075,14 +7432,18 @@ class RichTextUrl(RichText):
     A text with a link.
     """
 
-    type: str = field()
-    """Type of the rich text, always `url`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     url: str = field()
     """URL of the link."""
+
+    type: Literal["url"] = field(default="url")
+    """Type of the rich text, always `url`."""
 
 
 class RichTextEmailAddress(RichText):
@@ -7091,14 +7452,18 @@ class RichTextEmailAddress(RichText):
     A text with an email address.
     """
 
-    type: str = field()
-    """Type of the rich text, always `email_address`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     email_address: str = field()
     """The email address."""
+
+    type: Literal["email_address"] = field(default="email_address")
+    """Type of the rich text, always `email_address`."""
 
 
 class RichTextPhoneNumber(RichText):
@@ -7107,14 +7472,18 @@ class RichTextPhoneNumber(RichText):
     A text with a phone number.
     """
 
-    type: str = field()
-    """Type of the rich text, always `phone_number`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     phone_number: str = field()
     """The phone number."""
+
+    type: Literal["phone_number"] = field(default="phone_number")
+    """Type of the rich text, always `phone_number`."""
 
 
 class RichTextBankCardNumber(RichText):
@@ -7123,14 +7492,18 @@ class RichTextBankCardNumber(RichText):
     A text with a bank card number.
     """
 
-    type: str = field()
-    """Type of the rich text, always `bank_card_number`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     bank_card_number: str = field()
     """The bank card number."""
+
+    type: Literal["bank_card_number"] = field(default="bank_card_number")
+    """Type of the rich text, always `bank_card_number`."""
 
 
 class RichTextMention(RichText):
@@ -7139,14 +7512,18 @@ class RichTextMention(RichText):
     A mention by a username.
     """
 
-    type: str = field()
-    """Type of the rich text, always `mention`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     username: str = field()
     """The username."""
+
+    type: Literal["mention"] = field(default="mention")
+    """Type of the rich text, always `mention`."""
 
 
 class RichTextHashtag(RichText):
@@ -7155,14 +7532,18 @@ class RichTextHashtag(RichText):
     A hashtag.
     """
 
-    type: str = field()
-    """Type of the rich text, always `hashtag`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     hashtag: str = field()
     """The hashtag."""
+
+    type: Literal["hashtag"] = field(default="hashtag")
+    """Type of the rich text, always `hashtag`."""
 
 
 class RichTextCashtag(RichText):
@@ -7174,7 +7555,11 @@ class RichTextCashtag(RichText):
     type: str = field()
     """Type of the rich text, always `cashtag`."""
 
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     cashtag: str = field()
@@ -7187,14 +7572,18 @@ class RichTextBotCommand(RichText):
     A bot command.
     """
 
-    type: str = field()
-    """Type of the rich text, always `bot_command`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The text."""
 
     bot_command: str = field()
     """The bot command."""
+
+    type: Literal["bot_command"] = field(default="bot_command")
+    """Type of the rich text, always `bot_command`."""
 
 
 class RichTextButton(RichText):
@@ -7216,11 +7605,11 @@ class RichTextAnchor(RichText):
     An anchor.
     """
 
-    type: str = field()
-    """Type of the rich text, always `anchor`."""
-
     name: str = field()
     """The name of the anchor."""
+
+    type: Literal["anchor"] = field(default="anchor")
+    """Type of the rich text, always `anchor`."""
 
 
 class RichTextAnchorLink(RichText):
@@ -7229,15 +7618,19 @@ class RichTextAnchorLink(RichText):
     A link to an anchor.
     """
 
-    type: str = field()
-    """Type of the rich text, always `anchor_link`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The link text."""
 
     anchor_name: str = field()
     """The name of the anchor. If the name is empty, then the link brings back to the
     top of the message."""
+
+    type: Literal["anchor_link"] = field(default="anchor_link")
+    """Type of the rich text, always `anchor_link`."""
 
 
 class RichTextReference(RichText):
@@ -7246,14 +7639,18 @@ class RichTextReference(RichText):
     A reference.
     """
 
-    type: str = field()
-    """Type of the rich text, always `reference`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the reference."""
 
     name: str = field()
     """The name of the reference."""
+
+    type: Literal["reference"] = field(default="reference")
+    """Type of the rich text, always `reference`."""
 
 
 class RichTextReferenceLink(RichText):
@@ -7262,14 +7659,18 @@ class RichTextReferenceLink(RichText):
     A link to a reference.
     """
 
-    type: str = field()
-    """Type of the rich text, always `reference_link`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """The link text."""
 
     reference_name: str = field()
     """The name of the reference."""
+
+    type: Literal["reference_link"] = field(default="reference_link")
+    """Type of the rich text, always `reference_link`."""
 
 
 class RichBlockCaption(Model):
@@ -7278,10 +7679,19 @@ class RichBlockCaption(Model):
     Caption of a rich formatted block.
     """
 
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Block caption."""
 
-    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    credit: Option[TypeAliases.RichText] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Block credit which corresponds to the HTML tag <cite>."""
 
 
@@ -7299,7 +7709,12 @@ class RichBlockTableCell(Model):
     """Vertical cell content alignment. Currently, must be one of `top`, `middle`,
     or `bottom`."""
 
-    text: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    text: Option[TypeAliases.RichText] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Text in the cell. If omitted, then the cell is invisible."""
 
     is_header: Option[bool] = field(default=..., converter=From[bool | None])
@@ -7321,7 +7736,13 @@ class RichBlockListItem(Model):
     label: str = field()
     """Label of the item."""
 
-    blocks: list[RichBlock] = field()
+    blocks: list[TypeAliases.RichBlock] = field(
+        converter=From[
+            list[
+                "RichBlockParagraph | RichBlockSectionHeading | RichBlockPreformatted | RichBlockFooter | RichBlockDivider | RichBlockMathematicalExpression | RichBlockAnchor | RichBlockList | RichBlockBlockQuotation | RichBlockExpandableBlockQuotation | RichBlockPullQuotation | RichBlockCollage | RichBlockSlideshow | RichBlockTable | RichBlockDetails | RichBlockMap | RichBlockButtons | RichBlockAnimation | RichBlockAudio | RichBlockDocument | RichBlockPhoto | RichBlockVideo | RichBlockVoiceNote | RichBlockThinking"
+            ]
+        ]
+    )
     """The content of the item."""
 
     has_checkbox: Option[bool] = field(default=..., converter=From[bool | None])
@@ -7333,7 +7754,7 @@ class RichBlockListItem(Model):
     value: Option[int] = field(default=..., converter=From[int | None])
     """Optional. For ordered lists, the numeric value of the item label."""
 
-    type: Option[str] = field(default=..., converter=From[str | None])
+    type: Option[ListItemLabelType] = field(default=..., converter=From[ListItemLabelType | None])
     """Optional. For ordered lists, the type of the item label; must be one of `a`
     for lowercase letters, `A` for uppercase letters, `i` for lowercase Roman
     numerals, `I` for uppercase Roman numerals, or `1` for decimal numbers."""
@@ -7345,11 +7766,15 @@ class RichBlockParagraph(RichBlock):
     A text paragraph, corresponding to the HTML tag <p>.
     """
 
-    type: str = field()
-    """Type of the block, always `paragraph`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
+
+    type: Literal["paragraph"] = field(default="paragraph")
+    """Type of the block, always `paragraph`."""
 
 
 class RichBlockSectionHeading(RichBlock):
@@ -7358,14 +7783,18 @@ class RichBlockSectionHeading(RichBlock):
     A section heading, corresponding to the HTML tags <h1>, <h2>, <h3>, <h4>, <h5>, or <h6>.
     """
 
-    type: str = field()
-    """Type of the block, always `heading`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
 
     size: int = field()
     """Relative size of the text font; 1-6, 1 is the largest, 6 is the smallest."""
+
+    type: Literal["heading"] = field(default="heading")
+    """Type of the block, always `heading`."""
 
 
 class RichBlockPreformatted(RichBlock):
@@ -7374,11 +7803,15 @@ class RichBlockPreformatted(RichBlock):
     A preformatted text block, corresponding to the nested HTML tags <pre> and <code>.
     """
 
-    type: str = field()
-    """Type of the block, always `pre`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
+
+    type: Literal["pre"] = field(default="pre")
+    """Type of the block, always `pre`."""
 
     language: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The programming language of the text."""
@@ -7390,11 +7823,15 @@ class RichBlockFooter(RichBlock):
     A footer, corresponding to the HTML tag <footer>.
     """
 
-    type: str = field()
-    """Type of the block, always `footer`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
+
+    type: Literal["footer"] = field(default="footer")
+    """Type of the block, always `footer`."""
 
 
 class RichBlockDivider(RichBlock):
@@ -7403,7 +7840,7 @@ class RichBlockDivider(RichBlock):
     A divider, corresponding to the HTML tag <hr/>.
     """
 
-    type: str = field()
+    type: Literal["divider"] = field(default="divider")
     """Type of the block, always `divider`."""
 
 
@@ -7413,11 +7850,11 @@ class RichBlockMathematicalExpression(RichBlock):
     A block with a mathematical expression in LaTeX format, corresponding to the custom HTML tag <tg-math-block>.
     """
 
-    type: str = field()
-    """Type of the block, always `mathematical_expression`."""
-
     expression: str = field()
     """The mathematical expression in LaTeX format."""
+
+    type: Literal["mathematical_expression"] = field(default="mathematical_expression")
+    """Type of the block, always `mathematical_expression`."""
 
 
 class RichBlockAnchor(RichBlock):
@@ -7426,11 +7863,11 @@ class RichBlockAnchor(RichBlock):
     A block with an anchor, corresponding to the HTML tag <a> with the attribute name.
     """
 
-    type: str = field()
-    """Type of the block, always `anchor`."""
-
     name: str = field()
     """The name of the anchor."""
+
+    type: Literal["anchor"] = field(default="anchor")
+    """Type of the block, always `anchor`."""
 
 
 class RichBlockList(RichBlock):
@@ -7439,11 +7876,11 @@ class RichBlockList(RichBlock):
     A list of blocks, corresponding to the HTML tag <ul> or <ol> with multiple nested tags <li>.
     """
 
-    type: str = field()
-    """Type of the block, always `list`."""
-
     items: list[RichBlockListItem] = field()
     """Items of the list."""
+
+    type: Literal["list"] = field(default="list")
+    """Type of the block, always `list`."""
 
 
 class RichBlockBlockQuotation(RichBlock):
@@ -7452,13 +7889,24 @@ class RichBlockBlockQuotation(RichBlock):
     A block quotation, corresponding to the HTML tag <blockquote>.
     """
 
-    type: str = field()
-    """Type of the block, always `blockquote`."""
-
-    blocks: list[RichBlock] = field()
+    blocks: list[TypeAliases.RichBlock] = field(
+        converter=From[
+            list[
+                "RichBlockParagraph | RichBlockSectionHeading | RichBlockPreformatted | RichBlockFooter | RichBlockDivider | RichBlockMathematicalExpression | RichBlockAnchor | RichBlockList | RichBlockBlockQuotation | RichBlockExpandableBlockQuotation | RichBlockPullQuotation | RichBlockCollage | RichBlockSlideshow | RichBlockTable | RichBlockDetails | RichBlockMap | RichBlockButtons | RichBlockAnimation | RichBlockAudio | RichBlockDocument | RichBlockPhoto | RichBlockVideo | RichBlockVoiceNote | RichBlockThinking"
+            ]
+        ]
+    )
     """Content of the block."""
 
-    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    type: Literal["blockquote"] = field(default="blockquote")
+    """Type of the block, always `blockquote`."""
+
+    credit: Option[TypeAliases.RichText] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Credit of the block."""
 
 
@@ -7471,10 +7919,79 @@ class RichBlockExpandableBlockQuotation(RichBlock):
     type: str = field()
     """Type of the block, always `expandable_blockquote`."""
 
-    text: RichText = field()
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Content of the block."""
 
-    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    credit: Option[
+        Sum[
+            str,
+            list[RichText],
+            RichTextBold,
+            RichTextItalic,
+            RichTextUnderline,
+            RichTextStrikethrough,
+            RichTextSpoiler,
+            RichTextDateTime,
+            RichTextTextMention,
+            RichTextSubscript,
+            RichTextSuperscript,
+            RichTextMarked,
+            RichTextCode,
+            RichTextCustomEmoji,
+            RichTextMathematicalExpression,
+            RichTextUrl,
+            RichTextEmailAddress,
+            RichTextPhoneNumber,
+            RichTextBankCardNumber,
+            RichTextMention,
+            RichTextHashtag,
+            RichTextCashtag,
+            RichTextBotCommand,
+            RichTextButton,
+            RichTextAnchor,
+            RichTextAnchorLink,
+            RichTextReference,
+            RichTextReferenceLink,
+        ]
+    ] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Credit of the block."""
 
 
@@ -7484,13 +8001,22 @@ class RichBlockPullQuotation(RichBlock):
     A quotation with centered text, loosely corresponding to the HTML tag <aside>.
     """
 
-    type: str = field()
-    """Type of the block, always `pullquote`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
 
-    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    type: Literal["pullquote"] = field(default="pullquote")
+    """Type of the block, always `pullquote`."""
+
+    credit: Option[TypeAliases.RichText] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Credit of the block."""
 
 
@@ -7500,11 +8026,17 @@ class RichBlockCollage(RichBlock):
     A collage, corresponding to the custom HTML tag <tg-collage>.
     """
 
-    type: str = field()
-    """Type of the block, always `collage`."""
-
-    blocks: list[RichBlock] = field()
+    blocks: list[TypeAliases.RichBlock] = field(
+        converter=From[
+            list[
+                "RichBlockParagraph | RichBlockSectionHeading | RichBlockPreformatted | RichBlockFooter | RichBlockDivider | RichBlockMathematicalExpression | RichBlockAnchor | RichBlockList | RichBlockBlockQuotation | RichBlockExpandableBlockQuotation | RichBlockPullQuotation | RichBlockCollage | RichBlockSlideshow | RichBlockTable | RichBlockDetails | RichBlockMap | RichBlockButtons | RichBlockAnimation | RichBlockAudio | RichBlockDocument | RichBlockPhoto | RichBlockVideo | RichBlockVoiceNote | RichBlockThinking"
+            ]
+        ]
+    )
     """Elements of the collage."""
+
+    type: Literal["collage"] = field(default="collage")
+    """Type of the block, always `collage`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -7516,11 +8048,17 @@ class RichBlockSlideshow(RichBlock):
     A slideshow, corresponding to the custom HTML tag <tg-slideshow>.
     """
 
-    type: str = field()
-    """Type of the block, always `slideshow`."""
-
-    blocks: list[RichBlock] = field()
+    blocks: list[TypeAliases.RichBlock] = field(
+        converter=From[
+            list[
+                "RichBlockParagraph | RichBlockSectionHeading | RichBlockPreformatted | RichBlockFooter | RichBlockDivider | RichBlockMathematicalExpression | RichBlockAnchor | RichBlockList | RichBlockBlockQuotation | RichBlockExpandableBlockQuotation | RichBlockPullQuotation | RichBlockCollage | RichBlockSlideshow | RichBlockTable | RichBlockDetails | RichBlockMap | RichBlockButtons | RichBlockAnimation | RichBlockAudio | RichBlockDocument | RichBlockPhoto | RichBlockVideo | RichBlockVoiceNote | RichBlockThinking"
+            ]
+        ]
+    )
     """Elements of the slideshow."""
+
+    type: Literal["slideshow"] = field(default="slideshow")
+    """Type of the block, always `slideshow`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -7532,11 +8070,11 @@ class RichBlockTable(RichBlock):
     A table, corresponding to the HTML tag <table>.
     """
 
-    type: str = field()
-    """Type of the block, always `table`."""
-
     cells: list[list[RichBlockTableCell]] = field()
     """Cells of the table."""
+
+    type: Literal["table"] = field(default="table")
+    """Type of the block, always `table`."""
 
     is_bordered: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the table has borders."""
@@ -7547,7 +8085,12 @@ class RichBlockTable(RichBlock):
     is_compact: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if table cells have smaller indents."""
 
-    caption: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    caption: Option[TypeAliases.RichText] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Caption of the table."""
 
 
@@ -7557,14 +8100,24 @@ class RichBlockDetails(RichBlock):
     An expandable block for details disclosure, corresponding to the HTML tag <details>.
     """
 
-    type: str = field()
-    """Type of the block, always `details`."""
-
-    summary: RichText = field()
+    summary: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Always shown summary of the block."""
 
-    blocks: list[RichBlock] = field()
+    blocks: list[TypeAliases.RichBlock] = field(
+        converter=From[
+            list[
+                "RichBlockParagraph | RichBlockSectionHeading | RichBlockPreformatted | RichBlockFooter | RichBlockDivider | RichBlockMathematicalExpression | RichBlockAnchor | RichBlockList | RichBlockBlockQuotation | RichBlockExpandableBlockQuotation | RichBlockPullQuotation | RichBlockCollage | RichBlockSlideshow | RichBlockTable | RichBlockDetails | RichBlockMap | RichBlockButtons | RichBlockAnimation | RichBlockAudio | RichBlockDocument | RichBlockPhoto | RichBlockVideo | RichBlockVoiceNote | RichBlockThinking"
+            ]
+        ]
+    )
     """Content of the block."""
+
+    type: Literal["details"] = field(default="details")
+    """Type of the block, always `details`."""
 
     is_open: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the content of the block is visible by default."""
@@ -7576,13 +8129,11 @@ class RichBlockMap(RichBlock):
     A block with a map, corresponding to the custom HTML tag <tg-map>.
     """
 
-    type: str = field()
-    """Type of the block, always `map`."""
-
     location: Location = field()
     """Location of the center of the map."""
 
     zoom: int = field()
+    """Map zoom level."""
     """Map zoom level."""
 
     width: int = field()
@@ -7591,8 +8142,28 @@ class RichBlockMap(RichBlock):
     height: int = field()
     """Expected height of the map."""
 
+    type: Literal["map"] = field(default="map")
+    """Type of the block, always `map`."""
+
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
+
+
+class RichBlockButtons(RichBlock):
+    """Object `RichBlockButtons`, see the [documentation](https://core.telegram.org/bots/api#richblockbuttons).
+
+    A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag <tg-button-row>.
+    """
+
+    type: str = field()
+    """Type of the block, always `buttons`."""
+
+    buttons: list[RichMessageButton] = field()
+    """The buttons."""
+
+    align: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Horizontal alignment of the buttons. Currently, must be one
+    of `left`, `center`, or `right`."""
 
 
 class RichBlockButtons(RichBlock):
@@ -7618,11 +8189,11 @@ class RichBlockAnimation(RichBlock):
     A block with an animation, corresponding to the HTML tag <video>.
     """
 
-    type: str = field()
-    """Type of the block, always `animation`."""
-
     animation: Animation = field()
     """The animation."""
+
+    type: Literal["animation"] = field(default="animation")
+    """Type of the block, always `animation`."""
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the media preview is covered by a spoiler animation."""
@@ -7637,11 +8208,11 @@ class RichBlockAudio(RichBlock):
     A block with a music file, corresponding to the HTML tag <audio>.
     """
 
-    type: str = field()
-    """Type of the block, always `audio`."""
-
     audio: Audio = field()
     """The audio."""
+
+    type: Literal["audio"] = field(default="audio")
+    """Type of the block, always `audio`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -7669,11 +8240,11 @@ class RichBlockPhoto(RichBlock):
     A block with a photo, corresponding to the HTML tag <img>.
     """
 
-    type: str = field()
-    """Type of the block, always `photo`."""
-
     photo: list[PhotoSize] = field()
     """Available sizes of the photo."""
+
+    type: Literal["photo"] = field(default="photo")
+    """Type of the block, always `photo`."""
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the media preview is covered by a spoiler animation."""
@@ -7688,11 +8259,11 @@ class RichBlockVideo(RichBlock):
     A block with a video, corresponding to the HTML tag <video>.
     """
 
-    type: str = field()
-    """Type of the block, always `video`."""
-
     video: Video = field()
     """The video."""
+
+    type: Literal["video"] = field(default="video")
+    """Type of the block, always `video`."""
 
     has_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the media preview is covered by a spoiler animation."""
@@ -7707,11 +8278,11 @@ class RichBlockVoiceNote(RichBlock):
     A block with a voice note, corresponding to the HTML tag <audio>.
     """
 
-    type: str = field()
-    """Type of the block, always `voice_note`."""
-
     voice_note: Voice = field()
     """The voice note."""
+
+    type: Literal["voice_note"] = field(default="voice_note")
+    """Type of the block, always `voice_note`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -7723,12 +8294,16 @@ class RichBlockThinking(RichBlock):
     A block with a "Thinking..." placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block.
     """
 
-    type: str = field()
-    """Type of the block, always `thinking`."""
-
-    text: RichText = field()
+    text: TypeAliases.RichText = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block. See https://t.me/addemoji/AIActions for examples
     of custom emoji that are recommended for usage in the block."""
+
+    type: Literal["thinking"] = field(default="thinking")
+    """Type of the block, always `thinking`."""
 
 
 class InputRichBlockListItem(Model):
@@ -7797,7 +8372,40 @@ class InputRichBlockParagraph(InputRichBlock):
     type: str = field()
     """Type of the block, always `paragraph`."""
 
-    text: RichText = field()
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
 
 
@@ -7810,7 +8418,40 @@ class InputRichBlockSectionHeading(InputRichBlock):
     type: str = field()
     """Type of the block, always `heading`."""
 
-    text: RichText = field()
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
 
     size: int = field()
@@ -7826,7 +8467,40 @@ class InputRichBlockPreformatted(InputRichBlock):
     type: str = field()
     """Type of the block, always `pre`."""
 
-    text: RichText = field()
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
 
     language: Option[str] = field(default=..., converter=From[str | None])
@@ -7842,7 +8516,40 @@ class InputRichBlockFooter(InputRichBlock):
     type: str = field()
     """Type of the block, always `footer`."""
 
-    text: RichText = field()
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
 
 
@@ -7940,7 +8647,43 @@ class InputRichBlockBlockQuotation(InputRichBlock):
     )
     """Content of the block."""
 
-    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    credit: Option[
+        Sum[
+            str,
+            list[RichText],
+            RichTextBold,
+            RichTextItalic,
+            RichTextUnderline,
+            RichTextStrikethrough,
+            RichTextSpoiler,
+            RichTextDateTime,
+            RichTextTextMention,
+            RichTextSubscript,
+            RichTextSuperscript,
+            RichTextMarked,
+            RichTextCode,
+            RichTextCustomEmoji,
+            RichTextMathematicalExpression,
+            RichTextUrl,
+            RichTextEmailAddress,
+            RichTextPhoneNumber,
+            RichTextBankCardNumber,
+            RichTextMention,
+            RichTextHashtag,
+            RichTextCashtag,
+            RichTextBotCommand,
+            RichTextButton,
+            RichTextAnchor,
+            RichTextAnchorLink,
+            RichTextReference,
+            RichTextReferenceLink,
+        ]
+    ] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Credit of the block."""
 
 
@@ -7953,10 +8696,79 @@ class InputRichBlockExpandableBlockQuotation(InputRichBlock):
     type: str = field()
     """Type of the block, always `expandable_blockquote`."""
 
-    text: RichText = field()
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Content of the block."""
 
-    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    credit: Option[
+        Sum[
+            str,
+            list[RichText],
+            RichTextBold,
+            RichTextItalic,
+            RichTextUnderline,
+            RichTextStrikethrough,
+            RichTextSpoiler,
+            RichTextDateTime,
+            RichTextTextMention,
+            RichTextSubscript,
+            RichTextSuperscript,
+            RichTextMarked,
+            RichTextCode,
+            RichTextCustomEmoji,
+            RichTextMathematicalExpression,
+            RichTextUrl,
+            RichTextEmailAddress,
+            RichTextPhoneNumber,
+            RichTextBankCardNumber,
+            RichTextMention,
+            RichTextHashtag,
+            RichTextCashtag,
+            RichTextBotCommand,
+            RichTextButton,
+            RichTextAnchor,
+            RichTextAnchorLink,
+            RichTextReference,
+            RichTextReferenceLink,
+        ]
+    ] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Credit of the block."""
 
 
@@ -7969,10 +8781,79 @@ class InputRichBlockPullQuotation(InputRichBlock):
     type: str = field()
     """Type of the block, always `pullquote`."""
 
-    text: RichText = field()
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block."""
 
-    credit: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    credit: Option[
+        Sum[
+            str,
+            list[RichText],
+            RichTextBold,
+            RichTextItalic,
+            RichTextUnderline,
+            RichTextStrikethrough,
+            RichTextSpoiler,
+            RichTextDateTime,
+            RichTextTextMention,
+            RichTextSubscript,
+            RichTextSuperscript,
+            RichTextMarked,
+            RichTextCode,
+            RichTextCustomEmoji,
+            RichTextMathematicalExpression,
+            RichTextUrl,
+            RichTextEmailAddress,
+            RichTextPhoneNumber,
+            RichTextBankCardNumber,
+            RichTextMention,
+            RichTextHashtag,
+            RichTextCashtag,
+            RichTextBotCommand,
+            RichTextButton,
+            RichTextAnchor,
+            RichTextAnchorLink,
+            RichTextReference,
+            RichTextReferenceLink,
+        ]
+    ] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Credit of the block."""
 
 
@@ -8095,7 +8976,43 @@ class InputRichBlockTable(InputRichBlock):
     is_compact: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if table cells must have smaller indents."""
 
-    caption: Option[RichText] = field(default=..., converter=From["RichText | None"])
+    caption: Option[
+        Sum[
+            str,
+            list[RichText],
+            RichTextBold,
+            RichTextItalic,
+            RichTextUnderline,
+            RichTextStrikethrough,
+            RichTextSpoiler,
+            RichTextDateTime,
+            RichTextTextMention,
+            RichTextSubscript,
+            RichTextSuperscript,
+            RichTextMarked,
+            RichTextCode,
+            RichTextCustomEmoji,
+            RichTextMathematicalExpression,
+            RichTextUrl,
+            RichTextEmailAddress,
+            RichTextPhoneNumber,
+            RichTextBankCardNumber,
+            RichTextMention,
+            RichTextHashtag,
+            RichTextCashtag,
+            RichTextBotCommand,
+            RichTextButton,
+            RichTextAnchor,
+            RichTextAnchorLink,
+            RichTextReference,
+            RichTextReferenceLink,
+        ]
+    ] = field(
+        default=...,
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+        ],
+    )
     """Optional. Caption of the table."""
 
 
@@ -8108,7 +9025,40 @@ class InputRichBlockDetails(InputRichBlock):
     type: str = field()
     """Type of the block, always `details`."""
 
-    summary: RichText = field()
+    summary: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Always shown summary of the block."""
 
     blocks: list[
@@ -8298,7 +9248,40 @@ class InputRichBlockThinking(InputRichBlock):
     type: str = field()
     """Type of the block, always `thinking`."""
 
-    text: RichText = field()
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
     """Text of the block. See https://t.me/addemoji/AIActions for examples
     of custom emoji that are recommended for usage in the block."""
 
@@ -8368,14 +9351,7 @@ class InlineQueryResultArticle(InlineQueryResult):
     title: str = field()
     """Title of the result."""
 
-    input_message_content: Sum[
-        InputTextMessageContent,
-        InputRichMessageContent,
-        InputLocationMessageContent,
-        InputVenueMessageContent,
-        InputContactMessageContent,
-        InputInvoiceMessageContent,
-    ] = field(
+    input_message_content: TypeAliases.InlineInputMessageContent = field(
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent"
         ]
@@ -8452,26 +9428,18 @@ class InlineQueryResultPhoto(InlineQueryResult):
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -8530,26 +9498,18 @@ class InlineQueryResultGif(InlineQueryResult):
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -8608,26 +9568,18 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult):
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -8674,11 +9626,12 @@ class InlineQueryResultVideo(InlineQueryResult):
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the caption must be shown above the message media."""
     """Optional. Pass True if the caption must be shown above the message media."""
 
     video_width: Option[int] = field(default=..., converter=From[int | None])
@@ -8696,16 +9649,7 @@ class InlineQueryResultVideo(InlineQueryResult):
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -8747,7 +9691,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -8760,16 +9704,7 @@ class InlineQueryResultAudio(InlineQueryResult):
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -8809,7 +9744,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -8819,16 +9754,7 @@ class InlineQueryResultVoice(InlineQueryResult):
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -8869,7 +9795,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
@@ -8882,16 +9808,7 @@ class InlineQueryResultDocument(InlineQueryResult):
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -8951,16 +9868,7 @@ class InlineQueryResultLocation(InlineQueryResult):
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9018,16 +9926,7 @@ class InlineQueryResultVenue(InlineQueryResult):
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9073,16 +9972,7 @@ class InlineQueryResultContact(InlineQueryResult):
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9154,26 +10044,18 @@ class InlineQueryResultCachedPhoto(InlineQueryResult):
     """Optional. Mode for parsing entities in the photo caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9214,26 +10096,18 @@ class InlineQueryResultCachedGif(InlineQueryResult):
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9274,26 +10148,18 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult):
     """Optional. Mode for parsing entities in the caption. See formatting options
     for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9320,16 +10186,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult):
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9373,23 +10230,14 @@ class InlineQueryResultCachedDocument(InlineQueryResult):
     """Optional. Mode for parsing entities in the document caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9433,26 +10281,18 @@ class InlineQueryResultCachedVideo(InlineQueryResult):
     """Optional. Mode for parsing entities in the video caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the caption must be shown above the message media."""
+    """Optional. Pass True if the caption must be shown above the message media."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9492,23 +10332,14 @@ class InlineQueryResultCachedVoice(InlineQueryResult):
     """Optional. Mode for parsing entities in the voice message caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9545,23 +10376,14 @@ class InlineQueryResultCachedAudio(InlineQueryResult):
     """Optional. Mode for parsing entities in the audio caption. See formatting
     options for more details."""
 
-    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in the caption, which can
     be specified instead of parse_mode."""
 
     reply_markup: Option[InlineKeyboardMarkup] = field(default=..., converter=From["InlineKeyboardMarkup | None"])
     """Optional. Inline keyboard attached to the message."""
 
-    input_message_content: Option[
-        Sum[
-            InputTextMessageContent,
-            InputRichMessageContent,
-            InputLocationMessageContent,
-            InputVenueMessageContent,
-            InputContactMessageContent,
-            InputInvoiceMessageContent,
-        ]
-    ] = field(
+    input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
             "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
@@ -9589,7 +10411,7 @@ class InputTextMessageContent(InputMessageContent):
     """Optional. Mode for parsing entities in the message text. See formatting
     options for more details."""
 
-    entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. List of special entities that appear in message text, which can
     be specified instead of parse_mode."""
 
@@ -9610,6 +10432,8 @@ class InputRichMessageContent(InputMessageContent):
     """
 
     rich_message: InputRichMessage = field()
+    """The message to be sent. Only previously uploaded files may be used in the
+    message."""
     """The message to be sent. Only previously uploaded files may be used in the
     message."""
 
@@ -9735,6 +10559,7 @@ class InputInvoiceMessageContent(InputMessageContent):
     in Telegram Stars."""
 
     suggested_tip_amounts: Option[list[int]] = field(default=..., converter=From[list[int] | None])
+    """Optional. A JSON-serialized Array of suggested amounts of tip in the smallest
     """Optional. A JSON-serialized Array of suggested amounts of tip in the smallest
     units of the currency (integer, not float/double). At most 4 suggested
     tip amounts can be specified. The suggested tip amounts must be positive,
@@ -10143,7 +10968,7 @@ class TransactionPartnerUser(TransactionPartner):
 
     paid_media: Option[list[Sum[PaidMediaLivePhoto, PaidMediaPhoto, PaidMediaPreview, PaidMediaVideo]]] = field(
         default=...,
-        converter=From["list[PaidMediaLivePhoto | PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo] | None"],
+        converter=From[list["PaidMediaLivePhoto | PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo"] | None],
     )
     """Optional. Information about the paid media bought by the user; for `paid_media_payment`
     transactions only."""
@@ -10269,17 +11094,7 @@ class StarTransaction(Model):
     """Optional. The number of 1/1000000000 shares of Telegram Stars transferred
     by the transaction; from 0 to 999999999."""
 
-    source: Option[
-        Sum[
-            TransactionPartnerUser,
-            TransactionPartnerChat,
-            TransactionPartnerAffiliateProgram,
-            TransactionPartnerFragment,
-            TransactionPartnerTelegramAds,
-            TransactionPartnerTelegramApi,
-            TransactionPartnerOther,
-        ]
-    ] = field(
+    source: Option[TypeAliases.TransactionPartner] = field(
         default=...,
         converter=From[
             "TransactionPartnerUser | TransactionPartnerChat | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
@@ -10289,17 +11104,7 @@ class StarTransaction(Model):
     or services, Fragment refunding a failed withdrawal). Only for incoming
     transactions."""
 
-    receiver: Option[
-        Sum[
-            TransactionPartnerUser,
-            TransactionPartnerChat,
-            TransactionPartnerAffiliateProgram,
-            TransactionPartnerFragment,
-            TransactionPartnerTelegramAds,
-            TransactionPartnerTelegramApi,
-            TransactionPartnerOther,
-        ]
-    ] = field(
+    receiver: Option[TypeAliases.TransactionPartner] = field(
         default=...,
         converter=From[
             "TransactionPartnerUser | TransactionPartnerChat | TransactionPartnerAffiliateProgram | TransactionPartnerFragment | TransactionPartnerTelegramAds | TransactionPartnerTelegramApi | TransactionPartnerOther | None"
@@ -10381,7 +11186,7 @@ class EncryptedPassportElement(Model):
     email: Option[str] = field(default=..., converter=From[str | None])
     """Optional. User's verified email address; available only for `email` type."""
 
-    files: Option[list[PassportFile]] = field(default=..., converter=From["list[PassportFile] | None"])
+    files: Option[list[PassportFile]] = field(default=..., converter=From[list["PassportFile"] | None])
     """Optional. Array of encrypted files with documents provided by the user;
     available only for `utility_bill`, `bank_statement`, `rental_agreement`,
     `passport_registration` and `temporary_registration` types. Files
@@ -10404,7 +11209,7 @@ class EncryptedPassportElement(Model):
     `identity_card` and `internal_passport`. The file can be decrypted and
     verified using the accompanying EncryptedCredentials."""
 
-    translation: Option[list[PassportFile]] = field(default=..., converter=From["list[PassportFile] | None"])
+    translation: Option[list[PassportFile]] = field(default=..., converter=From[list["PassportFile"] | None])
     """Optional. Array of encrypted files with translated versions of documents
     provided by the user; available if requested for `passport`, `driver_license`,
     `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`,
@@ -10641,7 +11446,7 @@ class Game(Model):
     the game when the bot calls setGameScore, or manually edited using editMessageText.
     0-4096 characters."""
 
-    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From["list[MessageEntity] | None"])
+    text_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in text, such as usernames, URLs,
     bot commands, etc."""
 
@@ -10673,6 +11478,105 @@ class GameHighScore(Model):
     """Score."""
 
 
+class TypeAliases:
+    type RichTexts = typing.Annotated[list[str | RichText], list]
+    type RichText = Sum[
+        str,
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+        RichTexts,
+    ]
+    type RichBlock = Sum[
+        RichBlockParagraph,
+        RichBlockSectionHeading,
+        RichBlockPreformatted,
+        RichBlockFooter,
+        RichBlockDivider,
+        RichBlockMathematicalExpression,
+        RichBlockAnchor,
+        RichBlockList,
+        RichBlockBlockQuotation,
+        RichBlockPullQuotation,
+        RichBlockCollage,
+        RichBlockSlideshow,
+        RichBlockTable,
+        RichBlockDetails,
+        RichBlockMap,
+        RichBlockAnimation,
+        RichBlockAudio,
+        RichBlockPhoto,
+        RichBlockVideo,
+        RichBlockVoiceNote,
+        RichBlockThinking,
+    ]
+    type InputFileSource = Sum[str, InputFile]
+    type InlineInputMessageContent = Sum[
+        InputTextMessageContent,
+        InputRichMessageContent,
+        InputLocationMessageContent,
+        InputVenueMessageContent,
+        InputContactMessageContent,
+        InputInvoiceMessageContent,
+    ]
+    type AccessibleMessage = Sum[Message, InaccessibleMessage]
+    type ChatId = Sum[int, str]
+    type BackgroundFill = Sum[
+        BackgroundFillSolid,
+        BackgroundFillGradient,
+        BackgroundFillFreeformGradient,
+    ]
+    type ChatMember = Sum[
+        ChatMemberOwner,
+        ChatMemberAdministrator,
+        ChatMemberMember,
+        ChatMemberRestricted,
+        ChatMemberLeft,
+        ChatMemberBanned,
+    ]
+    type Reaction = Sum[
+        ReactionTypeEmoji,
+        ReactionTypeCustomEmoji,
+        ReactionTypePaid,
+    ]
+    type ChatBoostSource = Sum[
+        ChatBoostSourcePremium,
+        ChatBoostSourceGiftCode,
+        ChatBoostSourceGiveaway,
+    ]
+    type TransactionPartner = Sum[
+        TransactionPartnerUser,
+        TransactionPartnerChat,
+        TransactionPartnerAffiliateProgram,
+        TransactionPartnerFragment,
+        TransactionPartnerTelegramAds,
+        TransactionPartnerTelegramApi,
+        TransactionPartnerOther,
+    ]
+
+
 __all__ = (
     "AcceptedGiftTypes",
     "AffiliateInfo",
@@ -10701,6 +11605,7 @@ __all__ = (
     "BotDescription",
     "BotName",
     "BotShortDescription",
+    "BotSubscriptionUpdated",
     "BotSubscriptionUpdated",
     "BusinessBotRights",
     "BusinessConnection",
@@ -10748,6 +11653,10 @@ __all__ = (
     "CommunityChatAdded",
     "CommunityChatJoined",
     "CommunityChatRemoved",
+    "Community",
+    "CommunityChatAdded",
+    "CommunityChatJoined",
+    "CommunityChatRemoved",
     "Contact",
     "CopyTextButton",
     "DateTimeFormatSeq",
@@ -10755,9 +11664,11 @@ __all__ = (
     "DirectMessagePriceChanged",
     "DirectMessagesTopic",
     "DisabledButton",
+    "DisabledButton",
     "Document",
     "EncryptedCredentials",
     "EncryptedPassportElement",
+    "EphemeralMessageParameters",
     "EphemeralMessageParameters",
     "ExternalReplyInfo",
     "File",
@@ -10823,6 +11734,7 @@ __all__ = (
     "InputMediaVenue",
     "InputMediaVideo",
     "InputMediaVoiceNote",
+    "InputMediaVoiceNote",
     "InputMessageContent",
     "InputPaidMedia",
     "InputPaidMediaLivePhoto",
@@ -10860,8 +11772,35 @@ __all__ = (
     "InputRichBlockThinking",
     "InputRichBlockVideo",
     "InputRichBlockVoiceNote",
+    "InputRichBlock",
+    "InputRichBlockAnchor",
+    "InputRichBlockAnimation",
+    "InputRichBlockAudio",
+    "InputRichBlockBlockQuotation",
+    "InputRichBlockButtons",
+    "InputRichBlockCollage",
+    "InputRichBlockDetails",
+    "InputRichBlockDivider",
+    "InputRichBlockDocument",
+    "InputRichBlockExpandableBlockQuotation",
+    "InputRichBlockFooter",
+    "InputRichBlockList",
+    "InputRichBlockListItem",
+    "InputRichBlockMap",
+    "InputRichBlockMathematicalExpression",
+    "InputRichBlockParagraph",
+    "InputRichBlockPhoto",
+    "InputRichBlockPreformatted",
+    "InputRichBlockPullQuotation",
+    "InputRichBlockSectionHeading",
+    "InputRichBlockSlideshow",
+    "InputRichBlockTable",
+    "InputRichBlockThinking",
+    "InputRichBlockVideo",
+    "InputRichBlockVoiceNote",
     "InputRichMessage",
     "InputRichMessageContent",
+    "InputRichMessageMedia",
     "InputRichMessageMedia",
     "InputSticker",
     "InputStoryContent",
@@ -10893,6 +11832,7 @@ __all__ = (
     "Message",
     "MessageAutoDeleteTimerChanged",
     "MessageEntity",
+    "MessageGenerationStopped",
     "MessageGenerationStopped",
     "MessageId",
     "MessageOrigin",
@@ -10959,10 +11899,13 @@ __all__ = (
     "RichBlockAudio",
     "RichBlockBlockQuotation",
     "RichBlockButtons",
+    "RichBlockButtons",
     "RichBlockCaption",
     "RichBlockCollage",
     "RichBlockDetails",
     "RichBlockDivider",
+    "RichBlockDocument",
+    "RichBlockExpandableBlockQuotation",
     "RichBlockDocument",
     "RichBlockExpandableBlockQuotation",
     "RichBlockFooter",
@@ -10983,12 +11926,14 @@ __all__ = (
     "RichBlockVoiceNote",
     "RichMessage",
     "RichMessageButton",
+    "RichMessageButton",
     "RichText",
     "RichTextAnchor",
     "RichTextAnchorLink",
     "RichTextBankCardNumber",
     "RichTextBold",
     "RichTextBotCommand",
+    "RichTextButton",
     "RichTextButton",
     "RichTextCashtag",
     "RichTextCode",

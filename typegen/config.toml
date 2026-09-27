@@ -180,6 +180,562 @@ fields = [
     { name = "date_time_format", annotation = "DateTimeFormatSeq", convert_from = "typing.Iterable[str | DateTimeFormat]" },
 ]
 
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextBold"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextItalic"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextUnderline"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextStrikethrough"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextSpoiler"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextDateTime"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextTextMention"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextSubscript"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextSuperscript"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextMarked"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextCode"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextUrl"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextUrl"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextEmailAddress"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextPhoneNumber"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextBankCardNumber"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextMention"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextHashtag"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextCashtag"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextBotCommand"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextAnchorLink"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextReference"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichTextReferenceLink"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockListItem"
+fields = [
+    { name = "blocks", annotation = "list[TypeAliases.RichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockBlockQuotation"
+fields = [
+    { name = "credit", annotation = "TypeAliases.RichText" },
+    { name = "blocks", annotation = "list[TypeAliases.RichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockCollage"
+fields = [
+    { name = "blocks", annotation = "list[TypeAliases.RichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockSlideshow"
+fields = [
+    { name = "blocks", annotation = "list[TypeAliases.RichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockDetails"
+fields = [
+    { name = "summary", annotation = "TypeAliases.RichText" },
+    { name = "blocks", annotation = "list[TypeAliases.RichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockCaption"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+    { name = "credit", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichMessage"
+fields = [
+    { name = "blocks", annotation = "list[TypeAliases.RichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockTableCell"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockParagraph"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockSectionHeading"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockPreformatted"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockFooter"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockPullQuotation"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+    { name = "credit", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockTable"
+fields = [
+    { name = "caption", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockThinking"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "ChatFullInfo"
+fields = [
+    { name = "available_reactions", annotation = "list[TypeAliases.Reaction]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "Message"
+fields = [
+    { name = "pinned_message", annotation = "TypeAliases.AccessibleMessage" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "ReplyParameters"
+fields = [
+    { name = "chat_id", annotation = "TypeAliases.ChatId" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "PollOptionAdded"
+fields = [
+    { name = "poll_message", annotation = "TypeAliases.AccessibleMessage" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "PollOptionDeleted"
+fields = [
+    { name = "poll_message", annotation = "TypeAliases.AccessibleMessage" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "BackgroundTypeFill"
+fields = [
+    { name = "fill", annotation = "TypeAliases.BackgroundFill" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "BackgroundTypePattern"
+fields = [
+    { name = "fill", annotation = "TypeAliases.BackgroundFill" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "CallbackQuery"
+fields = [
+    { name = "message", annotation = "TypeAliases.AccessibleMessage" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "ChatMemberUpdated"
+fields = [
+    { name = "old_chat_member", annotation = "TypeAliases.ChatMember" },
+    { name = "new_chat_member", annotation = "TypeAliases.ChatMember" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "StoryAreaTypeSuggestedReaction"
+fields = [
+    { name = "reaction_type", annotation = "TypeAliases.Reaction" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "ReactionCount"
+fields = [
+    { name = "type", annotation = "TypeAliases.Reaction" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "MessageReactionUpdated"
+fields = [
+    { name = "old_reaction", annotation = "list[TypeAliases.Reaction]" },
+    { name = "new_reaction", annotation = "list[TypeAliases.Reaction]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "BotCommandScopeChat"
+fields = [
+    { name = "chat_id", annotation = "TypeAliases.ChatId" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "BotCommandScopeChatAdministrators"
+fields = [
+    { name = "chat_id", annotation = "TypeAliases.ChatId" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "BotCommandScopeChatMember"
+fields = [
+    { name = "chat_id", annotation = "TypeAliases.ChatId" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "ChatBoost"
+fields = [
+    { name = "source", annotation = "TypeAliases.ChatBoostSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "ChatBoostRemoved"
+fields = [
+    { name = "source", annotation = "TypeAliases.ChatBoostSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputMediaAnimation"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+    { name = "thumbnail", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputMediaAudio"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+    { name = "thumbnail", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputMediaDocument"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+    { name = "thumbnail", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputMediaLivePhoto"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+    { name = "photo", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputMediaPhoto"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputMediaSticker"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputMediaVideo"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+    { name = "thumbnail", annotation = "TypeAliases.InputFileSource" },
+    { name = "cover", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputPaidMediaLivePhoto"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+    { name = "photo", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputPaidMediaPhoto"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputPaidMediaVideo"
+fields = [
+    { name = "media", annotation = "TypeAliases.InputFileSource" },
+    { name = "thumbnail", annotation = "TypeAliases.InputFileSource" },
+    { name = "cover", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputProfilePhotoStatic"
+fields = [
+    { name = "photo", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputProfilePhotoAnimated"
+fields = [
+    { name = "animation", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputStoryContentPhoto"
+fields = [
+    { name = "photo", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputStoryContentVideo"
+fields = [
+    { name = "video", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputSticker"
+fields = [
+    { name = "sticker", annotation = "TypeAliases.InputFileSource" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultArticle"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultPhoto"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultGif"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultMpeg4Gif"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultVideo"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultAudio"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultVoice"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultDocument"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultLocation"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultVenue"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultContact"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultCachedPhoto"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultCachedGif"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultCachedMpeg4Gif"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultCachedSticker"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultCachedDocument"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultCachedVideo"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultCachedVoice"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InlineQueryResultCachedAudio"
+fields = [
+    { name = "input_message_content", annotation = "TypeAliases.InlineInputMessageContent" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "StarTransaction"
+fields = [
+    { name = "source", annotation = "TypeAliases.TransactionPartner" },
+    { name = "receiver", annotation = "TypeAliases.TransactionPartner" },
+]
+
 # Generator :: Objects :: Fields :: Annotations :: Literals (typing.Literal, enum.Enum)
 
 [[generator.objects.fields.annotations.literals]]
@@ -354,6 +910,294 @@ fields = [
 object_name = "InputPaidMediaVideo"
 fields = [
     { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextBold"
+fields = [
+    { name = "type", literals = ["bold",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextItalic"
+fields = [
+    { name = "type", literals = ["italic",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextUnderline"
+fields = [
+    { name = "type", literals = ["underline",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextStrikethrough"
+fields = [
+    { name = "type", literals = ["strikethrough",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextSpoiler"
+fields = [
+    { name = "type", literals = ["spoiler",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextDateTime"
+fields = [
+    { name = "type", literals = ["date_time",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextTextMention"
+fields = [
+    { name = "type", literals = ["text_mention",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextSubscript"
+fields = [
+    { name = "type", literals = ["subscript",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextSuperscript"
+fields = [
+    { name = "type", literals = ["superscript",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextMarked"
+fields = [
+    { name = "type", literals = ["marked",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextCode"
+fields = [
+    { name = "type", literals = ["code",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextCustomEmoji"
+fields = [
+    { name = "type", literals = ["custom_emoji",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextMathematicalExpression"
+fields = [
+    { name = "type", literals = ["mathematical_expression",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextUrl"
+fields = [
+    { name = "type", literals = ["url",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextEmailAddress"
+fields = [
+    { name = "type", literals = ["email_address",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextPhoneNumber"
+fields = [
+    { name = "type", literals = ["phone_number",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextBankCardNumber"
+fields = [
+    { name = "type", literals = ["bank_card_number",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextMention"
+fields = [
+    { name = "type", literals = ["mention",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextHashtag"
+fields = [
+    { name = "type", literals = ["hashtag",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextHashtag"
+fields = [
+    { name = "type", literals = ["cashtag",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextBotCommand"
+fields = [
+    { name = "type", literals = ["bot_command",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextAnchor"
+fields = [
+    { name = "type", literals = ["anchor",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextAnchorLink"
+fields = [
+    { name = "type", literals = ["anchor_link",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextReference"
+fields = [
+    { name = "type", literals = ["reference",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextReferenceLink"
+fields = [
+    { name = "type", literals = ["reference_link",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockCaption"
+fields = [
+    { name = "type", literals = ["reference_link",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockListItem"
+fields = [
+    { name = "type", enum = "ListItemLabelType" },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockParagraph"
+fields = [
+    { name = "type", literals = ["paragraph",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockSectionHeading"
+fields = [
+    { name = "type", literals = ["heading",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockPreformatted"
+fields = [
+    { name = "type", literals = ["pre",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockFooter"
+fields = [
+    { name = "type", literals = ["footer",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockDivider"
+fields = [
+    { name = "type", literals = ["divider",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockMathematicalExpression"
+fields = [
+    { name = "type", literals = ["mathematical_expression",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockAnchor"
+fields = [
+    { name = "type", literals = ["anchor",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockList"
+fields = [
+    { name = "type", literals = ["list",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockBlockQuotation"
+fields = [
+    { name = "type", literals = ["blockquote",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockPullQuotation"
+fields = [
+    { name = "type", literals = ["pullquote",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockCollage"
+fields = [
+    { name = "type", literals = ["collage",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockSlideshow"
+fields = [
+    { name = "type", literals = ["slideshow",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockTable"
+fields = [
+    { name = "type", literals = ["table",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockDetails"
+fields = [
+    { name = "type", literals = ["details",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockMap"
+fields = [
+    { name = "type", literals = ["map",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockAnimation"
+fields = [
+    { name = "type", literals = ["animation",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockAudio"
+fields = [
+    { name = "type", literals = ["audio",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockPhoto"
+fields = [
+    { name = "type", literals = ["photo",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockVideo"
+fields = [
+    { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockVoiceNote"
+fields = [
+    { name = "type", literals = ["voice_note",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockThinking"
+fields = [
+    { name = "type", literals = ["thinking",] },
 ]
 
 [[generator.objects.fields.annotations.literals]]

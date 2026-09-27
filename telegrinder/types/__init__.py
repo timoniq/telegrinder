@@ -226,6 +226,7 @@ __all__ = (
     "LabeledPrice",
     "Link",
     "LinkPreviewOptions",
+    "ListItemLabelType",
     "LivePhoto",
     "Location",
     "LocationAddress",

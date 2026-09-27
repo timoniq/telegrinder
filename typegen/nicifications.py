@@ -4,31 +4,26 @@ Nicifications are basically nice features for models which are included in auto-
 The difference between nicifications and cure types is: cute types can borrow view runtime properties and have context api
 (so they can implement model-specific methods).
 Nicifications can only implement fields/methods/properties working only with model fields.
+---
+Type aliases are used to eliminate boilerplate code in annotations.
+`TypeAliases.<TypeAlias>`
 """
 
+import typing
 from datetime import datetime
 from functools import cached_property
 
-from kungfu.library.monad.option import Option
-from msgspex.model import Model
-from msgspex.tools import is_none
+from kungfu import Option, Sum
+from msgspex import Model, is_none
 
-from telegrinder.types import (
-    Birthdate,
-    Chat,
-    ChatJoinRequest,
-    ChatMemberUpdated,
-    ChatType,
-    ContentType,
-    DefaultAccentColor,
-    ManagedBotUpdated,
-    Message,
-    ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
-    Update,
-    UpdateType,
-    User,
-)
+from telegrinder.types import *
+
+USED_IMPORTS = {
+    "import typing",
+    "from datetime import datetime",
+    "from functools import cached_property",
+    "from msgspex.tools import is_none",
+}
 
 
 class _Birthdate(Birthdate):
@@ -114,12 +109,12 @@ class _User(User):
     @property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
-        return DefaultAccentColor(self.id % 7)
+        return DefaultAccentColor(self.id % len(DefaultAccentColor))
 
     @property
     def full_name(self) -> str:
         """User's or bot's full name (`first_name` + `last_name`)."""
-        return self.first_name + self.last_name.map(lambda v: " " + v).unwrap_or("")
+        return self.first_name + self.last_name.map(" ".__add__).unwrap_or("")
 
 
 class _Update(Update):
@@ -151,3 +146,102 @@ class _ManagedBotUpdated(ManagedBotUpdated):
     def user_id(self) -> int:
         """`user_id` instead of `user.id`."""
         return self.user.id
+
+
+class TypeAliases:
+    type RichTexts = typing.Annotated[list[str | RichText], list]
+    type RichText = Sum[
+        str,
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+        RichTexts,
+    ]
+    type RichBlock = Sum[
+        RichBlockParagraph,
+        RichBlockSectionHeading,
+        RichBlockPreformatted,
+        RichBlockFooter,
+        RichBlockDivider,
+        RichBlockMathematicalExpression,
+        RichBlockAnchor,
+        RichBlockList,
+        RichBlockBlockQuotation,
+        RichBlockPullQuotation,
+        RichBlockCollage,
+        RichBlockSlideshow,
+        RichBlockTable,
+        RichBlockDetails,
+        RichBlockMap,
+        RichBlockAnimation,
+        RichBlockAudio,
+        RichBlockPhoto,
+        RichBlockVideo,
+        RichBlockVoiceNote,
+        RichBlockThinking,
+    ]
+    type InputFileSource = Sum[str, InputFile]
+    type InlineInputMessageContent = Sum[
+        InputTextMessageContent,
+        InputRichMessageContent,
+        InputLocationMessageContent,
+        InputVenueMessageContent,
+        InputContactMessageContent,
+        InputInvoiceMessageContent,
+    ]
+    type AccessibleMessage = Sum[Message, InaccessibleMessage]
+    type ChatId = Sum[int, str]
+    type BackgroundFill = Sum[
+        BackgroundFillSolid,
+        BackgroundFillGradient,
+        BackgroundFillFreeformGradient,
+    ]
+    type ChatMember = Sum[
+        ChatMemberOwner,
+        ChatMemberAdministrator,
+        ChatMemberMember,
+        ChatMemberRestricted,
+        ChatMemberLeft,
+        ChatMemberBanned,
+    ]
+    type Reaction = Sum[
+        ReactionTypeEmoji,
+        ReactionTypeCustomEmoji,
+        ReactionTypePaid,
+    ]
+    type ChatBoostSource = Sum[
+        ChatBoostSourcePremium,
+        ChatBoostSourceGiftCode,
+        ChatBoostSourceGiveaway,
+    ]
+    type TransactionPartner = Sum[
+        TransactionPartnerUser,
+        TransactionPartnerChat,
+        TransactionPartnerAffiliateProgram,
+        TransactionPartnerFragment,
+        TransactionPartnerTelegramAds,
+        TransactionPartnerTelegramApi,
+        TransactionPartnerOther,
+    ]

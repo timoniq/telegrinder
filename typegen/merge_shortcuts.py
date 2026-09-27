@@ -377,17 +377,19 @@ class ShortcutsCollector(cst.CSTVisitor):
                 return False
 
             if is_decorator_name(decorator.decorator, "shortcut"):
-                kwargs = {}
+                kwargs: dict[str, typing.Any] = {}
 
                 for arg in decorator.decorator.args:
                     if arg.keyword is None and isinstance(arg.value, cst.SimpleString):
-                        kwargs["method_name"] = arg.value.evaluated_value
+                        kwargs["method_name"] = str(arg.value.evaluated_value)
                     elif (arg.keyword is None or arg.keyword.value == "custom_params") and isinstance(
                         arg.value,
                         cst.Set,
                     ):
                         kwargs["custom_params"] = {
-                            e.value.evaluated_value for e in arg.value.elements if isinstance(e.value, cst.SimpleString)
+                            str(e.value.evaluated_value)
+                            for e in arg.value.elements
+                            if isinstance(e.value, cst.SimpleString)
                         }
 
                 found = True

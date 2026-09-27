@@ -41,7 +41,6 @@ except ImportError:
 TYPEGEN_DIR: typing.Final = pathlib.Path(__file__).parent
 TAB: typing.Final = "    "
 MAX_LENGTH_LINE_CHUNK: typing.Final = 60
-IGNORE_SUBTYPES: typing.Final = frozenset(("RichBlock", "RichText"))
 TYPES: typing.Final = {
     "String": "str",
     "Integer": "int",
@@ -50,7 +49,12 @@ TYPES: typing.Final = {
     "Unixtime": "datetime",
     "Timestamp": "timedelta",
 }
+NICIFICATIONS_USED_IMPORTS_RE: typing.Final = re.compile(r"USED_IMPORTS = \{(?P<body>[^{}]*)\}", re.DOTALL)
+TYPE_ALIAS_NICIFACTION_CLASS_RE: typing.Final = re.compile(
+    r"(?ms)^class\s+TypeAliases\s*:\s*\n(?:^[ \t]+.*(?:\n|$))*", flags=re.DOTALL
+)
 INPUTFILE_DOCSTRING: typing.Final = "using multipart/form-data"
+EXCLUDE_OBJECTS: typing.Final = frozenset(("InputFile",))
 NODEFAULT: typing.Final = object()
 
 
@@ -69,7 +73,7 @@ def download_schema(config_toml: ConfigTOML, config_model: Config, /) -> Telegra
     logger.debug(
         "Schema (version={}, release_date={!r}) successfully downloaded!",
         schema_version,
-        schema["release_date"],
+        schema.get("release_date", "none"),
     )
 
     if schema_version > config_model.telegram_bot_api.version_number:
@@ -161,8 +165,8 @@ def run_ruff_formatter(path: pathlib.Path, /) -> None:
 
 
 def to_optional(st: str) -> str:
-    if '"' in st:
-        return '"{} | None"'.format(st.replace('"', ""))
+    if st.startswith('"') and st.endswith('"'):
+        return '"{} | None"'.format(st.strip('"'))
     return st + " | None"
 
 
@@ -172,6 +176,9 @@ def convert_to_python_type(
     as_forward_ref: bool = False,
     as_union: bool = False,
 ) -> str:
+    if tp.startswith("typing.Literal"):
+        return tp
+
     if tp.startswith("Array of"):
         return "list[{}]".format(
             " | ".join(
@@ -180,30 +187,26 @@ def convert_to_python_type(
             )
         )
 
-    if tp.startswith("typing.Literal"):
-        return tp
-
     parent_types = parent_types or {}
     hint = '"{}"' if as_forward_ref else "{}"
-
-    if tp in TYPES:
-        return TYPES[tp]
     return (
-        hint.format(tp)
+        TYPES[tp]
+        if tp in TYPES
+        else hint.format(tp)
         if tp not in parent_types
         else (
-            "Sum[%s]" % ", ".join(hint.format(x) for x in parent_types[tp])
+            "Sum[%s]" % ", ".join(hint.format(convert_to_python_type(x)) for x in parent_types[tp])
             if not as_union
-            else hint.format(" | ".join(x for x in parent_types[tp]))
+            else hint.format(" | ".join(convert_to_python_type(x, as_union=True) for x in parent_types[tp]))
         )
     )
 
 
-def camel_to_snake(s: str) -> str:
+def camel_to_snake(s: str, /) -> str:
     return "".join("_" + x.lower() if x.isupper() else x for x in s)
 
 
-def camel_to_pascal(s: str) -> str:
+def camel_to_pascal(s: str, /) -> str:
     return (s[0].upper() if s[0].islower() else s[0]) + s[1:]
 
 
@@ -226,23 +229,10 @@ class ABCGenerator(abc.ABC):
 
 
 class ObjectGenerator(ABCGenerator):
-    def __init__(
-        self,
-        objects: list[ObjectSchema],
-        config: Config,
-    ) -> None:
+    def __init__(self, objects: list[ObjectSchema], config: Config) -> None:
         self.objects = objects
         self.config = config
-        self.parent_types: dict[str, list[str]] = {
-            obj.name: subtypes
-            for obj in objects
-            if obj.name not in IGNORE_SUBTYPES
-            and (
-                subtypes := [
-                    subtype for subtype in obj.subtypes if not subtype.startswith("Array") and subtype not in TYPES
-                ]
-            )
-        }
+        self.parent_types = {obj.name: obj.subtypes for obj in objects if obj.subtypes}
 
     def get_literal_types_field(self, object_name: str, field_name: str) -> ObjectsFieldsLiteralTypesField | None:
         for object_literal_types in self.config.generator.objects.fields.annotations.literals:
@@ -288,6 +278,67 @@ class ObjectGenerator(ABCGenerator):
 
         return None
 
+    def make_field_type_and_converter(self, field: ObjectField) -> tuple[str, str | None]:
+        field_type = "typing.Any"
+        converter: str | None = '"{converter}"'
+
+        if is_timestamp_type(field.name, field.types):
+            field_type = "timedelta"
+            converter_type = field_type
+
+            if "Integer" in field.types:
+                field.types.remove("Integer")
+                converter_type += "| int"
+            if "Float" in field.types:
+                field.types.remove("Float")
+                converter_type += "| float"
+
+            converter = converter_type
+        elif is_unixtime_type(field.name, field.types, field.description or ""):
+            field.types.remove("Integer")
+            field_type = "datetime"
+            converter = "datetime | int"
+
+        if "InputFile" in field.types:
+            field.types.append(field.types.pop(field.types.index("InputFile")))
+
+        if field.description and "InputFile" not in field.types and INPUTFILE_DOCSTRING in field.description:
+            field.types.append("InputFile")
+
+        if len(field.types) > 1:
+            field_type = "Sum[%s]" % ", ".join(convert_to_python_type(tp, self.parent_types) for tp in field.types)
+            union_types = " | ".join(
+                convert_to_python_type(tp, self.parent_types, as_union=True, as_forward_ref=True) for tp in field.types
+            )
+            if '"' in union_types:
+                union_types = '"{}"'.format(union_types.replace('"', ""))
+            converter = union_types
+
+        elif len(field.types) == 1:
+            field_type = convert_to_python_type(field.types[0], self.parent_types)
+            converted_type = convert_to_python_type(
+                field.types[0],
+                self.parent_types,
+                as_union=True,
+            )
+
+            if not field.required or "|" in converted_type:
+                if not (
+                    "|" in converted_type and any(x in converted_type.split("|") for x in TYPES.values())
+                ) and not any(x == converted_type.split("[")[0] for x in TYPES.values()):
+                    converted_type = convert_to_python_type(
+                        field.types[0],
+                        self.parent_types,
+                        as_union=True,
+                        as_forward_ref=True,
+                    )
+
+                converter = converted_type
+            else:
+                converter = None
+
+        return (field_type, converter)
+
     def make_object_field(  # noqa: PLR0915
         self,
         field: ObjectField,
@@ -295,12 +346,14 @@ class ObjectGenerator(ABCGenerator):
         annotation: ObjectsFieldsAnnotationsAnnotationsField | None = None,
     ) -> str:
         code = makesafe_name(field.name) + ": "
-        field_type = "typing.Any"
-        converter: str | None = '"{converter}"'
+        field_type, converter = "typing.Any", '"{converter}"'
 
         if annotation is not None:
             field_type = annotation.annotation
-            converter = annotation.convert_from
+            converter = (
+                self.make_field_type_and_converter(field)[1] if not annotation.convert_from else annotation.convert_from
+            )
+
         elif literal_types is not None and any(
             (literal_types.enum, literal_types.literals, literal_types.enum_literals)
         ):
@@ -324,62 +377,9 @@ class ObjectGenerator(ABCGenerator):
                 f"list[{literal_type_hint}]" if any("Array of" in x for x in field.types) else literal_type_hint
             )
             converter = field_type if not field.required else None
+
         else:
-            if is_timestamp_type(field.name, field.types):
-                field_type = "timedelta"
-                converter_type = field_type
-
-                if "Integer" in field.types:
-                    field.types.remove("Integer")
-                    converter_type += "| int"
-                if "Float" in field.types:
-                    field.types.remove("Float")
-                    converter_type += "| float"
-
-                converter = converter_type
-            elif is_unixtime_type(field.name, field.types, field.description or ""):
-                field.types.remove("Integer")
-                field_type = "datetime"
-                converter = "datetime | int"
-
-            if "InputFile" in field.types:
-                field.types.append(field.types.pop(field.types.index("InputFile")))
-
-            if field.description and "InputFile" not in field.types and INPUTFILE_DOCSTRING in field.description:
-                field.types.append("InputFile")
-
-            if len(field.types) > 1:
-                field_type = "Sum[%s]" % ", ".join(convert_to_python_type(tp, self.parent_types) for tp in field.types)
-                union_types = " | ".join(
-                    convert_to_python_type(tp, self.parent_types, as_union=True, as_forward_ref=True)
-                    for tp in field.types
-                )
-                if '"' in union_types:
-                    union_types = '"{}"'.format(union_types.replace('"', ""))
-                converter = union_types
-
-            elif len(field.types) == 1:
-                field_type = convert_to_python_type(field.types[0], self.parent_types)
-                converted_type = convert_to_python_type(
-                    field.types[0],
-                    self.parent_types,
-                    as_union=True,
-                )
-
-                if not field.required or "|" in converted_type:
-                    if not (
-                        "|" in converted_type and any(x in converted_type.split("|") for x in TYPES.values())
-                    ) and not any(x == converted_type.split("[")[0] for x in TYPES.values()):
-                        converted_type = convert_to_python_type(
-                            field.types[0],
-                            self.parent_types,
-                            as_union=True,
-                            as_forward_ref=True,
-                        )
-
-                    converter = converted_type
-                else:
-                    converter = None
+            field_type, converter = self.make_field_type_and_converter(field)
 
         if not field.required:
             field_type = f"Option[{field_type}]"
@@ -510,36 +510,60 @@ class ObjectGenerator(ABCGenerator):
 
         return code
 
+    def get_nicifactions_used_imports(self) -> list[str] | None:
+        result = (
+            None
+            if self.config.generator.nicifications_path is None
+            else next(
+                NICIFICATIONS_USED_IMPORTS_RE.finditer(self.config.generator.nicifications_path.read_text()), None
+            )
+        )
+        return None if result is None else [a or b for a, b in re.findall(r'"([^"]+)"|\'([^\']+)\'', result.group())]
+
+    def make_type_alias_nicifaction(self) -> str | None:
+        if self.config.generator.nicifications_path is not None:
+            content = self.config.generator.nicifications_path.read_text()
+            result = TYPE_ALIAS_NICIFACTION_CLASS_RE.search(content)
+
+            if result is not None:
+                return result.group()
+
+        return None
+
     def generate(self, path: pathlib.Path) -> None:
         if not self.objects:
             logger.error("Objects is empty.")
             sys.exit(-1)
 
         logger.debug("Generate objects...")
+
         lines = [
             "from __future__ import annotations\n\n",
-            "import pathlib\n",
             "import secrets\n",
-            "import typing\n\n",
             "from kungfu.library import Sum\n",
             "from msgspex.model import UNSET, DefaultFactory, From, Model, field\n",
-            "from msgspex.tools import is_none\n",
             "from telegrinder.types.date_time_format import DateTimeFormatSeq\n",
             "from telegrinder.types.input_file import InputFile\n",
-            "from functools import cached_property\n",
             "from telegrinder.types.utils import default_parameter_as_option_for_field, default_parameter_for_field\n",
             "from msgspex.custom_types import Option, Literal, datetime, timedelta\n\n",
         ]
 
         if self.config.generator.objects.fields.annotations.literals:
-            lines.append("from telegrinder.types.enums import *  # noqa: F403\n")
+            lines.append("from telegrinder.types.enums import *\n")
+
+        if nicifications_used_imports := self.get_nicifactions_used_imports():
+            lines.extend((x + "\n" for x in nicifications_used_imports))
 
         all_ = ["Model", "DateTimeFormatSeq"]
+
         for object_schema in sorted(self.objects, key=lambda obj: obj.subtypes, reverse=True):
-            if object_schema.name != "InputFile":
+            if object_schema.name not in EXCLUDE_OBJECTS:
                 lines.append(self.make_object(object_schema) + "\n\n")
 
             all_.append(object_schema.name)
+
+        if type_alias_nicification_class := self.make_type_alias_nicifaction():
+            lines.append("\n" + type_alias_nicification_class)
 
         lines.append(f"\n__all__ = {tuple(set(all_))!r}\n")
 
@@ -837,6 +861,7 @@ def generate(
     logger.info(f"Generation... Directory: {directory}")
 
     schema = download_schema(config_toml, config)
+
     if object_generator is None or method_generator is None:
         object_generator = object_generator or ObjectGenerator(
             objects=schema.objects,

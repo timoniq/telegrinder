@@ -9,6 +9,7 @@ __all__ = (
     "MethodsParamsAnnotationsAnnotationsParam",
     "MethodsParamsLiteralTypes",
     "MethodsParamsLiteralTypesParam",
+    "ObjectTypeAlias",
     "ObjectsFields",
     "ObjectsFieldsAnnotations",
     "ObjectsFieldsAnnotationsAnnotations",

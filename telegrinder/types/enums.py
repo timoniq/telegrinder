@@ -784,6 +784,18 @@ class DateTimeFormat(StrEnum, metaclass=BaseEnumMeta):
     RELATIVE = "R"
 
 
+class ListItemLabelType(StrEnum, metaclass=BaseEnumMeta):
+    """For ordered lists, the type of the item label; must be one of `a`
+    for lowercase letters, `A` for uppercase letters, `i` for lowercase Roman
+    numerals, `I` for uppercase Roman numerals, or `1` for decimal numbers."""
+
+    LOWER = "a"
+    UPPER = "A"
+    LOWER_ROMAN_NUMERALS = "i"
+    UPPER_ROMAN_NUMERALS = "I"
+    DECIMAL_NUMBERS = "1"
+
+
 __all__ = (
     "BotCommandScopeType",
     "ChatAction",
@@ -804,6 +816,7 @@ __all__ = (
     "InlineQueryResultThumbnailMimeType",
     "InlineQueryResultVideoMimeType",
     "KeyboardButtonStyle",
+    "ListItemLabelType",
     "MaskPositionPoint",
     "MessageEntityType",
     "MessageOriginType",
