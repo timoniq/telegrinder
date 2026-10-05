@@ -413,6 +413,107 @@ fields = [
 ]
 
 [[generator.objects.fields.annotations.annotations]]
+object_name = "RichMessageButton"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "RichBlockExpandableBlockQuotation"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+    { name = "credit", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichMessage"
+fields = [
+    { name = "blocks", annotation = "list[TypeAliases.InputRichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockListItem"
+fields = [
+    { name = "blocks", annotation = "list[TypeAliases.InputRichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockParagraph"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockSectionHeading"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockPreformatted"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockFooter"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockBlockQuotation"
+fields = [
+    { name = "blocks", annotation = "list[TypeAliases.InputRichBlock]" },
+    { name = "credit", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockExpandableBlockQuotation"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+    { name = "credit", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockPullQuotation"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+    { name = "credit", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockCollage"
+fields = [
+    { name = "blocks", annotation = "list[TypeAliases.InputRichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockSlideshow"
+fields = [
+    { name = "blocks", annotation = "list[TypeAliases.InputRichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockTable"
+fields = [
+    { name = "caption", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockDetails"
+fields = [
+    { name = "summary", annotation = "TypeAliases.RichText" },
+    { name = "blocks", annotation = "list[TypeAliases.InputRichBlock]" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "InputRichBlockThinking"
+fields = [
+    { name = "text", annotation = "TypeAliases.RichText" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
 object_name = "ChatFullInfo"
 fields = [
     { name = "available_reactions", annotation = "list[TypeAliases.Reaction]" },
@@ -1027,7 +1128,7 @@ fields = [
 ]
 
 [[generator.objects.fields.annotations.literals]]
-object_name = "RichTextHashtag"
+object_name = "RichTextCashtag"
 fields = [
     { name = "type", literals = ["cashtag",] },
 ]
@@ -1058,12 +1159,6 @@ fields = [
 
 [[generator.objects.fields.annotations.literals]]
 object_name = "RichTextReferenceLink"
-fields = [
-    { name = "type", literals = ["reference_link",] },
-]
-
-[[generator.objects.fields.annotations.literals]]
-object_name = "RichBlockCaption"
 fields = [
     { name = "type", literals = ["reference_link",] },
 ]
@@ -1686,65 +1781,59 @@ fields = [
 ]
 
 [[generator.objects.fields.annotations.literals]]
-object_name = "VideoQuality"
-fields = [
-    { name = "codec", enum = "VideoQualityCodec" },
-]
-
-[[generator.objects.fields.annotations.literals]]
 object_name = "PassportElementErrorDataField"
 fields = [
     { name = "source", literals = ["data",] },
-    { name = "type", enum = "EncryptedPassportElementType", default = "PERSONAL_DETAILS" },
+    { name = "type", enum_literals = { name = "EncryptedPassportElementType", enumerations = ["PERSONAL_DETAILS", "PASSPORT", "DRIVER_LICENSE", "IDENTITY_CARD", "INTERNAL_PASSPORT", "ADDRESS",] }, default = "PERSONAL_DETAILS" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
 object_name = "PassportElementErrorFile"
 fields = [
     { name = "source", literals = ["file",] },
-    { name = "type", enum = "EncryptedPassportElementType", default = "UTILITY_BILL" },
+    { name = "type", enum_literals = { name = "EncryptedPassportElementType", enumerations = ["UTILITY_BILL", "BANK_STATEMENT", "RENTAL_AGREEMENT", "PASSPORT_REGISTRATION", "TEMPORARY_REGISTRATION",] }, default = "UTILITY_BILL" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
 object_name = "PassportElementErrorFiles"
 fields = [
     { name = "source", literals = ["files",] },
-    { name = "type", enum = "EncryptedPassportElementType", default = "UTILITY_BILL" },
+    { name = "type", enum_literals = { name = "EncryptedPassportElementType", enumerations = ["UTILITY_BILL", "BANK_STATEMENT", "RENTAL_AGREEMENT", "PASSPORT_REGISTRATION", "TEMPORARY_REGISTRATION",] }, default = "UTILITY_BILL" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
 object_name = "PassportElementErrorFrontSide"
 fields = [
     { name = "source", literals = ["front_side",] },
-    { name = "type", enum = "EncryptedPassportElementType", default = "PASSPORT" },
+    { name = "type", enum_literals = { name = "EncryptedPassportElementType", enumerations = ["PASSPORT", "DRIVER_LICENSE", "IDENTITY_CARD", "INTERNAL_PASSPORT",] }, default = "PASSPORT" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
 object_name = "PassportElementErrorReverseSide"
 fields = [
     { name = "source", literals = ["reverse_side",] },
-    { name = "type", enum = "EncryptedPassportElementType", default = "DRIVER_LICENSE" },
+    { name = "type", enum_literals = { name = "EncryptedPassportElementType", enumerations = ["DRIVER_LICENSE", "IDENTITY_CARD",] }, default = "DRIVER_LICENSE" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
 object_name = "PassportElementErrorSelfie"
 fields = [
     { name = "source", literals = ["selfie",] },
-    { name = "type", enum = "EncryptedPassportElementType", default = "PASSPORT" },
+    { name = "type", enum_literals = { name = "EncryptedPassportElementType", enumerations = ["PASSPORT", "DRIVER_LICENSE", "IDENTITY_CARD", "INTERNAL_PASSPORT",] }, default = "PASSPORT" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
 object_name = "PassportElementErrorTranslationFile"
 fields = [
     { name = "source", literals = ["translation_file",] },
-    { name = "type", enum = "EncryptedPassportElementType", default = "PASSPORT" },
+    { name = "type", enum_literals = { name = "EncryptedPassportElementType", enumerations = ["PASSPORT", "DRIVER_LICENSE", "IDENTITY_CARD", "INTERNAL_PASSPORT", "UTILITY_BILL", "BANK_STATEMENT", "RENTAL_AGREEMENT", "PASSPORT_REGISTRATION", "TEMPORARY_REGISTRATION",] }, default = "PASSPORT" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
 object_name = "PassportElementErrorTranslationFiles"
 fields = [
     { name = "source", literals = ["translation_files",] },
-    { name = "type", enum = "EncryptedPassportElementType", default = "PASSPORT" },
+    { name = "type", enum_literals = { name = "EncryptedPassportElementType", enumerations = ["PASSPORT", "DRIVER_LICENSE", "IDENTITY_CARD", "INTERNAL_PASSPORT", "UTILITY_BILL", "BANK_STATEMENT", "RENTAL_AGREEMENT", "PASSPORT_REGISTRATION", "TEMPORARY_REGISTRATION",] }, default = "PASSPORT" },
 ]
 
 [[generator.objects.fields.annotations.literals]]
@@ -1826,6 +1915,234 @@ fields = [
     { name = "allowed_updates", enum = "UpdateType" },
 ]
 
+[[generator.objects.fields.annotations.literals]]
+object_name = "Message"
+fields = [
+    { name = "delete_chat_photo", literals = [true,] },
+    { name = "group_chat_created", literals = [true,] },
+    { name = "supergroup_chat_created", literals = [true,] },
+    { name = "channel_chat_created", literals = [true,] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "ForceReply"
+fields = [
+    { name = "force_reply", literals = [true,] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "ReplyKeyboardRemove"
+fields = [
+    { name = "remove_keyboard", literals = [true,] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "BotSubscriptionUpdated"
+fields = [
+    { name = "state", literals = ["canceled", "active", "failed",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputMediaLink"
+fields = [
+    { name = "type", literals = ["link",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputMediaVoiceNote"
+fields = [
+    { name = "type", literals = ["voice_note",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichMessageButton"
+fields = [
+    { name = "style", enum = "RichMessageButtonStyle" },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichTextButton"
+fields = [
+    { name = "type", literals = ["button",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockTableCell"
+fields = [
+    { name = "align", enum = "HorizontalAlignment" },
+    { name = "valign", enum = "VerticalAlignment" },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockExpandableBlockQuotation"
+fields = [
+    { name = "type", literals = ["expandable_blockquote",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockButtons"
+fields = [
+    { name = "type", literals = ["buttons",] },
+    { name = "align", enum = "HorizontalAlignment" },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "RichBlockDocument"
+fields = [
+    { name = "type", literals = ["document",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockListItem"
+fields = [
+    { name = "type", enum = "ListItemLabelType" },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockParagraph"
+fields = [
+    { name = "type", literals = ["paragraph",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockSectionHeading"
+fields = [
+    { name = "type", literals = ["heading",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockPreformatted"
+fields = [
+    { name = "type", literals = ["pre",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockFooter"
+fields = [
+    { name = "type", literals = ["footer",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockDivider"
+fields = [
+    { name = "type", literals = ["divider",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockMathematicalExpression"
+fields = [
+    { name = "type", literals = ["mathematical_expression",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockAnchor"
+fields = [
+    { name = "type", literals = ["anchor",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockList"
+fields = [
+    { name = "type", literals = ["list",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockBlockQuotation"
+fields = [
+    { name = "type", literals = ["blockquote",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockExpandableBlockQuotation"
+fields = [
+    { name = "type", literals = ["expandable_blockquote",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockPullQuotation"
+fields = [
+    { name = "type", literals = ["pullquote",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockCollage"
+fields = [
+    { name = "type", literals = ["collage",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockSlideshow"
+fields = [
+    { name = "type", literals = ["slideshow",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockTable"
+fields = [
+    { name = "type", literals = ["table",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockDetails"
+fields = [
+    { name = "type", literals = ["details",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockMap"
+fields = [
+    { name = "type", literals = ["map",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockButtons"
+fields = [
+    { name = "type", literals = ["buttons",] },
+    { name = "align", enum = "HorizontalAlignment" },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockAnimation"
+fields = [
+    { name = "type", literals = ["animation",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockAudio"
+fields = [
+    { name = "type", literals = ["audio",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockDocument"
+fields = [
+    { name = "type", literals = ["document",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockPhoto"
+fields = [
+    { name = "type", literals = ["photo",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockVideo"
+fields = [
+    { name = "type", literals = ["video",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockVoiceNote"
+fields = [
+    { name = "type", literals = ["voice_note",] },
+]
+
+[[generator.objects.fields.annotations.literals]]
+object_name = "InputRichBlockThinking"
+fields = [
+    { name = "type", literals = ["thinking",] },
+]
+
 # Generator :: Methods :: Annotations :: Return Type
 
 [[generator.methods.annotations.return_type]]
@@ -1905,7 +2222,7 @@ params = [
 [[generator.methods.annotations.literals]]
 name = "postStory"
 params = [
-    { name = "active_period", literals = [21600, 43200, 86400, 1036800,] },
+    { name = "active_period", literals = [21600, 43200, 86400, 172800,] },
 ]
 
 [[generator.methods.annotations.literals]]
@@ -1919,4 +2236,28 @@ name = "giftPremiumSubscription"
 params = [
     { name = "month_count", literals = [3, 6, 12,] },
     { name = "star_count", literals = [1000, 1500, 2500,] },
+]
+
+[[generator.methods.annotations.literals]]
+name = "repostStory"
+params = [
+    { name = "active_period", literals = [21600, 43200, 86400, 172800,] },
+]
+
+[[generator.methods.annotations.literals]]
+name = "answerChatJoinRequestQuery"
+params = [
+    { name = "result", literals = ["approve", "decline", "queue",] },
+]
+
+[[generator.methods.annotations.literals]]
+name = "createChatSubscriptionInviteLink"
+params = [
+    { name = "subscription_period", literals = [2592000,] },
+]
+
+[[generator.methods.annotations.literals]]
+name = "createInvoiceLink"
+params = [
+    { name = "subscription_period", literals = [2592000,] },
 ]

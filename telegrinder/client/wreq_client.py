@@ -3,6 +3,7 @@ import datetime
 import pathlib
 import sys
 import typing
+from contextlib import suppress
 from http import HTTPStatus
 
 import certifi
@@ -114,6 +115,10 @@ class WreqClient(ABCClient):
             self._timeout.total_seconds(),
         )
 
+    def __del__(self) -> None:
+        with suppress(Exception):
+            self._client.close()
+
     @property
     def timeout(self) -> datetime.timedelta:
         return self._timeout
@@ -147,7 +152,7 @@ class WreqClient(ABCClient):
         response = await self._client.request(_METHODS_MAP[method], url, **kwargs)
         return Response(
             response=response,
-            content=await response.bytes(),
+            content=(await response.bytes()).tobytes(),
             status=HTTPStatus(response.status.as_int()),
         )
 

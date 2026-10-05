@@ -1,7 +1,7 @@
-from msgspex import BaseEnumMeta, IntEnum, StrEnum
+from msgspex import IntEnum, StrEnum
 
 
-class ProgrammingLanguage(StrEnum, metaclass=BaseEnumMeta):
+class ProgrammingLanguage(StrEnum):
     """Type of ProgrammingLanguage."""
 
     ASSEMBLY = "assembly"
@@ -39,7 +39,7 @@ class ProgrammingLanguage(StrEnum, metaclass=BaseEnumMeta):
     MARKUP = "markup"
 
 
-class ChatAction(StrEnum, metaclass=BaseEnumMeta):
+class ChatAction(StrEnum):
     """Type of ChatAction.
 
     Choose one, depending on what the user is about to receive:
@@ -68,7 +68,7 @@ class ChatAction(StrEnum, metaclass=BaseEnumMeta):
     UPLOAD_VIDEO_NOTE = "upload_video_note"
 
 
-class ReactionEmoji(StrEnum, metaclass=BaseEnumMeta):
+class ReactionEmoji(StrEnum):
     """Type of ReactionEmoji.
 
     Currently, it can be one of `👍`, `👎`, `❤`, `🔥`, `🥰`, `👏`,
@@ -156,7 +156,7 @@ class ReactionEmoji(StrEnum, metaclass=BaseEnumMeta):
     ENRAGED_FACE = "😡"
 
 
-class DefaultAccentColor(IntEnum, metaclass=BaseEnumMeta):
+class DefaultAccentColor(IntEnum):
     """Type of DefaultAccentColor.
 
     One of 7 possible user colors:
@@ -180,7 +180,7 @@ class DefaultAccentColor(IntEnum, metaclass=BaseEnumMeta):
     PINK = 6
 
 
-class TopicIconColor(IntEnum, metaclass=BaseEnumMeta):
+class TopicIconColor(IntEnum):
     """Type of TopicIconColor.
 
     Docs: https://github.com/telegramdesktop/tdesktop/blob/991fe491c5ae62705d77aa8fdd44a79caf639c45/Telegram/SourceFiles/data/data_forum_topic.cpp#L51-L56
@@ -194,7 +194,7 @@ class TopicIconColor(IntEnum, metaclass=BaseEnumMeta):
     RED = 0xFB6F5F
 
 
-class ChatBoostSourceType(StrEnum, metaclass=BaseEnumMeta):
+class ChatBoostSourceType(StrEnum):
     """Type of ChatBoostSourceType
     Docs: https://core.telegram.org/bots/api#chatboostsource
     """
@@ -204,10 +204,11 @@ class ChatBoostSourceType(StrEnum, metaclass=BaseEnumMeta):
     GIVEAWAY = "giveaway"
 
 
-class ContentType(StrEnum, metaclass=BaseEnumMeta):
+class ContentType(StrEnum):
     """Type of ContentType."""
 
     TEXT = "text"
+    RICH_MESSAGE = "rich_message"
     ANIMATION = "animation"
     AUDIO = "audio"
     DOCUMENT = "document"
@@ -251,6 +252,9 @@ class ContentType(StrEnum, metaclass=BaseEnumMeta):
     CONNECTED_WEBSITE = "connected_website"
     WRITE_ACCESS_ALLOWED = "write_access_allowed"
     PASSPORT_DATA = "passport_data"
+    COMMUNITY_CHAT_ADDED = "community_chat_added"
+    COMMUNITY_CHAT_JOINED = "community_chat_joined"
+    COMMUNITY_CHAT_REMOVED = "community_chat_removed"
     PROXIMITY_ALERT_TRIGGERED = "proximity_alert_triggered"
     BOOST_ADDED = "boost_added"
     CHAT_BACKGROUND_SET = "chat_background_set"
@@ -288,7 +292,7 @@ class ContentType(StrEnum, metaclass=BaseEnumMeta):
     UNKNOWN = "unknown"
 
 
-class Currency(StrEnum, metaclass=BaseEnumMeta):
+class Currency(StrEnum):
     """Type of Currency.
     Docs: https://core.telegram.org/bots/payments#supported-currencies
     """
@@ -385,7 +389,7 @@ class Currency(StrEnum, metaclass=BaseEnumMeta):
     """Toncoin."""
 
 
-class InlineQueryResultType(StrEnum, metaclass=BaseEnumMeta):
+class InlineQueryResultType(StrEnum):
     """Type of InlineQueryResultType.
     Docs: https://core.telegram.org/bots/api#inlinequeryresult
     """
@@ -405,7 +409,7 @@ class InlineQueryResultType(StrEnum, metaclass=BaseEnumMeta):
     VENUE = "venue"
 
 
-class MenuButtonType(StrEnum, metaclass=BaseEnumMeta):
+class MenuButtonType(StrEnum):
     """TType of MenuButtonType.
     Docs: https://core.telegram.org/bots/api#menubuttondefault
     """
@@ -415,7 +419,7 @@ class MenuButtonType(StrEnum, metaclass=BaseEnumMeta):
     WEB_APP = "web_app"
 
 
-class InputMediaType(StrEnum, metaclass=BaseEnumMeta):
+class InputMediaType(StrEnum):
     """Type of InputMediaType.
     Docs: https://core.telegram.org/bots/api#inputmedia
     """
@@ -423,11 +427,17 @@ class InputMediaType(StrEnum, metaclass=BaseEnumMeta):
     ANIMATION = "animation"
     AUDIO = "audio"
     DOCUMENT = "document"
+    LINK = "link"
+    LIVE_PHOTO = "live_photo"
+    LOCATION = "location"
     PHOTO = "photo"
+    STICKER = "sticker"
+    VENUE = "venue"
     VIDEO = "video"
+    VOICE_NOTE = "voice_note"
 
 
-class UpdateType(StrEnum, metaclass=BaseEnumMeta):
+class UpdateType(StrEnum):
     """Type of update."""
 
     MESSAGE = "message"
@@ -455,9 +465,11 @@ class UpdateType(StrEnum, metaclass=BaseEnumMeta):
     CHAT_BOOST = "chat_boost"
     REMOVED_CHAT_BOOST = "removed_chat_boost"
     MANAGED_BOT = "managed_bot"
+    SUBSCRIPTION = "subscription"
+    STOPPED_MESSAGE_GENERATION = "stopped_message_generation"
 
 
-class BotCommandScopeType(StrEnum, metaclass=BaseEnumMeta):
+class BotCommandScopeType(StrEnum):
     """Type of BotCommandScope.
     Represents the scope to which bot commands are applied.
     """
@@ -471,8 +483,8 @@ class BotCommandScopeType(StrEnum, metaclass=BaseEnumMeta):
     CHAT_MEMBER = "chat_member"
 
 
-class ChatType(StrEnum, metaclass=BaseEnumMeta):
-    """Type of chat, can be either `private`, `group`, `supergroup` or `channel`."""
+class ChatType(StrEnum):
+    """Type of chat, can be either `private`, `group`, `supergroup`, `channel` or `sender`."""
 
     PRIVATE = "private"
     GROUP = "group"
@@ -481,7 +493,7 @@ class ChatType(StrEnum, metaclass=BaseEnumMeta):
     SENDER = "sender"
 
 
-class ChatMemberStatus(StrEnum, metaclass=BaseEnumMeta):
+class ChatMemberStatus(StrEnum):
     """Type of ChatMemberStatus."""
 
     CREATOR = "creator"
@@ -492,7 +504,7 @@ class ChatMemberStatus(StrEnum, metaclass=BaseEnumMeta):
     KICKED = "kicked"
 
 
-class DiceEmoji(StrEnum, metaclass=BaseEnumMeta):
+class DiceEmoji(StrEnum):
     """Emoji on which the dice throw animation is based."""
 
     DICE = "🎲"
@@ -503,7 +515,7 @@ class DiceEmoji(StrEnum, metaclass=BaseEnumMeta):
     BOWLING = "🎳"
 
 
-class MessageEntityType(StrEnum, metaclass=BaseEnumMeta):
+class MessageEntityType(StrEnum):
     """Type of the entity.
 
     Read the [documentation](https://core.telegram.org/api/entities) about entities.
@@ -542,14 +554,14 @@ class MessageEntityType(StrEnum, metaclass=BaseEnumMeta):
     DATETIME = "date_time"
 
 
-class PollType(StrEnum, metaclass=BaseEnumMeta):
+class PollType(StrEnum):
     """Poll type, currently can be `regular` or `quiz`."""
 
     REGULAR = "regular"
     QUIZ = "quiz"
 
 
-class StickerType(StrEnum, metaclass=BaseEnumMeta):
+class StickerType(StrEnum):
     """Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`.
     The type of the sticker is independent from its format, which is determined
     by the fields `is_animated` and `is_video`.
@@ -560,7 +572,7 @@ class StickerType(StrEnum, metaclass=BaseEnumMeta):
     CUSTOM_EMOJI = "custom_emoji"
 
 
-class MessageOriginType(StrEnum, metaclass=BaseEnumMeta):
+class MessageOriginType(StrEnum):
     """Type of MessageOriginType
     Docs: https://core.telegram.org/bots/api#messageorigin
     """
@@ -571,7 +583,7 @@ class MessageOriginType(StrEnum, metaclass=BaseEnumMeta):
     CHANNEL = "channel"
 
 
-class StickerSetStickerType(StrEnum, metaclass=BaseEnumMeta):
+class StickerSetStickerType(StrEnum):
     """Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`."""
 
     REGULAR = "regular"
@@ -579,7 +591,7 @@ class StickerSetStickerType(StrEnum, metaclass=BaseEnumMeta):
     CUSTOM_EMOJI = "custom_emoji"
 
 
-class MaskPositionPoint(StrEnum, metaclass=BaseEnumMeta):
+class MaskPositionPoint(StrEnum):
     """The part of the face relative to which the mask should be placed. One of `forehead`,
     `eyes`, `mouth`, or `chin`.
     """
@@ -590,7 +602,7 @@ class MaskPositionPoint(StrEnum, metaclass=BaseEnumMeta):
     CHIN = "chin"
 
 
-class InlineQueryChatType(StrEnum, metaclass=BaseEnumMeta):
+class InlineQueryChatType(StrEnum):
     """Type of the chat from which the inline query was sent. Can be
     either `sender` for a private chat with the inline query sender, `private`,
     `group`, `supergroup`, or `channel`. The chat type should be always known
@@ -605,14 +617,14 @@ class InlineQueryChatType(StrEnum, metaclass=BaseEnumMeta):
     CHANNEL = "channel"
 
 
-class InlineQueryResultMimeType(StrEnum, metaclass=BaseEnumMeta):
+class InlineQueryResultMimeType(StrEnum):
     """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
 
     TEXT_HTML = "text/html"
     VIDEO_MP4 = "video/mp4"
 
 
-class InlineQueryResultThumbnailMimeType(StrEnum, metaclass=BaseEnumMeta):
+class InlineQueryResultThumbnailMimeType(StrEnum):
     """MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`
     """
@@ -622,7 +634,7 @@ class InlineQueryResultThumbnailMimeType(StrEnum, metaclass=BaseEnumMeta):
     VIDEO_MP4 = "video/mp4"
 
 
-class PassportElementErrorType(StrEnum, metaclass=BaseEnumMeta):
+class PassportElementErrorType(StrEnum):
     """Type of PassportElementErrorType.
     Docs: https://core.telegram.org/bots/api#passportelementerror
     """
@@ -638,16 +650,17 @@ class PassportElementErrorType(StrEnum, metaclass=BaseEnumMeta):
     UNSPECIFIED = "unspecified"
 
 
-class ReactionTypeType(StrEnum, metaclass=BaseEnumMeta):
+class ReactionTypeType(StrEnum):
     """Type of ReactionTypeType.
     Docs: https://core.telegram.org/bots/api#reactiontype
     """
 
     EMOJI = "emoji"
     CUSTOM_EMOJI = "custom_emoji"
+    PAID = "paid"
 
 
-class InlineQueryResultGifThumbnailMimeType(StrEnum, metaclass=BaseEnumMeta):
+class InlineQueryResultGifThumbnailMimeType(StrEnum):
     """MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`.
     """
@@ -657,7 +670,7 @@ class InlineQueryResultGifThumbnailMimeType(StrEnum, metaclass=BaseEnumMeta):
     VIDEO_MP4 = "video/mp4"
 
 
-class InlineQueryResultMpeg4GifThumbnailMimeType(StrEnum, metaclass=BaseEnumMeta):
+class InlineQueryResultMpeg4GifThumbnailMimeType(StrEnum):
     """MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`,
     or `video/mp4`. Defaults to `image/jpeg`.
     """
@@ -667,21 +680,21 @@ class InlineQueryResultMpeg4GifThumbnailMimeType(StrEnum, metaclass=BaseEnumMeta
     VIDEO_MP4 = "video/mp4"
 
 
-class InlineQueryResultVideoMimeType(StrEnum, metaclass=BaseEnumMeta):
+class InlineQueryResultVideoMimeType(StrEnum):
     """MIME type of the content of the video URL, `text/html` or `video/mp4`."""
 
     TEXT_HTML = "text/html"
     VIDEO_MP4 = "video/mp4"
 
 
-class InlineQueryResultDocumentMimeType(StrEnum, metaclass=BaseEnumMeta):
+class InlineQueryResultDocumentMimeType(StrEnum):
     """MIME type of the content of the file, either `application/pdf` or `application/zip`."""
 
     APPLICATION_PDF = "application/pdf"
     APPLICATION_ZIP = "application/zip"
 
 
-class EncryptedPassportElementType(StrEnum, metaclass=BaseEnumMeta):
+class EncryptedPassportElementType(StrEnum):
     """Element type. One of `personal_details`, `passport`, `driver_license`,
     `identity_card`, `internal_passport`, `address`, `utility_bill`,
     `bank_statement`, `rental_agreement`, `passport_registration`,
@@ -703,7 +716,7 @@ class EncryptedPassportElementType(StrEnum, metaclass=BaseEnumMeta):
     EMAIL = "email"
 
 
-class StickerFormat(StrEnum, metaclass=BaseEnumMeta):
+class StickerFormat(StrEnum):
     """Format of the sticker."""
 
     STATIC = "static"
@@ -711,7 +724,7 @@ class StickerFormat(StrEnum, metaclass=BaseEnumMeta):
     VIDEO = "video"
 
 
-class TransactionPartnerUserTransactionType(StrEnum, metaclass=BaseEnumMeta):
+class TransactionPartnerUserTransactionType(StrEnum):
     """This object represents type of the transaction that were made by partner user."""
 
     INVOICE_PAYMENT = "invoice_payment"
@@ -721,7 +734,7 @@ class TransactionPartnerUserTransactionType(StrEnum, metaclass=BaseEnumMeta):
     BUSINESS_ACCOUNT_TRANSFER = "business_account_transfer"
 
 
-class UniqueGiftInfoOriginType(StrEnum, metaclass=BaseEnumMeta):
+class UniqueGiftInfoOriginType(StrEnum):
     """Origin of the gift.
 
     Currently, either `upgrade`, `transfer`, `resale`, `gifted_upgrade` or `offer`.
@@ -734,7 +747,7 @@ class UniqueGiftInfoOriginType(StrEnum, metaclass=BaseEnumMeta):
     OFFER = "offer"
 
 
-class UniqueGiftModelRarity(StrEnum, metaclass=BaseEnumMeta):
+class UniqueGiftModelRarity(StrEnum):
     """Rarity of the unique gift model. Currently, can be
     `uncommon`, `rare`, `epic`, or `legendary`.
     Docs: https://core.telegram.org/bots/api#uniquegiftmodel
@@ -746,7 +759,7 @@ class UniqueGiftModelRarity(StrEnum, metaclass=BaseEnumMeta):
     LEGENDARY = "legendary"
 
 
-class KeyboardButtonStyle(StrEnum, metaclass=BaseEnumMeta):
+class KeyboardButtonStyle(StrEnum):
     """Style of the keyboard button. Currently, can be
     `danger`, `success`, or `primary`.
     """
@@ -761,18 +774,7 @@ class KeyboardButtonStyle(StrEnum, metaclass=BaseEnumMeta):
     """Blue button."""
 
 
-class VideoQualityCodec(StrEnum, metaclass=BaseEnumMeta):
-    """Codec of the video quality. Currently, can be
-    `h264`, `h265`, or `av01`.
-    Docs: https://core.telegram.org/bots/api#videoquality
-    """
-
-    H264 = "h264"
-    H265 = "h265"
-    AV01 = "av01"
-
-
-class DateTimeFormat(StrEnum, metaclass=BaseEnumMeta):
+class DateTimeFormat(StrEnum):
     """Type of the formatting of the date and time.
     See date-time entity formatting for more details."""
 
@@ -784,7 +786,7 @@ class DateTimeFormat(StrEnum, metaclass=BaseEnumMeta):
     RELATIVE = "R"
 
 
-class ListItemLabelType(StrEnum, metaclass=BaseEnumMeta):
+class ListItemLabelType(StrEnum):
     """For ordered lists, the type of the item label; must be one of `a`
     for lowercase letters, `A` for uppercase letters, `i` for lowercase Roman
     numerals, `I` for uppercase Roman numerals, or `1` for decimal numbers."""
@@ -794,6 +796,31 @@ class ListItemLabelType(StrEnum, metaclass=BaseEnumMeta):
     LOWER_ROMAN_NUMERALS = "i"
     UPPER_ROMAN_NUMERALS = "I"
     DECIMAL_NUMBERS = "1"
+
+
+class RichMessageButtonStyle(StrEnum):
+    """Style of a rich message button. The link style is only allowed for callback buttons."""
+
+    DANGER = "danger"
+    SUCCESS = "success"
+    PRIMARY = "primary"
+    LINK = "link"
+
+
+class HorizontalAlignment(StrEnum):
+    """Horizontal alignment of rich block content."""
+
+    LEFT = "left"
+    CENTER = "center"
+    RIGHT = "right"
+
+
+class VerticalAlignment(StrEnum):
+    """Vertical alignment of rich block table cell content."""
+
+    TOP = "top"
+    MIDDLE = "middle"
+    BOTTOM = "bottom"
 
 
 __all__ = (
@@ -808,6 +835,7 @@ __all__ = (
     "DefaultAccentColor",
     "DiceEmoji",
     "EncryptedPassportElementType",
+    "HorizontalAlignment",
     "InlineQueryChatType",
     "InlineQueryResultDocumentMimeType",
     "InlineQueryResultGifThumbnailMimeType",
@@ -825,6 +853,7 @@ __all__ = (
     "ProgrammingLanguage",
     "ReactionEmoji",
     "ReactionTypeType",
+    "RichMessageButtonStyle",
     "StickerFormat",
     "StickerSetStickerType",
     "StickerType",
@@ -833,5 +862,5 @@ __all__ = (
     "UniqueGiftInfoOriginType",
     "UniqueGiftModelRarity",
     "UpdateType",
-    "VideoQualityCodec",
+    "VerticalAlignment",
 )

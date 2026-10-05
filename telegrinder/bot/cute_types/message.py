@@ -35,6 +35,10 @@ if typing.TYPE_CHECKING:
 
 type InputMediaType = str | InputMedia | InputFile
 type ReplyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
+type Executor[Event] = typing.Callable[
+    [Event, str, dict[str, typing.Any], typing.Any],
+    typing.Awaitable[Result[typing.Any, APIError]],
+]
 
 
 def _to_api_method_name(method_name: str, /) -> str:
@@ -67,11 +71,8 @@ async def _execute_api_method(
     )
 
 
-def execute_method_answer(
-    *,
-    default_params: set[str | tuple[str, str]] | None = None,
-):
-    async def inner(
+def execute_method_answer(*, default_params: set[str | tuple[str, str]] | None = None) -> Executor[MessageCute]:
+    async def executor(
         message: MessageCute,
         method_name: str,
         params: dict[str, typing.Any],
@@ -89,20 +90,38 @@ def execute_method_answer(
                     "direct_messages_topic_id",
                     direct_messages_topic.map(lambda m: m.topic_id).unwrap_or_none(),
                 ),
+                "receiver_user": lambda receiver_user: (
+                    "receiver_user_id",
+                    receiver_user.map(lambda user: user.id).unwrap_or_none(),
+                ),
             },
         )
         return await _execute_api_method(message.bound_api, method_name, params, result_type)
 
-    return inner
+    return executor
 
 
-def execute_method_reply(
-    *,
-    default_params: set[str | tuple[str, str]] | None = None,
-):
+def execute_method_whisper[**P](*, inner_executor: Executor) -> Executor[MessageCute]:
+    async def executor(
+        message: MessageCute,
+        method_name: str,
+        params: dict[str, typing.Any],
+        result_type: typing.Any,
+    ) -> Result[typing.Any, APIError]:
+        if "ephemeral_message_parameters" not in params:
+            params["ephemeral_message_parameters"] = EphemeralMessageParameters.initialize(
+                receiver_user_id=params.get("receiver_user_id") or message.from_user.id,
+            )
+
+        return await inner_executor(message, method_name, params, result_type)
+
+    return executor
+
+
+def execute_method_reply(*, default_params: set[str | tuple[str, str]] | None = None) -> Executor[MessageCute]:
     reply = execute_method_answer(default_params=default_params)
 
-    async def inner(
+    async def executor(
         message: MessageCute,
         method_name: str,
         params: dict[str, typing.Any],
@@ -111,21 +130,25 @@ def execute_method_reply(
         reply_parameters = params.get("reply_parameters")
 
         if reply_parameters is None:
-            params["reply_parameters"] = ReplyParameters.initialize(
-                message_id=params.get("message_id") or message.message_id,
-                chat_id=params.get("chat_id") or message.chat_id,
-            )
+            if message.ephemeral_message_id and not params.get("message_id"):
+                params["reply_parameters"] = ReplyParameters.initialize(
+                    ephemeral_message_id=message.ephemeral_message_id.unwrap(),
+                )
+            else:
+                params["reply_parameters"] = ReplyParameters.initialize(
+                    message_id=params.get("message_id") or message.message_id,
+                    chat_id=params.get("chat_id") or message.chat_id,
+                )
 
         return await reply(message, method_name, params, result_type)
 
-    return inner
+    return executor
 
 
 def execute_method_edit(
-    *,
-    default_params: set[str | tuple[str, str]] | None = None,
-):
-    async def inner(
+    *, default_params: set[str | tuple[str, str]] | None = None
+) -> Executor[MessageCute | CallbackQueryCute]:
+    async def executor(
         update: MessageCute | CallbackQueryCute,
         method_name: str,
         params: dict[str, typing.Any],
@@ -151,7 +174,7 @@ def execute_method_edit(
 
         return await _execute_api_method(update.bound_api, method_name, params, result_type)
 
-    return inner
+    return executor
 
 
 def get_entity_value(
@@ -177,6 +200,17 @@ DEFAULT_ANSWER: typing.Final = execute_method_answer(
         "direct_messages_topic",
         "message_thread_id",
     }
+)
+DEFAULT_WHISPER: typing.Final = execute_method_whisper(
+    inner_executor=execute_method_answer(
+        default_params={
+            "chat_id",
+            "receiver_user_id",
+            "business_connection_id",
+            "direct_messages_topic",
+            "message_thread_id",
+        },
+    ),
 )
 ANSWER_TO_BUSINESS_CONNECTION: typing.Final = execute_method_answer(
     default_params={
@@ -233,9 +267,70 @@ DEFAULT_EDIT: typing.Final = execute_method_edit(
         "business_connection_id",
     },
 )
+DEFAULT_EPHEMERAL_EDIT: typing.Final = execute_method_answer(
+    default_params={
+        "chat_id",
+        "ephemeral_message_id",
+        "receiver_user",
+    },
+)
 
 
 class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
+    @shortcut(
+        "send_rich_message",
+        executor=DEFAULT_ANSWER,
+        return_type=BoundCute["MessageCute"],
+        custom_params={"chat_id", "reply_markup"},
+    )
+    async def answer_rich(
+        self,
+        rich_message: InputRichMessage,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_rich_message()`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessage)
+
+        Use this method to send rich messages. If the message contains a block with
+        a media element, then the bot must have the right to send the media to the chat.
+        On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent. Bot can send rich messages on behalf of a business account onlyif the corresponding user can send rich messages.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param rich_message: The message to be sent.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
     @shortcut(
         "send_audio",
         executor=DEFAULT_ANSWER,
@@ -248,7 +343,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -261,7 +355,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         parse_mode: str | None = API.default_params["parse_mode"],
         performer: str | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -325,7 +418,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -339,7 +431,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -405,7 +496,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -417,7 +507,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -475,7 +564,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -487,7 +575,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -543,7 +630,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -552,7 +638,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -601,7 +686,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -616,7 +700,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -691,7 +774,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -701,7 +783,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -754,7 +835,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -766,7 +846,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -944,7 +1023,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         title: str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -956,7 +1034,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1295,7 +1372,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         longitude: float,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -1307,7 +1383,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
         proximity_alert_radius: int | None = None,
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1362,7 +1437,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         phone_number: str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -1371,7 +1445,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1425,7 +1498,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         photo: InputFile | str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1437,7 +1509,6 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -1589,6 +1660,60 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
 
 class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
+        "send_rich_message",
+        executor=DEFAULT_REPLY,
+        return_type=BoundCute["MessageCute"],
+        custom_params={"chat_id", "reply_markup"},
+    )
+    async def reply_rich(
+        self,
+        rich_message: InputRichMessage,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_rich_message()`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessage)
+
+        Use this method to send rich messages. If the message contains a block with
+        a media element, then the bot must have the right to send the media to the chat.
+        On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent. Bot can send rich messages on behalf of a business account onlyif the corresponding user can send rich messages.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param rich_message: The message to be sent.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
         "send_audio",
         executor=DEFAULT_REPLY,
         return_type=BoundCute["MessageCute"],
@@ -1600,7 +1725,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1613,7 +1737,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         parse_mode: str | None = API.default_params["parse_mode"],
         performer: str | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1677,7 +1800,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1691,7 +1813,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -1757,7 +1878,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1769,7 +1889,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -1827,7 +1946,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1839,7 +1957,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -1895,7 +2012,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -1904,7 +2020,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -1953,7 +2068,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -1968,7 +2082,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -2043,7 +2156,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -2053,7 +2165,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2106,7 +2217,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -2118,7 +2228,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2296,7 +2405,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         title: str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -2308,7 +2416,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2620,7 +2727,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         longitude: float,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -2632,7 +2738,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
         proximity_alert_radius: int | None = None,
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2687,7 +2792,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         phone_number: str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -2696,7 +2800,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_effect_id: str | None = None,
         message_thread_id: int | None = None,
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -2750,7 +2853,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         photo: InputFile | str,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         caption: str | None = None,
         caption_entities: list[MessageEntity] | None = None,
         chat_id: int | str | None = None,
@@ -2762,7 +2864,6 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         show_caption_above_media: bool | None = None,
@@ -2913,6 +3014,177 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
 
 class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
+    @shortcut(
+        "edit_ephemeral_message_text",
+        executor=DEFAULT_EPHEMERAL_EDIT,
+        return_type=bool,
+        custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
+    )
+    async def edit_ephemeral_text(
+        self,
+        text: str | None = None,
+        *,
+        chat_id: int | str | None = None,
+        entities: list[MessageEntity] | None = None,
+        ephemeral_message_id: int | None = None,
+        link_preview_options: LinkPreviewOptions | None = API.default_params["link_preview_options"],
+        parse_mode: str | None = API.default_params["parse_mode"],
+        receiver_user_id: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        rich_message: InputRichMessage | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.edit_ephemeral_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagetext)
+
+        Use this method to edit an ephemeral text or rich message. Note that it is
+        not guaranteed that the user will receive the message edit event, especially
+        if they are offline. On success, True is returned.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroupin the format @username.
+
+        :param receiver_user_id: Identifier of the user who received the message.
+
+        :param ephemeral_message_id: Identifier of the ephemeral message to edit.
+
+        :param text: New text of the message, 1-4096 characters after entity parsing; requiredif rich_message isn't specified.
+
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param rich_message: New rich content of the message; required if text isn't specified.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
+        ...
+
+    @shortcut(
+        "edit_ephemeral_message_media",
+        executor=DEFAULT_EPHEMERAL_EDIT,
+        return_type=bool,
+        custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
+    )
+    async def edit_ephemeral_media(
+        self,
+        media: InputMedia,
+        *,
+        chat_id: int | str | None = None,
+        ephemeral_message_id: int | None = None,
+        receiver_user_id: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.edit_ephemeral_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagemedia)
+
+        Use this method to edit the media of an ephemeral message. Note that it is
+        not guaranteed that the user will receive the message edit event, especially
+        if they are offline. On success, True is returned.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroupin the format @username.
+
+        :param receiver_user_id: Identifier of the user who received the message.
+
+        :param ephemeral_message_id: Identifier of the ephemeral message to edit.
+
+        :param media: A JSON-serialized object for the new media content of the message.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
+        ...
+
+    @shortcut(
+        "edit_ephemeral_message_caption",
+        executor=DEFAULT_EPHEMERAL_EDIT,
+        return_type=bool,
+        custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
+    )
+    async def edit_ephemeral_caption(
+        self,
+        caption: str | None = None,
+        *,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        ephemeral_message_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        receiver_user_id: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        show_caption_above_media: bool | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.edit_ephemeral_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagecaption)
+
+        Use this method to edit the caption of an ephemeral message. Note that it
+        is not guaranteed that the user will receive the message edit event, especially
+        if they are offline. On success, True is returned.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroupin the format @username.
+
+        :param receiver_user_id: Identifier of the user who received the message.
+
+        :param ephemeral_message_id: Identifier of the ephemeral message to edit.
+
+        :param caption: New caption of the message, 0-1024 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media. Supportedonly for animation, photo and video messages.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
+        ...
+
+    @shortcut(
+        "edit_ephemeral_message_reply_markup",
+        executor=DEFAULT_EPHEMERAL_EDIT,
+        return_type=bool,
+        custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
+    )
+    async def edit_ephemeral_reply_markup(
+        self,
+        *,
+        chat_id: int | str | None = None,
+        ephemeral_message_id: int | None = None,
+        receiver_user_id: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.edit_ephemeral_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagereplymarkup)
+
+        Use this method to edit only the reply markup of an ephemeral message. Note
+        that it is not guaranteed that the user will receive the message edit event,
+        especially if they are offline. On success, True is returned.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroupin the format @username.
+
+        :param receiver_user_id: Identifier of the user who received the message.
+
+        :param ephemeral_message_id: Identifier of the ephemeral message to edit.
+
+        :param reply_markup: A JSON-serialized object for an inline keyboard."""
+        ...
+
+    @shortcut(
+        "delete_ephemeral_message",
+        executor=DEFAULT_EPHEMERAL_EDIT,
+        return_type=bool,
+        custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
+    )
+    async def delete_ephemeral(
+        self,
+        *,
+        chat_id: int | str | None = None,
+        ephemeral_message_id: int | None = None,
+        receiver_user_id: int | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.delete_ephemeral_message()`, see the [documentation](https://core.telegram.org/bots/api#deleteephemeralmessage)
+
+        Use this method to delete an ephemeral message. Note that it is not guaranteed
+        that the user will receive the message deletion event, especially if they
+        are offline. Returns True on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target supergroupin the format @username.
+
+        :param receiver_user_id: Identifier of the user who received the message.
+
+        :param ephemeral_message_id: Identifier of the ephemeral message to delete."""
+        ...
+
     @shortcut(
         "edit_message_live_location",
         executor=DEFAULT_EDIT,
@@ -3318,8 +3590,67 @@ class MessageCute(
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        entities: list[MessageEntity] | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        link_preview_options: LinkPreviewOptions | None = API.default_params["link_preview_options"],
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> Result[MessageCute, APIError]:
+        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
+
+        Use this method to send text messages. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_message",
+        executor=DEFAULT_WHISPER,
+        return_type=BoundCute["MessageCute"],
+        custom_params={"chat_id", "receiver_user_id", "link_preview_options", "reply_markup"},
+    )
+    async def whisper(
+        self,
+        text: str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
         entities: list[MessageEntity] | None = None,
@@ -3403,7 +3734,6 @@ class MessageCute(
         *,
         allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
         business_connection_id: str | None = None,
-        callback_query_id: str | None = None,
         chat_id: int | str | None = None,
         direct_messages_topic_id: int | None = None,
         disable_notification: bool | None = API.default_params["disable_notification"],
@@ -3415,7 +3745,6 @@ class MessageCute(
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
@@ -3491,6 +3820,42 @@ class MessageCute(
         :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
 
         :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param can_stop: Pass True to show the user a button to stop further drafts. The bot will receivean Update `stopped_message_generation` if the user presses the button.
+        :param keep_on_stop: Pass True to keep the draft in the chat when the button is pressed. The draftwill still disappear after a short time or if the bot sends a message. To fullypreserve the partial draft, the bot should send it as a new message."""
+        ...
+
+    @shortcut(
+        "send_rich_message_draft",
+        executor=ANSWER_TO_THREAD,
+        return_type=bool,
+        custom_params={"chat_id"},
+    )
+    async def stream_rich(
+        self,
+        rich_message: InputRichMessage,
+        *,
+        draft_id: int,
+        can_stop: bool | None = None,
+        chat_id: int | None = None,
+        keep_on_stop: bool | None = None,
+        message_thread_id: int | None = None,
+        **other: typing.Any,
+    ) -> Result[bool, APIError]:
+        """Shortcut `API.send_rich_message_draft()`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessagedraft)
+
+        Use this method to stream a partial rich message to a user while the message
+        is being generated. Note that the streamed draft is ephemeral and acts as
+        a temporary 30-second preview - once the output is finalized, you must call
+        sendRichMessage with the complete message to persist it in the user's chat.
+        Returns True on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target private chat.
+
+        :param message_thread_id: Unique identifier for the target message thread.
+
+        :param draft_id: Unique identifier of the message draft; must be non-zero. Changes to draftswith the same identifier are animated. Otherwise, the draft is replacedwithout animation.
+
+        :param rich_message: The partial message to be streamed. Direct upload of new files and explicitupload of files by a URL isn't supported.
 
         :param can_stop: Pass True to show the user a button to stop further drafts. The bot will receivean Update `stopped_message_generation` if the user presses the button.
         :param keep_on_stop: Pass True to keep the draft in the chat when the button is pressed. The draftwill still disappear after a short time or if the bot sends a message. To fullypreserve the partial draft, the bot should send it as a new message."""
@@ -3602,7 +3967,7 @@ class MessageCute(
     )
     async def edit(
         self,
-        text: str,
+        text: str | None = None,
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,

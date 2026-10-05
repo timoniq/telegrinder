@@ -22,7 +22,7 @@ class ObjectsFieldsLiteralTypesEnumLiterals(msgspec.Struct):
 
 class ObjectsFieldsLiteralTypesField(msgspec.Struct):
     name: str
-    literals: list[str | int] = msgspec.field(default_factory=list)
+    literals: list[str | int | bool] = msgspec.field(default_factory=list)
     enum: str | None = None
     enum_literals: ObjectsFieldsLiteralTypesEnumLiterals | None = None
     default: str | None = None

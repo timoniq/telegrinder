@@ -149,7 +149,7 @@ class _ManagedBotUpdated(ManagedBotUpdated):
 
 
 class TypeAliases:
-    type RichTexts = typing.Annotated[list[str | RichText], list]
+    type RichTexts = typing.Annotated[list[RichText], list]
     type RichText = Sum[
         str,
         RichTextBold,
@@ -173,6 +173,7 @@ class TypeAliases:
         RichTextHashtag,
         RichTextCashtag,
         RichTextBotCommand,
+        RichTextButton,
         RichTextAnchor,
         RichTextAnchorLink,
         RichTextReference,
@@ -189,18 +190,47 @@ class TypeAliases:
         RichBlockAnchor,
         RichBlockList,
         RichBlockBlockQuotation,
+        RichBlockExpandableBlockQuotation,
         RichBlockPullQuotation,
         RichBlockCollage,
         RichBlockSlideshow,
         RichBlockTable,
         RichBlockDetails,
         RichBlockMap,
+        RichBlockButtons,
         RichBlockAnimation,
         RichBlockAudio,
+        RichBlockDocument,
         RichBlockPhoto,
         RichBlockVideo,
         RichBlockVoiceNote,
         RichBlockThinking,
+    ]
+    type InputRichBlock = Sum[
+        InputRichBlockParagraph,
+        InputRichBlockSectionHeading,
+        InputRichBlockPreformatted,
+        InputRichBlockFooter,
+        InputRichBlockDivider,
+        InputRichBlockMathematicalExpression,
+        InputRichBlockAnchor,
+        InputRichBlockList,
+        InputRichBlockBlockQuotation,
+        InputRichBlockExpandableBlockQuotation,
+        InputRichBlockPullQuotation,
+        InputRichBlockCollage,
+        InputRichBlockSlideshow,
+        InputRichBlockTable,
+        InputRichBlockDetails,
+        InputRichBlockMap,
+        InputRichBlockButtons,
+        InputRichBlockAnimation,
+        InputRichBlockAudio,
+        InputRichBlockDocument,
+        InputRichBlockPhoto,
+        InputRichBlockVideo,
+        InputRichBlockVoiceNote,
+        InputRichBlockThinking,
     ]
     type InputFileSource = Sum[str, InputFile]
     type InlineInputMessageContent = Sum[

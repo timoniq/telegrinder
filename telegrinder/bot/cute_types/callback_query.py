@@ -83,6 +83,18 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         return self.message.map(lambda m: m.v.message_id)
 
     @property
+    @unwrapping
+    def ephemeral_message_id(self) -> Option[int]:
+        """Identifier of the ephemeral message that originated the query, when available."""
+        return self.message.unwrap().only().map(lambda m: m.ephemeral_message_id.unwrap()).cast(Some, Nothing)
+
+    @property
+    @unwrapping
+    def receiver_user(self) -> Option[User]:
+        """User who received the ephemeral message that originated the query, when available."""
+        return self.message.unwrap().only().map(lambda m: m.receiver_user.unwrap()).cast(Some, Nothing)
+
+    @property
     def chat(self) -> Option[Chat]:
         """Optional. Chat the callback query originated from. This will be present
         if the message is sent by the bot with the callback button that originated the query.
@@ -321,7 +333,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
     )
     async def edit_text(
         self,
-        text: str,
+        text: str | None = None,
         *,
         business_connection_id: str | None = None,
         chat_id: int | str | None = None,

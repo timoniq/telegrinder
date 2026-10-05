@@ -39,15 +39,15 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "certifi (>=2026.6.17)",
+    "certifi (>=2026.7.22)",
     "choicelib (>=0.1.5)",
     "env-better (>=1.0.0)",
     "kungfu-fp (>=1.1.1)",
-    "msgspex (>=1.7.1)",
+    "msgspex (>=1.8.0)",
     "nodnod (>=1.1.0)",
-    "vbml2 (>=2.0.1)",
-    "wreq (>=0.12.0)",
-    "typing-extensions (>=4.15.0)",
+    "vbml2 (>=2.0.2)",
+    "wreq (>=0.13.0)",
+    "typing-extensions (>=4.16.0)",
 ]
 
 [project.optional-dependencies]
@@ -64,15 +64,15 @@ Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.20,<1",
-    "basedpyright>=1.39.9,<2",
-    "tomlkit>=0.15.0,<1",
-    "libcst>=1.8.6,<2",
+    "ruff>=0.16.10,<1",
+    "basedpyright>=1.40.2,<2",
+    "tomlkit>=0.15.1,<1",
+    "libcst>=1.9.0,<2",
     "pytest>=9.1.1,<10",
     "pytest-asyncio>=1.4.0,<2",
     "pytest-cov>=7.1.0,<8",
-    "pytest-mock>=3.15.1,<4",
-    "pre-commit>=4.6.0,<5",
+    "pytest-mock>=3.16.0,<4",
+    "pre-commit>=4.6.2,<5",
 ]
 
 [tool.uv]

@@ -1197,19 +1197,19 @@ class Message(MaybeInaccessibleMessage):
     new_chat_photo: Option[list[PhotoSize]] = field(default=..., converter=From[list["PhotoSize"] | None])
     """Optional. A chat photo was change to this value."""
 
-    delete_chat_photo: Option[bool] = field(default=..., converter=From[bool | None])
+    delete_chat_photo: Option[Literal[True]] = field(default=..., converter=From[Literal[True] | None])
     """Optional. Service message: the chat photo was deleted."""
 
-    group_chat_created: Option[bool] = field(default=..., converter=From[bool | None])
+    group_chat_created: Option[Literal[True]] = field(default=..., converter=From[Literal[True] | None])
     """Optional. Service message: the group has been created."""
 
-    supergroup_chat_created: Option[bool] = field(default=..., converter=From[bool | None])
+    supergroup_chat_created: Option[Literal[True]] = field(default=..., converter=From[Literal[True] | None])
     """Optional. Service message: the supergroup has been created. This field
     can't be received in a message coming through updates, because bot can't
     be a member of a supergroup when it is created. It can only be found in reply_to_message
     if someone replies to a very first message in a directly created supergroup."""
 
-    channel_chat_created: Option[bool] = field(default=..., converter=From[bool | None])
+    channel_chat_created: Option[Literal[True]] = field(default=..., converter=From[Literal[True] | None])
     """Optional. Service message: the channel has been created. This field can't
     be received in a message coming through updates, because bot can't be a member
     of a channel when it is created. It can only be found in reply_to_message
@@ -1993,7 +1993,7 @@ class VideoQuality(Model):
     height: int = field()
     """Video height."""
 
-    codec: VideoQualityCodec = field()
+    codec: str = field()
     """Codec that was used to encode the video, for example, `h264`, `h265`, or
     `av01`."""
 
@@ -2708,7 +2708,7 @@ class BotSubscriptionUpdated(Model):
     invoice_payload: str = field()
     """Bot-specified invoice payload."""
 
-    state: str = field()
+    state: Literal["canceled", "active", "failed"] = field(default="canceled")
     """The new state of the subscription. Currently, it can be one of `canceled`
     if the user canceled the subscription, `active` if the user re-enabled
     a previously canceled subscription, or `failed` if payment for the subscription
@@ -3802,7 +3802,7 @@ class ReplyKeyboardRemove(Model):
     Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a business account.
     """
 
-    remove_keyboard: bool = field()
+    remove_keyboard: Literal[True] = field(default=True)
     """Requests clients to remove the custom keyboard (user will not be able to
     summon this keyboard; if you want to hide the keyboard from sight but keep
     it accessible, use one_time_keyboard in ReplyKeyboardMarkup)."""
@@ -4027,7 +4027,7 @@ class ForceReply(Model):
     Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a user account.
     """
 
-    force_reply: bool = field()
+    force_reply: Literal[True] = field(default=True)
     """Shows reply interface to the user, as if they had manually selected the bot's
     message and tapped 'Reply'."""
 
@@ -6121,11 +6121,11 @@ class InputMediaLink(InputPollOptionMedia):
     Represents an HTTP link to be sent.
     """
 
-    type: str = field()
-    """Type of the media, must be link."""
-
     url: str = field()
     """HTTP URL of the link."""
+
+    type: Literal["link"] = field(default="link")
+    """Type of the media, must be link."""
 
 
 class InputMediaLivePhoto(InputPollMedia, InputPollOptionMedia, InputMedia):
@@ -6368,14 +6368,14 @@ class InputMediaVoiceNote(Model):
     Represents a voice message file to be sent.
     """
 
-    type: str = field()
-    """Type of the media, must be voice_note."""
-
     media: Sum[str, InputFile] = field(converter=From["str | InputFile"])
     """File to send. Pass a file_id to send a file that exists on the Telegram servers
     (recommended), pass an HTTP URL for Telegram to get a file from the Internet,
     or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data
     under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files."""
+
+    type: Literal["voice_note"] = field(default="voice_note")
+    """Type of the media, must be voice_note."""
 
     caption: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Caption of the voice message to be sent, 0-1024 characters after
@@ -6725,36 +6725,7 @@ class InputRichMessage(Model):
     Describes a rich message to be sent. Exactly one of the fields html, markdown, or blocks must be used.
     """
 
-    blocks: Option[
-        list[
-            Sum[
-                InputRichBlockParagraph,
-                InputRichBlockSectionHeading,
-                InputRichBlockPreformatted,
-                InputRichBlockFooter,
-                InputRichBlockDivider,
-                InputRichBlockMathematicalExpression,
-                InputRichBlockAnchor,
-                InputRichBlockList,
-                InputRichBlockBlockQuotation,
-                InputRichBlockExpandableBlockQuotation,
-                InputRichBlockPullQuotation,
-                InputRichBlockCollage,
-                InputRichBlockSlideshow,
-                InputRichBlockTable,
-                InputRichBlockDetails,
-                InputRichBlockMap,
-                InputRichBlockButtons,
-                InputRichBlockAnimation,
-                InputRichBlockAudio,
-                InputRichBlockDocument,
-                InputRichBlockPhoto,
-                InputRichBlockVideo,
-                InputRichBlockVoiceNote,
-                InputRichBlockThinking,
-            ]
-        ]
-    ] = field(
+    blocks: Option[list[TypeAliases.InputRichBlock]] = field(
         default=...,
         converter=From[
             list[
@@ -6819,36 +6790,7 @@ class RichMessageButton(Model):
     This object represents a button in a RichMessage. Exactly one of the fields other than text and style must be used to specify the type of the button.
     """
 
-    text: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
@@ -6856,7 +6798,7 @@ class RichMessageButton(Model):
     """Text of the button. May contain only plain text, RichTextCustomEmoji and
     RichTextDateTime entities."""
 
-    style: Option[str] = field(default=..., converter=From[str | None])
+    style: Option[RichMessageButtonStyle] = field(default=..., converter=From[RichMessageButtonStyle | None])
     """Optional. Style of the button. Must be one of `danger`, `success`, `primary`,
     or `link` (the button is shown as a regular link without borders). Apps may
     use theme-specific colors for the button background and text based on the
@@ -7266,9 +7208,6 @@ class RichTextCashtag(RichText):
     A cashtag.
     """
 
-    type: str = field()
-    """Type of the rich text, always `cashtag`."""
-
     text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
@@ -7278,6 +7217,9 @@ class RichTextCashtag(RichText):
 
     cashtag: str = field()
     """The cashtag."""
+
+    type: Literal["cashtag"] = field(default="cashtag")
+    """Type of the rich text, always `cashtag`."""
 
 
 class RichTextBotCommand(RichText):
@@ -7306,11 +7248,11 @@ class RichTextButton(RichText):
     A button.
     """
 
-    type: str = field()
-    """Type of the rich text, always `button`."""
-
     button: RichMessageButton = field()
     """The button."""
+
+    type: Literal["button"] = field(default="button")
+    """Type of the rich text, always `button`."""
 
 
 class RichTextAnchor(RichText):
@@ -7415,11 +7357,11 @@ class RichBlockTableCell(Model):
     Cell in a table.
     """
 
-    align: str = field()
+    align: HorizontalAlignment = field()
     """Horizontal cell content alignment. Currently, must be one of `left`, `center`,
     or `right`."""
 
-    valign: str = field()
+    valign: VerticalAlignment = field()
     """Vertical cell content alignment. Currently, must be one of `top`, `middle`,
     or `bottom`."""
 
@@ -7630,77 +7572,17 @@ class RichBlockExpandableBlockQuotation(RichBlock):
     A block quotation, corresponding to the HTML tag <blockquote> with custom attribute "expandable".
     """
 
-    type: str = field()
-    """Type of the block, always `expandable_blockquote`."""
-
-    text: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Content of the block."""
 
-    credit: Option[
-        Sum[
-            str,
-            list[RichText],
-            RichTextBold,
-            RichTextItalic,
-            RichTextUnderline,
-            RichTextStrikethrough,
-            RichTextSpoiler,
-            RichTextDateTime,
-            RichTextTextMention,
-            RichTextSubscript,
-            RichTextSuperscript,
-            RichTextMarked,
-            RichTextCode,
-            RichTextCustomEmoji,
-            RichTextMathematicalExpression,
-            RichTextUrl,
-            RichTextEmailAddress,
-            RichTextPhoneNumber,
-            RichTextBankCardNumber,
-            RichTextMention,
-            RichTextHashtag,
-            RichTextCashtag,
-            RichTextBotCommand,
-            RichTextButton,
-            RichTextAnchor,
-            RichTextAnchorLink,
-            RichTextReference,
-            RichTextReferenceLink,
-        ]
-    ] = field(
+    type: Literal["expandable_blockquote"] = field(default="expandable_blockquote")
+    """Type of the block, always `expandable_blockquote`."""
+
+    credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
@@ -7868,13 +7750,13 @@ class RichBlockButtons(RichBlock):
     A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag <tg-button-row>.
     """
 
-    type: str = field()
-    """Type of the block, always `buttons`."""
-
     buttons: list[RichMessageButton] = field()
     """The buttons."""
 
-    align: Option[str] = field(default=..., converter=From[str | None])
+    type: Literal["buttons"] = field(default="buttons")
+    """Type of the block, always `buttons`."""
+
+    align: Option[HorizontalAlignment] = field(default=..., converter=From[HorizontalAlignment | None])
     """Optional. Horizontal alignment of the buttons. Currently, must be one
     of `left`, `center`, or `right`."""
 
@@ -7920,11 +7802,11 @@ class RichBlockDocument(RichBlock):
     A block with a general file, corresponding to the custom HTML tag <tg-document>.
     """
 
-    type: str = field()
-    """Type of the block, always `document`."""
-
     document: Document = field()
     """The document."""
+
+    type: Literal["document"] = field(default="document")
+    """Type of the block, always `document`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -8008,34 +7890,7 @@ class InputRichBlockListItem(Model):
     An item of a list to be sent.
     """
 
-    blocks: list[
-        Sum[
-            InputRichBlockParagraph,
-            InputRichBlockSectionHeading,
-            InputRichBlockPreformatted,
-            InputRichBlockFooter,
-            InputRichBlockDivider,
-            InputRichBlockMathematicalExpression,
-            InputRichBlockAnchor,
-            InputRichBlockList,
-            InputRichBlockBlockQuotation,
-            InputRichBlockExpandableBlockQuotation,
-            InputRichBlockPullQuotation,
-            InputRichBlockCollage,
-            InputRichBlockSlideshow,
-            InputRichBlockTable,
-            InputRichBlockDetails,
-            InputRichBlockMap,
-            InputRichBlockButtons,
-            InputRichBlockAnimation,
-            InputRichBlockAudio,
-            InputRichBlockDocument,
-            InputRichBlockPhoto,
-            InputRichBlockVideo,
-            InputRichBlockVoiceNote,
-            InputRichBlockThinking,
-        ]
-    ] = field(
+    blocks: list[TypeAliases.InputRichBlock] = field(
         converter=From[
             list[
                 "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
@@ -8053,7 +7908,7 @@ class InputRichBlockListItem(Model):
     value: Option[int] = field(default=..., converter=From[int | None])
     """Optional. For ordered lists, the numeric value of the item label."""
 
-    type: Option[str] = field(default=..., converter=From[str | None])
+    type: Option[ListItemLabelType] = field(default=..., converter=From[ListItemLabelType | None])
     """Optional. For ordered lists, the type of the item label; must be one of `a`
     for lowercase letters, `A` for uppercase letters, `i` for lowercase Roman
     numerals, `I` for uppercase Roman numerals, or `1` for decimal numbers."""
@@ -8065,44 +7920,15 @@ class InputRichBlockParagraph(InputRichBlock):
     A text paragraph, corresponding to the HTML tag <p>.
     """
 
-    type: str = field()
-    """Type of the block, always `paragraph`."""
-
-    text: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
+
+    type: Literal["paragraph"] = field(default="paragraph")
+    """Type of the block, always `paragraph`."""
 
 
 class InputRichBlockSectionHeading(InputRichBlock):
@@ -8111,39 +7937,7 @@ class InputRichBlockSectionHeading(InputRichBlock):
     A section heading, corresponding to the HTML tags <h1>, <h2>, <h3>, <h4>, <h5>, or <h6>.
     """
 
-    type: str = field()
-    """Type of the block, always `heading`."""
-
-    text: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
@@ -8153,6 +7947,9 @@ class InputRichBlockSectionHeading(InputRichBlock):
     size: int = field()
     """Relative size of the text font; 1-6, 1 is the largest, 6 is the smallest."""
 
+    type: Literal["heading"] = field(default="heading")
+    """Type of the block, always `heading`."""
+
 
 class InputRichBlockPreformatted(InputRichBlock):
     """Object `InputRichBlockPreformatted`, see the [documentation](https://core.telegram.org/bots/api#inputrichblockpreformatted).
@@ -8160,44 +7957,15 @@ class InputRichBlockPreformatted(InputRichBlock):
     A preformatted text block, corresponding to the nested HTML tags <pre> and <code>.
     """
 
-    type: str = field()
-    """Type of the block, always `pre`."""
-
-    text: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
+
+    type: Literal["pre"] = field(default="pre")
+    """Type of the block, always `pre`."""
 
     language: Option[str] = field(default=..., converter=From[str | None])
     """Optional. The programming language of the text."""
@@ -8209,44 +7977,15 @@ class InputRichBlockFooter(InputRichBlock):
     A footer, corresponding to the HTML tag <footer>.
     """
 
-    type: str = field()
-    """Type of the block, always `footer`."""
-
-    text: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
+
+    type: Literal["footer"] = field(default="footer")
+    """Type of the block, always `footer`."""
 
 
 class InputRichBlockDivider(InputRichBlock):
@@ -8255,7 +7994,7 @@ class InputRichBlockDivider(InputRichBlock):
     A divider, corresponding to the HTML tag <hr/>.
     """
 
-    type: str = field()
+    type: Literal["divider"] = field(default="divider")
     """Type of the block, always `divider`."""
 
 
@@ -8265,11 +8004,11 @@ class InputRichBlockMathematicalExpression(InputRichBlock):
     A block with a mathematical expression in LaTeX format, corresponding to the custom HTML tag <tg-math-block>.
     """
 
-    type: str = field()
-    """Type of the block, always `mathematical_expression`."""
-
     expression: str = field()
     """The mathematical expression in LaTeX format."""
+
+    type: Literal["mathematical_expression"] = field(default="mathematical_expression")
+    """Type of the block, always `mathematical_expression`."""
 
 
 class InputRichBlockAnchor(InputRichBlock):
@@ -8278,11 +8017,11 @@ class InputRichBlockAnchor(InputRichBlock):
     A block with an anchor, corresponding to the HTML tag <a> with the attribute name.
     """
 
-    type: str = field()
-    """Type of the block, always `anchor`."""
-
     name: str = field()
     """The name of the anchor."""
+
+    type: Literal["anchor"] = field(default="anchor")
+    """Type of the block, always `anchor`."""
 
 
 class InputRichBlockList(InputRichBlock):
@@ -8291,11 +8030,11 @@ class InputRichBlockList(InputRichBlock):
     A list of blocks, corresponding to the HTML tag <ul> or <ol> with multiple nested tags <li>.
     """
 
-    type: str = field()
-    """Type of the block, always `list`."""
-
     items: list[InputRichBlockListItem] = field()
     """Items of the list."""
+
+    type: Literal["list"] = field(default="list")
+    """Type of the block, always `list`."""
 
 
 class InputRichBlockBlockQuotation(InputRichBlock):
@@ -8304,37 +8043,7 @@ class InputRichBlockBlockQuotation(InputRichBlock):
     A block quotation, corresponding to the HTML tag <blockquote>.
     """
 
-    type: str = field()
-    """Type of the block, always `blockquote`."""
-
-    blocks: list[
-        Sum[
-            InputRichBlockParagraph,
-            InputRichBlockSectionHeading,
-            InputRichBlockPreformatted,
-            InputRichBlockFooter,
-            InputRichBlockDivider,
-            InputRichBlockMathematicalExpression,
-            InputRichBlockAnchor,
-            InputRichBlockList,
-            InputRichBlockBlockQuotation,
-            InputRichBlockExpandableBlockQuotation,
-            InputRichBlockPullQuotation,
-            InputRichBlockCollage,
-            InputRichBlockSlideshow,
-            InputRichBlockTable,
-            InputRichBlockDetails,
-            InputRichBlockMap,
-            InputRichBlockButtons,
-            InputRichBlockAnimation,
-            InputRichBlockAudio,
-            InputRichBlockDocument,
-            InputRichBlockPhoto,
-            InputRichBlockVideo,
-            InputRichBlockVoiceNote,
-            InputRichBlockThinking,
-        ]
-    ] = field(
+    blocks: list[TypeAliases.InputRichBlock] = field(
         converter=From[
             list[
                 "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
@@ -8343,38 +8052,10 @@ class InputRichBlockBlockQuotation(InputRichBlock):
     )
     """Content of the block."""
 
-    credit: Option[
-        Sum[
-            str,
-            list[RichText],
-            RichTextBold,
-            RichTextItalic,
-            RichTextUnderline,
-            RichTextStrikethrough,
-            RichTextSpoiler,
-            RichTextDateTime,
-            RichTextTextMention,
-            RichTextSubscript,
-            RichTextSuperscript,
-            RichTextMarked,
-            RichTextCode,
-            RichTextCustomEmoji,
-            RichTextMathematicalExpression,
-            RichTextUrl,
-            RichTextEmailAddress,
-            RichTextPhoneNumber,
-            RichTextBankCardNumber,
-            RichTextMention,
-            RichTextHashtag,
-            RichTextCashtag,
-            RichTextBotCommand,
-            RichTextButton,
-            RichTextAnchor,
-            RichTextAnchorLink,
-            RichTextReference,
-            RichTextReferenceLink,
-        ]
-    ] = field(
+    type: Literal["blockquote"] = field(default="blockquote")
+    """Type of the block, always `blockquote`."""
+
+    credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
@@ -8389,77 +8070,17 @@ class InputRichBlockExpandableBlockQuotation(InputRichBlock):
     A block quotation, corresponding to the HTML tag <blockquote> with custom attribute "expandable".
     """
 
-    type: str = field()
-    """Type of the block, always `expandable_blockquote`."""
-
-    text: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Content of the block."""
 
-    credit: Option[
-        Sum[
-            str,
-            list[RichText],
-            RichTextBold,
-            RichTextItalic,
-            RichTextUnderline,
-            RichTextStrikethrough,
-            RichTextSpoiler,
-            RichTextDateTime,
-            RichTextTextMention,
-            RichTextSubscript,
-            RichTextSuperscript,
-            RichTextMarked,
-            RichTextCode,
-            RichTextCustomEmoji,
-            RichTextMathematicalExpression,
-            RichTextUrl,
-            RichTextEmailAddress,
-            RichTextPhoneNumber,
-            RichTextBankCardNumber,
-            RichTextMention,
-            RichTextHashtag,
-            RichTextCashtag,
-            RichTextBotCommand,
-            RichTextButton,
-            RichTextAnchor,
-            RichTextAnchorLink,
-            RichTextReference,
-            RichTextReferenceLink,
-        ]
-    ] = field(
+    type: Literal["expandable_blockquote"] = field(default="expandable_blockquote")
+    """Type of the block, always `expandable_blockquote`."""
+
+    credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
@@ -8474,77 +8095,17 @@ class InputRichBlockPullQuotation(InputRichBlock):
     A quotation with centered text, loosely corresponding to the HTML tag <aside>.
     """
 
-    type: str = field()
-    """Type of the block, always `pullquote`."""
-
-    text: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
 
-    credit: Option[
-        Sum[
-            str,
-            list[RichText],
-            RichTextBold,
-            RichTextItalic,
-            RichTextUnderline,
-            RichTextStrikethrough,
-            RichTextSpoiler,
-            RichTextDateTime,
-            RichTextTextMention,
-            RichTextSubscript,
-            RichTextSuperscript,
-            RichTextMarked,
-            RichTextCode,
-            RichTextCustomEmoji,
-            RichTextMathematicalExpression,
-            RichTextUrl,
-            RichTextEmailAddress,
-            RichTextPhoneNumber,
-            RichTextBankCardNumber,
-            RichTextMention,
-            RichTextHashtag,
-            RichTextCashtag,
-            RichTextBotCommand,
-            RichTextButton,
-            RichTextAnchor,
-            RichTextAnchorLink,
-            RichTextReference,
-            RichTextReferenceLink,
-        ]
-    ] = field(
+    type: Literal["pullquote"] = field(default="pullquote")
+    """Type of the block, always `pullquote`."""
+
+    credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
@@ -8559,37 +8120,7 @@ class InputRichBlockCollage(InputRichBlock):
     A collage, corresponding to the custom HTML tag <tg-collage>.
     """
 
-    type: str = field()
-    """Type of the block, always `collage`."""
-
-    blocks: list[
-        Sum[
-            InputRichBlockParagraph,
-            InputRichBlockSectionHeading,
-            InputRichBlockPreformatted,
-            InputRichBlockFooter,
-            InputRichBlockDivider,
-            InputRichBlockMathematicalExpression,
-            InputRichBlockAnchor,
-            InputRichBlockList,
-            InputRichBlockBlockQuotation,
-            InputRichBlockExpandableBlockQuotation,
-            InputRichBlockPullQuotation,
-            InputRichBlockCollage,
-            InputRichBlockSlideshow,
-            InputRichBlockTable,
-            InputRichBlockDetails,
-            InputRichBlockMap,
-            InputRichBlockButtons,
-            InputRichBlockAnimation,
-            InputRichBlockAudio,
-            InputRichBlockDocument,
-            InputRichBlockPhoto,
-            InputRichBlockVideo,
-            InputRichBlockVoiceNote,
-            InputRichBlockThinking,
-        ]
-    ] = field(
+    blocks: list[TypeAliases.InputRichBlock] = field(
         converter=From[
             list[
                 "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
@@ -8597,6 +8128,9 @@ class InputRichBlockCollage(InputRichBlock):
         ]
     )
     """Elements of the collage."""
+
+    type: Literal["collage"] = field(default="collage")
+    """Type of the block, always `collage`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -8608,37 +8142,7 @@ class InputRichBlockSlideshow(InputRichBlock):
     A slideshow, corresponding to the custom HTML tag <tg-slideshow>.
     """
 
-    type: str = field()
-    """Type of the block, always `slideshow`."""
-
-    blocks: list[
-        Sum[
-            InputRichBlockParagraph,
-            InputRichBlockSectionHeading,
-            InputRichBlockPreformatted,
-            InputRichBlockFooter,
-            InputRichBlockDivider,
-            InputRichBlockMathematicalExpression,
-            InputRichBlockAnchor,
-            InputRichBlockList,
-            InputRichBlockBlockQuotation,
-            InputRichBlockExpandableBlockQuotation,
-            InputRichBlockPullQuotation,
-            InputRichBlockCollage,
-            InputRichBlockSlideshow,
-            InputRichBlockTable,
-            InputRichBlockDetails,
-            InputRichBlockMap,
-            InputRichBlockButtons,
-            InputRichBlockAnimation,
-            InputRichBlockAudio,
-            InputRichBlockDocument,
-            InputRichBlockPhoto,
-            InputRichBlockVideo,
-            InputRichBlockVoiceNote,
-            InputRichBlockThinking,
-        ]
-    ] = field(
+    blocks: list[TypeAliases.InputRichBlock] = field(
         converter=From[
             list[
                 "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
@@ -8646,6 +8150,9 @@ class InputRichBlockSlideshow(InputRichBlock):
         ]
     )
     """Elements of the slideshow."""
+
+    type: Literal["slideshow"] = field(default="slideshow")
+    """Type of the block, always `slideshow`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -8657,11 +8164,11 @@ class InputRichBlockTable(InputRichBlock):
     A table, corresponding to the HTML tag <table>.
     """
 
-    type: str = field()
-    """Type of the block, always `table`."""
-
     cells: list[list[RichBlockTableCell]] = field()
     """Cells of the table."""
+
+    type: Literal["table"] = field(default="table")
+    """Type of the block, always `table`."""
 
     is_bordered: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the table has borders."""
@@ -8672,38 +8179,7 @@ class InputRichBlockTable(InputRichBlock):
     is_compact: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if table cells must have smaller indents."""
 
-    caption: Option[
-        Sum[
-            str,
-            list[RichText],
-            RichTextBold,
-            RichTextItalic,
-            RichTextUnderline,
-            RichTextStrikethrough,
-            RichTextSpoiler,
-            RichTextDateTime,
-            RichTextTextMention,
-            RichTextSubscript,
-            RichTextSuperscript,
-            RichTextMarked,
-            RichTextCode,
-            RichTextCustomEmoji,
-            RichTextMathematicalExpression,
-            RichTextUrl,
-            RichTextEmailAddress,
-            RichTextPhoneNumber,
-            RichTextBankCardNumber,
-            RichTextMention,
-            RichTextHashtag,
-            RichTextCashtag,
-            RichTextBotCommand,
-            RichTextButton,
-            RichTextAnchor,
-            RichTextAnchorLink,
-            RichTextReference,
-            RichTextReferenceLink,
-        ]
-    ] = field(
+    caption: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
@@ -8718,73 +8194,14 @@ class InputRichBlockDetails(InputRichBlock):
     An expandable block for details disclosure, corresponding to the HTML tag <details>.
     """
 
-    type: str = field()
-    """Type of the block, always `details`."""
-
-    summary: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    summary: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Always shown summary of the block."""
 
-    blocks: list[
-        Sum[
-            InputRichBlockParagraph,
-            InputRichBlockSectionHeading,
-            InputRichBlockPreformatted,
-            InputRichBlockFooter,
-            InputRichBlockDivider,
-            InputRichBlockMathematicalExpression,
-            InputRichBlockAnchor,
-            InputRichBlockList,
-            InputRichBlockBlockQuotation,
-            InputRichBlockExpandableBlockQuotation,
-            InputRichBlockPullQuotation,
-            InputRichBlockCollage,
-            InputRichBlockSlideshow,
-            InputRichBlockTable,
-            InputRichBlockDetails,
-            InputRichBlockMap,
-            InputRichBlockButtons,
-            InputRichBlockAnimation,
-            InputRichBlockAudio,
-            InputRichBlockDocument,
-            InputRichBlockPhoto,
-            InputRichBlockVideo,
-            InputRichBlockVoiceNote,
-            InputRichBlockThinking,
-        ]
-    ] = field(
+    blocks: list[TypeAliases.InputRichBlock] = field(
         converter=From[
             list[
                 "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
@@ -8792,6 +8209,9 @@ class InputRichBlockDetails(InputRichBlock):
         ]
     )
     """Content of the block."""
+
+    type: Literal["details"] = field(default="details")
+    """Type of the block, always `details`."""
 
     is_open: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the content of the block is visible by default."""
@@ -8803,11 +8223,11 @@ class InputRichBlockMap(InputRichBlock):
     A block with a map, corresponding to the custom HTML tag <tg-map>. The map's width and height must not exceed 10000 in total. The width and height ratio must be at most 20.
     """
 
-    type: str = field()
-    """Type of the block, always `map`."""
-
     location: Location = field()
     """Location of the center of the map."""
+
+    type: Literal["map"] = field(default="map")
+    """Type of the block, always `map`."""
 
     zoom: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Map zoom level; 0-24."""
@@ -8828,13 +8248,13 @@ class InputRichBlockButtons(InputRichBlock):
     A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag <tg-button-row>.
     """
 
-    type: str = field()
-    """Type of the block, always `buttons`."""
-
     buttons: list[RichMessageButton] = field()
     """List of 1-8 buttons to send."""
 
-    align: Option[str] = field(default=..., converter=From[str | None])
+    type: Literal["buttons"] = field(default="buttons")
+    """Type of the block, always `buttons`."""
+
+    align: Option[HorizontalAlignment] = field(default=..., converter=From[HorizontalAlignment | None])
     """Optional. Horizontal alignment of the buttons. Currently, must be one
     of `left`, `center`, or `right`."""
 
@@ -8845,11 +8265,11 @@ class InputRichBlockAnimation(InputRichBlock):
     A block with an animation, corresponding to the HTML tag <video>.
     """
 
-    type: str = field()
-    """Type of the block, always `animation`."""
-
     animation: InputMediaAnimation = field()
     """The animation. Caption is ignored."""
+
+    type: Literal["animation"] = field(default="animation")
+    """Type of the block, always `animation`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -8861,11 +8281,11 @@ class InputRichBlockAudio(InputRichBlock):
     A block with a music file, corresponding to the HTML tag <audio>.
     """
 
-    type: str = field()
-    """Type of the block, always `audio`."""
-
     audio: InputMediaAudio = field()
     """The audio. Caption is ignored."""
+
+    type: Literal["audio"] = field(default="audio")
+    """Type of the block, always `audio`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -8877,11 +8297,11 @@ class InputRichBlockDocument(InputRichBlock):
     A block with a general file, corresponding to the custom HTML tag <tg-document>.
     """
 
-    type: str = field()
-    """Type of the block, always `document`."""
-
     document: InputMediaDocument = field()
     """The document. Caption is ignored."""
+
+    type: Literal["document"] = field(default="document")
+    """Type of the block, always `document`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -8893,11 +8313,11 @@ class InputRichBlockPhoto(InputRichBlock):
     A block with a photo, corresponding to the HTML tag <img>.
     """
 
-    type: str = field()
-    """Type of the block, always `photo`."""
-
     photo: InputMediaPhoto = field()
     """The photo. Caption is ignored."""
+
+    type: Literal["photo"] = field(default="photo")
+    """Type of the block, always `photo`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -8909,11 +8329,11 @@ class InputRichBlockVideo(InputRichBlock):
     A block with a video, corresponding to the HTML tag <video>.
     """
 
-    type: str = field()
-    """Type of the block, always `video`."""
-
     video: InputMediaVideo = field()
     """The video. Caption is ignored."""
+
+    type: Literal["video"] = field(default="video")
+    """Type of the block, always `video`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -8925,11 +8345,11 @@ class InputRichBlockVoiceNote(InputRichBlock):
     A block with a voice note, corresponding to the HTML tag <audio>.
     """
 
-    type: str = field()
-    """Type of the block, always `voice_note`."""
-
     voice_note: InputMediaVoiceNote = field()
     """The voice note. Caption is ignored."""
+
+    type: Literal["voice_note"] = field(default="voice_note")
+    """Type of the block, always `voice_note`."""
 
     caption: Option[RichBlockCaption] = field(default=..., converter=From["RichBlockCaption | None"])
     """Optional. Caption of the block."""
@@ -8941,45 +8361,16 @@ class InputRichBlockThinking(InputRichBlock):
     A block with a "Thinking..." placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block.
     """
 
-    type: str = field()
-    """Type of the block, always `thinking`."""
-
-    text: Sum[
-        str,
-        list[RichText],
-        RichTextBold,
-        RichTextItalic,
-        RichTextUnderline,
-        RichTextStrikethrough,
-        RichTextSpoiler,
-        RichTextDateTime,
-        RichTextTextMention,
-        RichTextSubscript,
-        RichTextSuperscript,
-        RichTextMarked,
-        RichTextCode,
-        RichTextCustomEmoji,
-        RichTextMathematicalExpression,
-        RichTextUrl,
-        RichTextEmailAddress,
-        RichTextPhoneNumber,
-        RichTextBankCardNumber,
-        RichTextMention,
-        RichTextHashtag,
-        RichTextCashtag,
-        RichTextBotCommand,
-        RichTextButton,
-        RichTextAnchor,
-        RichTextAnchorLink,
-        RichTextReference,
-        RichTextReferenceLink,
-    ] = field(
+    text: TypeAliases.RichText = field(
         converter=From[
             "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block. See https://t.me/addemoji/AIActions for examples
     of custom emoji that are recommended for usage in the block."""
+
+    type: Literal["thinking"] = field(default="thinking")
+    """Type of the block, always `thinking`."""
 
 
 class InlineQuery(Model):
@@ -10939,7 +10330,14 @@ class PassportElementErrorDataField(PassportElementError):
     source: Literal["data"] = field(default="data")
     """Error source, must be data."""
 
-    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PERSONAL_DETAILS)
+    type: Literal[
+        EncryptedPassportElementType.PERSONAL_DETAILS,
+        EncryptedPassportElementType.PASSPORT,
+        EncryptedPassportElementType.DRIVER_LICENSE,
+        EncryptedPassportElementType.IDENTITY_CARD,
+        EncryptedPassportElementType.INTERNAL_PASSPORT,
+        EncryptedPassportElementType.ADDRESS,
+    ] = field(default=EncryptedPassportElementType.PERSONAL_DETAILS)
     """The section of the user's Telegram Passport which has the error, one of `personal_details`,
     `passport`, `driver_license`, `identity_card`, `internal_passport`,
     `address`."""
@@ -10960,7 +10358,12 @@ class PassportElementErrorFrontSide(PassportElementError):
     source: Literal["front_side"] = field(default="front_side")
     """Error source, must be front_side."""
 
-    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PASSPORT)
+    type: Literal[
+        EncryptedPassportElementType.PASSPORT,
+        EncryptedPassportElementType.DRIVER_LICENSE,
+        EncryptedPassportElementType.IDENTITY_CARD,
+        EncryptedPassportElementType.INTERNAL_PASSPORT,
+    ] = field(default=EncryptedPassportElementType.PASSPORT)
     """The section of the user's Telegram Passport which has the issue, one of `passport`,
     `driver_license`, `identity_card`, `internal_passport`."""
 
@@ -10980,7 +10383,9 @@ class PassportElementErrorReverseSide(PassportElementError):
     source: Literal["reverse_side"] = field(default="reverse_side")
     """Error source, must be reverse_side."""
 
-    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.DRIVER_LICENSE)
+    type: Literal[EncryptedPassportElementType.DRIVER_LICENSE, EncryptedPassportElementType.IDENTITY_CARD] = field(
+        default=EncryptedPassportElementType.DRIVER_LICENSE
+    )
     """The section of the user's Telegram Passport which has the issue, one of `driver_license`,
     `identity_card`."""
 
@@ -11000,7 +10405,12 @@ class PassportElementErrorSelfie(PassportElementError):
     source: Literal["selfie"] = field(default="selfie")
     """Error source, must be selfie."""
 
-    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PASSPORT)
+    type: Literal[
+        EncryptedPassportElementType.PASSPORT,
+        EncryptedPassportElementType.DRIVER_LICENSE,
+        EncryptedPassportElementType.IDENTITY_CARD,
+        EncryptedPassportElementType.INTERNAL_PASSPORT,
+    ] = field(default=EncryptedPassportElementType.PASSPORT)
     """The section of the user's Telegram Passport which has the issue, one of `passport`,
     `driver_license`, `identity_card`, `internal_passport`."""
 
@@ -11020,7 +10430,13 @@ class PassportElementErrorFile(PassportElementError):
     source: Literal["file"] = field(default="file")
     """Error source, must be file."""
 
-    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.UTILITY_BILL)
+    type: Literal[
+        EncryptedPassportElementType.UTILITY_BILL,
+        EncryptedPassportElementType.BANK_STATEMENT,
+        EncryptedPassportElementType.RENTAL_AGREEMENT,
+        EncryptedPassportElementType.PASSPORT_REGISTRATION,
+        EncryptedPassportElementType.TEMPORARY_REGISTRATION,
+    ] = field(default=EncryptedPassportElementType.UTILITY_BILL)
     """The section of the user's Telegram Passport which has the issue, one of `utility_bill`,
     `bank_statement`, `rental_agreement`, `passport_registration`,
     `temporary_registration`."""
@@ -11041,7 +10457,13 @@ class PassportElementErrorFiles(PassportElementError):
     source: Literal["files"] = field(default="files")
     """Error source, must be files."""
 
-    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.UTILITY_BILL)
+    type: Literal[
+        EncryptedPassportElementType.UTILITY_BILL,
+        EncryptedPassportElementType.BANK_STATEMENT,
+        EncryptedPassportElementType.RENTAL_AGREEMENT,
+        EncryptedPassportElementType.PASSPORT_REGISTRATION,
+        EncryptedPassportElementType.TEMPORARY_REGISTRATION,
+    ] = field(default=EncryptedPassportElementType.UTILITY_BILL)
     """The section of the user's Telegram Passport which has the issue, one of `utility_bill`,
     `bank_statement`, `rental_agreement`, `passport_registration`,
     `temporary_registration`."""
@@ -11062,7 +10484,17 @@ class PassportElementErrorTranslationFile(PassportElementError):
     source: Literal["translation_file"] = field(default="translation_file")
     """Error source, must be translation_file."""
 
-    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PASSPORT)
+    type: Literal[
+        EncryptedPassportElementType.PASSPORT,
+        EncryptedPassportElementType.DRIVER_LICENSE,
+        EncryptedPassportElementType.IDENTITY_CARD,
+        EncryptedPassportElementType.INTERNAL_PASSPORT,
+        EncryptedPassportElementType.UTILITY_BILL,
+        EncryptedPassportElementType.BANK_STATEMENT,
+        EncryptedPassportElementType.RENTAL_AGREEMENT,
+        EncryptedPassportElementType.PASSPORT_REGISTRATION,
+        EncryptedPassportElementType.TEMPORARY_REGISTRATION,
+    ] = field(default=EncryptedPassportElementType.PASSPORT)
     """Type of element of the user's Telegram Passport which has the issue, one
     of `passport`, `driver_license`, `identity_card`, `internal_passport`,
     `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`,
@@ -11084,7 +10516,17 @@ class PassportElementErrorTranslationFiles(PassportElementError):
     source: Literal["translation_files"] = field(default="translation_files")
     """Error source, must be translation_files."""
 
-    type: EncryptedPassportElementType = field(default=EncryptedPassportElementType.PASSPORT)
+    type: Literal[
+        EncryptedPassportElementType.PASSPORT,
+        EncryptedPassportElementType.DRIVER_LICENSE,
+        EncryptedPassportElementType.IDENTITY_CARD,
+        EncryptedPassportElementType.INTERNAL_PASSPORT,
+        EncryptedPassportElementType.UTILITY_BILL,
+        EncryptedPassportElementType.BANK_STATEMENT,
+        EncryptedPassportElementType.RENTAL_AGREEMENT,
+        EncryptedPassportElementType.PASSPORT_REGISTRATION,
+        EncryptedPassportElementType.TEMPORARY_REGISTRATION,
+    ] = field(default=EncryptedPassportElementType.PASSPORT)
     """Type of element of the user's Telegram Passport which has the issue, one
     of `passport`, `driver_license`, `identity_card`, `internal_passport`,
     `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`,
@@ -11164,7 +10606,7 @@ class GameHighScore(Model):
 
 
 class TypeAliases:
-    type RichTexts = typing.Annotated[list[str | RichText], list]
+    type RichTexts = typing.Annotated[list[RichText], list]
     type RichText = Sum[
         str,
         RichTextBold,
@@ -11188,6 +10630,7 @@ class TypeAliases:
         RichTextHashtag,
         RichTextCashtag,
         RichTextBotCommand,
+        RichTextButton,
         RichTextAnchor,
         RichTextAnchorLink,
         RichTextReference,
@@ -11204,18 +10647,47 @@ class TypeAliases:
         RichBlockAnchor,
         RichBlockList,
         RichBlockBlockQuotation,
+        RichBlockExpandableBlockQuotation,
         RichBlockPullQuotation,
         RichBlockCollage,
         RichBlockSlideshow,
         RichBlockTable,
         RichBlockDetails,
         RichBlockMap,
+        RichBlockButtons,
         RichBlockAnimation,
         RichBlockAudio,
+        RichBlockDocument,
         RichBlockPhoto,
         RichBlockVideo,
         RichBlockVoiceNote,
         RichBlockThinking,
+    ]
+    type InputRichBlock = Sum[
+        InputRichBlockParagraph,
+        InputRichBlockSectionHeading,
+        InputRichBlockPreformatted,
+        InputRichBlockFooter,
+        InputRichBlockDivider,
+        InputRichBlockMathematicalExpression,
+        InputRichBlockAnchor,
+        InputRichBlockList,
+        InputRichBlockBlockQuotation,
+        InputRichBlockExpandableBlockQuotation,
+        InputRichBlockPullQuotation,
+        InputRichBlockCollage,
+        InputRichBlockSlideshow,
+        InputRichBlockTable,
+        InputRichBlockDetails,
+        InputRichBlockMap,
+        InputRichBlockButtons,
+        InputRichBlockAnimation,
+        InputRichBlockAudio,
+        InputRichBlockDocument,
+        InputRichBlockPhoto,
+        InputRichBlockVideo,
+        InputRichBlockVoiceNote,
+        InputRichBlockThinking,
     ]
     type InputFileSource = Sum[str, InputFile]
     type InlineInputMessageContent = Sum[
