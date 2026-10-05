@@ -619,14 +619,14 @@ wheels = [
 
 [[package]]
 name = "vbml2"
-version = "2.0.1"
+version = "2.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "kungfu-fp" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/00/8e3cfd9f4cff93125d35f5597e3e8b65b7222d41a3e7ce7bafc43cb3fbfe/vbml2-2.0.1.tar.gz", hash = "sha256:bb61db92cacf3a6e5a70e9f03e301cabf73832adc2d595bf40142e0b87711586", size = 2280473, upload-time = "2026-05-16T11:20:48.902Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/97/86/7314dedd7a8f12bc626060bd0cf76489fa1aa6508d59b002ede0c4a6f7ab/vbml2-2.0.2.tar.gz", hash = "sha256:b022b2bc0c15a71ec3bd4764d47be465c62617934cffb76c91af994853563930", size = 2282226, upload-time = "2026-10-01T17:37:38.83Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/08/12/1a07660baf604345cf8200fe6e01b3c0b5a0a8d8dda28e146af23061c75f/vbml2-2.0.1-py3-none-any.whl", hash = "sha256:bc87d9288bb2cc0a3be35f6ddeac65049a992c0ca2b9981a15c6a298839b6d4f", size = 17975, upload-time = "2026-05-16T11:20:45.207Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/cc/3e63622c3c3297c40a783dc28698db283f1518a291faca09f24109111ca4/vbml2-2.0.2-py3-none-any.whl", hash = "sha256:21c7c992c01659e8ab8fae778639b6bda0614121e3d6dc43106694353b29afb5", size = 18128, upload-time = "2026-10-01T17:37:40.341Z" },
 ]
 
 [[package]]
