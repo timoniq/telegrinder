@@ -91,7 +91,6 @@ For example:
 - the user is editing profile data
 
 > [!TIP]
-
 > If all you need is "remember the user's current mode", do not jump to `state_mutator` too early. Plain storage is simpler and often enough.
 
 ---
@@ -327,7 +326,6 @@ What feels especially good here:
 - the code becomes close to the language of the problem domain
 
 > [!TIP]
-
 > If you keep writing many branches like `if current_state == "...": ... elif current_state == "...": ...`, that is often a sign to consider `state_mutator`.
 
 ---
