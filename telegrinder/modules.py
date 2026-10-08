@@ -211,7 +211,7 @@ def log_scope(
 
     current = LOG_SCOPE.get("")
     scope_ident = ident.format(*args, **kwargs) if isinstance(ident, str) else ident(*args, **kwargs)
-    token = LOG_SCOPE.set(" > ".join(filter(None, (current, scope_ident))))
+    token = LOG_SCOPE.set(" > ".join(x for x in (current, scope_ident) if x))
 
     try:
         yield
