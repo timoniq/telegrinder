@@ -4,12 +4,12 @@ from contextlib import suppress
 from datetime import timedelta
 
 import msgspec
-from kungfu.library import Nothing, Result, Some, Sum, unwrapping
+from kungfu.library import Nothing, Some, Sum, unwrapping
 from kungfu.library.monad.option import NOTHING
 from msgspex import Option, decoder
 from msgspex.model import From, field
 
-from telegrinder.api.api import API, APIError
+from telegrinder.api.api import API
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
 from telegrinder.bot.cute_types.message import (
     DEFAULT_EDIT,
@@ -26,6 +26,7 @@ from telegrinder.tools.waiter_machine.hasher import (
     CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
     CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE,
 )
+from telegrinder.types.methods import APIResult
 from telegrinder.types.objects import *
 from telegrinder.types.utils import get_params
 
@@ -205,7 +206,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         show_alert: bool | None = None,
         url: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.answer_callback_query()`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)
 
         Use this method to send answers to callback queries sent from inline keyboards.
@@ -254,7 +255,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         suggested_post_parameters: SuggestedPostParameters | None = None,
         video_start_timestamp: timedelta | int | None = None,
         **other: typing.Any,
-    ) -> Result[MessageId, APIError]:
+    ) -> APIResult[MessageId]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
         Use this method to copy messages of any kind. Service messages, paid media
@@ -304,7 +305,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         message_id: int | None = None,
         message_thread_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
 
         Use this method to delete a message, including service messages, with the
@@ -328,7 +329,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
     @shortcut(
         "edit_message_text",
         executor=DEFAULT_EDIT,
-        return_type=Sum[BoundCute["MessageCute"], bool],
+        return_type=APIResult[Sum[BoundCute["MessageCute"], bool]],
         custom_params={"message_thread_id"},
     )
     async def edit_text(
@@ -346,7 +347,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         reply_markup: InlineKeyboardMarkup | None = None,
         rich_message: InputRichMessage | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[MessageCute, bool], APIError]:
+    ) -> APIResult[Sum[MessageCute, bool]]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
         Use this method to edit text, rich and game messages. On success, if the edited

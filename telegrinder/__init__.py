@@ -44,6 +44,7 @@ from .bot import (
     AudioReplyHandler,
     BaseCute,
     BaseReturnManager,
+    BotSubscriptionUpdatedCute,
     BusinessConnectionCute,
     BusinessMessagesDeletedCute,
     CallbackQueryCute,
@@ -68,6 +69,7 @@ from .bot import (
     MediaGroupReplyHandler,
     MediaGroupView,
     MessageCute,
+    MessageGenerationStoppedCute,
     MessageReactionCountUpdatedCute,
     MessageReactionUpdatedCute,
     MessageReplyHandler,
@@ -165,6 +167,7 @@ Message: typing.TypeAlias = MessageCute
 PreCheckoutQuery: typing.TypeAlias = PreCheckoutQueryCute
 ChatJoinRequest: typing.TypeAlias = ChatJoinRequestCute
 ChatMemberUpdated: typing.TypeAlias = ChatMemberUpdatedCute
+BotSubscriptionUpdated: typing.TypeAlias = BotSubscriptionUpdatedCute
 CallbackQuery: typing.TypeAlias = CallbackQueryCute
 InlineQuery: typing.TypeAlias = InlineQueryCute
 ChosenInlineResult: typing.TypeAlias = ChosenInlineResultCute
@@ -179,6 +182,7 @@ BusinessMessagesDeleted: typing.TypeAlias = BusinessMessagesDeletedCute
 MessageReactionCountUpdated: typing.TypeAlias = MessageReactionCountUpdatedCute
 MessageReactionUpdated: typing.TypeAlias = MessageReactionUpdatedCute
 ManagedBotUpdated: typing.TypeAlias = ManagedBotUpdatedCute
+MessageGenerationStopped: typing.TypeAlias = MessageGenerationStoppedCute
 Bot: typing.TypeAlias = Telegrinder
 
 
@@ -242,6 +246,8 @@ __all__ = (
     "BaseCute",
     "BaseReturnManager",
     "Bot",
+    "BotSubscriptionUpdated",
+    "BotSubscriptionUpdatedCute",
     "Button",
     "CallbackQuery",
     "CallbackQueryCute",
@@ -286,6 +292,8 @@ __all__ = (
     "MemoryStateStorage",
     "Message",
     "MessageCute",
+    "MessageGenerationStopped",
+    "MessageGenerationStoppedCute",
     "MessageReactionCountUpdated",
     "MessageReactionCountUpdatedCute",
     "MessageReactionUpdated",

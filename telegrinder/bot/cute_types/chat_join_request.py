@@ -1,11 +1,9 @@
 import typing
 
-from kungfu.library.monad.result import Result
-
-from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, shortcut
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberShortcuts, chat_member_interaction
 from telegrinder.bot.cute_types.message import execute_method_answer
+from telegrinder.types.methods import APIResult
 from telegrinder.types.objects import *
 
 JOIN_REQUEST_QUERY: typing.Final = execute_method_answer(
@@ -25,7 +23,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     @shortcut(
         "answer_chat_join_request_query",
         executor=JOIN_REQUEST_QUERY,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_join_request_query_id"},
     )
     async def answer_query(
@@ -34,7 +32,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
         *,
         chat_join_request_query_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.answer_chat_join_request_query()`, see the [documentation](https://core.telegram.org/bots/api#answerchatjoinrequestquery)
 
         Use this method to process a received chat join request query. Returns True
@@ -47,7 +45,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     @shortcut(
         "send_chat_join_request_web_app",
         executor=JOIN_REQUEST_QUERY,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_join_request_query_id"},
     )
     async def send_web_app(
@@ -56,7 +54,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
         *,
         chat_join_request_query_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.send_chat_join_request_web_app()`, see the [documentation](https://core.telegram.org/bots/api#sendchatjoinrequestwebapp)
 
         Use this method to process a received chat join request query by showing
@@ -71,7 +69,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     @shortcut(
         "approve_chat_join_request",
         executor=chat_member_interaction,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "user_id"},
     )
     async def approve(
@@ -80,7 +78,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
         chat_id: int | str | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.approve_chat_join_request()`, see the [documentation](https://core.telegram.org/bots/api#approvechatjoinrequest)
 
         Use this method to approve a chat join request. The bot must be an administrator
@@ -94,7 +92,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     @shortcut(
         "decline_chat_join_request",
         executor=chat_member_interaction,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "user_id"},
     )
     async def decline(
@@ -103,7 +101,7 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
         chat_id: int | str | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.decline_chat_join_request()`, see the [documentation](https://core.telegram.org/bots/api#declinechatjoinrequest)
 
         Use this method to decline a chat join request. The bot must be an administrator

@@ -7,7 +7,7 @@ from contextlib import suppress
 from http import HTTPStatus
 
 import certifi
-from wreq import exceptions, wreq
+from wreq import DnsOptions, exceptions, wreq
 
 from telegrinder.__meta__ import __version__
 from telegrinder.client.abc import ABCClient, Response
@@ -104,6 +104,7 @@ class WreqClient(ABCClient):
         params.setdefault("pool_idle_timeout", DEFAULT_CONNECTION_POOL_IDLE_TIMEOUT)
         params.setdefault("pool_max_idle_per_host", DEFAULT_CONNECTION_POOL_CONNECTIONS)
         params.setdefault("pool_max_size", CONNECTION_POOL_MAX_SIZE)
+        params.setdefault("dns_options", DnsOptions(system_dns=True))
 
         self._timeout = params.setdefault("timeout", DEFAULT_TIMEOUT)
         self._client = wreq.Client(**params)

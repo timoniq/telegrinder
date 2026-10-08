@@ -17,10 +17,13 @@ from telegrinder.bot.cute_types.poll import PollCute
 from telegrinder.bot.cute_types.poll_answer import PollAnswerCute
 from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.bot.cute_types.shipping_query import ShippingQueryCute
+from telegrinder.bot.cute_types.stopped_message_generation import MessageGenerationStoppedCute
+from telegrinder.bot.cute_types.subscription import BotSubscriptionUpdatedCute
 from telegrinder.bot.cute_types.update import UpdateCute
 
 __all__ = (
     "BaseCute",
+    "BotSubscriptionUpdatedCute",
     "BusinessConnectionCute",
     "BusinessMessagesDeletedCute",
     "CallbackQueryCute",
@@ -32,6 +35,7 @@ __all__ = (
     "InlineQueryCute",
     "ManagedBotUpdatedCute",
     "MessageCute",
+    "MessageGenerationStoppedCute",
     "MessageReactionCountUpdatedCute",
     "MessageReactionUpdatedCute",
     "PaidMediaPurchasedCute",

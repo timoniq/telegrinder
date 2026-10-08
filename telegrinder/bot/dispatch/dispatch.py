@@ -23,6 +23,7 @@ from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.tools.waiter_machine.machine import (
     ContextUnpackProto,
     HasherWithData,
+    ShortStateContext,
     WaiterMachine,
     unpack_to_context,
 )
@@ -89,6 +90,8 @@ class Dispatch[
     ChatBoostView: EventView = EventView,
     RemovedChatBoostView: EventView = EventView,
     ManagedBotUpdatedView: EventView = EventView,
+    BotSubscriptionUpdatedView: EventView = EventView,
+    MessageGenerationStoppedView: EventView = EventView,
     MediaGroup: View = MediaGroupView,
     EventError: ErrorView = ErrorView,
     RawEvent: RawEventView = RawEventView,
@@ -120,6 +123,8 @@ class Dispatch[
         ChatBoostView,
         RemovedChatBoostView,
         ManagedBotUpdatedView,
+        BotSubscriptionUpdatedView,
+        MessageGenerationStoppedView,
         MediaGroup,
         EventError,
         RawEvent,
@@ -153,6 +158,8 @@ class Dispatch[
         ChatBoostView,
         RemovedChatBoostView,
         ManagedBotUpdatedView,
+        BotSubscriptionUpdatedView,
+        MessageGenerationStoppedView,
         MediaGroup,
         EventError,
         RawEvent,
@@ -395,6 +402,26 @@ class Dispatch[
 
     async def feed_cute(self, api: API, update_cute: UpdateCute) -> None:
         await self.feed(api, update_cute)
+
+    async def wait[Event: BaseCute[typing.Any], Data](
+        self,
+        hasher: HasherWithData[Event, Data],
+        *,
+        filter: ABCRule | None = None,
+        release: ABCRule | None = None,
+        lifetime: datetime.timedelta | float | None = None,
+        lifespan: Lifespan | None = None,
+        **actions: typing.Unpack[WaiterActions[Event]],
+    ) -> ShortStateContext[Event]:
+        _, event, context = await self.wait_many(
+            hasher,
+            filter=filter,
+            release=release,
+            lifetime=lifetime,
+            lifespan=lifespan,
+            **actions,
+        )
+        return ShortStateContext(event, context)
 
     async def wait_many[Event: BaseCute[typing.Any], Data, *Ts](
         self,

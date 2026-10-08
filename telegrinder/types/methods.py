@@ -12,6 +12,8 @@ from telegrinder.types.utils import full_result, get_params
 if typing.TYPE_CHECKING:
     from telegrinder.api.api import API
 
+type APIResult[T] = Result[T, APIError]
+
 
 class APIMethods:
     """Telegram Bot API version `10.3`, released `August 24, 2026`."""
@@ -29,7 +31,7 @@ class APIMethods:
         timeout: int | None = None,
         allowed_updates: list[UpdateType] | None = None,
         **other: typing.Any,
-    ) -> Result[list[Update], APIError]:
+    ) -> APIResult[list[Update]]:
         """Method `getUpdates`, see the [documentation](https://core.telegram.org/bots/api#getupdates)
 
         Use this method to receive incoming updates using long polling (wiki).
@@ -77,7 +79,7 @@ class APIMethods:
         drop_pending_updates: bool | None = None,
         secret_token: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setWebhook`, see the [documentation](https://core.telegram.org/bots/api#setwebhook)
 
         Use this method to specify a URL and receive incoming updates via an outgoing
@@ -131,7 +133,7 @@ class APIMethods:
         *,
         drop_pending_updates: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteWebhook`, see the [documentation](https://core.telegram.org/bots/api#deletewebhook)
 
         Use this method to remove webhook integration if you decide to switch back
@@ -146,7 +148,7 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
-    async def get_webhook_info(self, **other: typing.Any) -> Result[WebhookInfo, APIError]:
+    async def get_webhook_info(self, **other: typing.Any) -> APIResult[WebhookInfo]:
         """Method `getWebhookInfo`, see the [documentation](https://core.telegram.org/bots/api#getwebhookinfo)
 
         Use this method to get current webhook status. Requires no parameters.
@@ -160,7 +162,7 @@ class APIMethods:
         )
         return full_result(method_response, WebhookInfo)
 
-    async def get_me(self, **other: typing.Any) -> Result[User, APIError]:
+    async def get_me(self, **other: typing.Any) -> APIResult[User]:
         """Method `getMe`, see the [documentation](https://core.telegram.org/bots/api#getme)
 
         A simple method for testing your bot's authentication token. Requires
@@ -174,7 +176,7 @@ class APIMethods:
         )
         return full_result(method_response, User)
 
-    async def log_out(self, **other: typing.Any) -> Result[bool, APIError]:
+    async def log_out(self, **other: typing.Any) -> APIResult[bool]:
         """Method `logOut`, see the [documentation](https://core.telegram.org/bots/api#logout)
 
         Use this method to log out from the cloud Bot API server before launching
@@ -191,7 +193,7 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
-    async def close(self, **other: typing.Any) -> Result[bool, APIError]:
+    async def close(self, **other: typing.Any) -> APIResult[bool]:
         """Method `close`, see the [documentation](https://core.telegram.org/bots/api#close)
 
         Use this method to close the bot instance before moving it from one local
@@ -227,7 +229,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendMessage`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
 
         Use this method to send text messages. On success, the sent Message is returned.
@@ -300,7 +302,7 @@ class APIMethods:
         message_effect_id: str | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `forwardMessage`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
 
         Use this method to forward messages of any kind. Service messages and messages
@@ -352,7 +354,7 @@ class APIMethods:
         disable_notification: bool | None = DEFAULT_PARAMETERS["disable_notification"],
         protect_content: bool | None = DEFAULT_PARAMETERS["protect_content"],
         **other: typing.Any,
-    ) -> Result[list[MessageId], APIError]:
+    ) -> APIResult[list[MessageId]]:
         """Method `forwardMessages`, see the [documentation](https://core.telegram.org/bots/api#forwardmessages)
 
         Use this method to forward multiple messages of any kind. If some of the specified
@@ -411,7 +413,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[MessageId, APIError]:
+    ) -> APIResult[MessageId]:
         """Method `copyMessage`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
         Use this method to copy messages of any kind. Service messages, paid media
@@ -490,7 +492,7 @@ class APIMethods:
         protect_content: bool | None = DEFAULT_PARAMETERS["protect_content"],
         remove_caption: bool | None = None,
         **other: typing.Any,
-    ) -> Result[list[MessageId], APIError]:
+    ) -> APIResult[list[MessageId]]:
         """Method `copyMessages`, see the [documentation](https://core.telegram.org/bots/api#copymessages)
 
         Use this method to copy messages of any kind. If some of the specified messages
@@ -554,7 +556,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendPhoto`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
 
         Use this method to send photos. On success, the sent Message is returned.
@@ -646,7 +648,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendLivePhoto`, see the [documentation](https://core.telegram.org/bots/api#sendlivephoto)
 
         Use this method to send live photos. On success, the sent Message is returned.
@@ -743,7 +745,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendAudio`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
 
         Use this method to send audio files, if you want Telegram clients to display
@@ -845,7 +847,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendDocument`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
 
         Use this method to send general files. On success, the sent Message is returned.
@@ -950,7 +952,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendVideo`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
 
         Use this method to send video files, Telegram clients support MPEG4 videos
@@ -1070,7 +1072,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendAnimation`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
 
         Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without
@@ -1174,7 +1176,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendVoice`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
 
         Use this method to send audio files, if you want Telegram clients to display
@@ -1263,7 +1265,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendVideoNote`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
         Use this method to send a rounded square MPEG4 video of up to 1 minute long.
@@ -1351,7 +1353,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendPaidMedia`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
 
         Use this method to send paid media. On success, the sent Message is returned.
@@ -1428,7 +1430,7 @@ class APIMethods:
         message_effect_id: str | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
-    ) -> Result[list[Message], APIError]:
+    ) -> APIResult[list[Message]]:
         """Method `sendMediaGroup`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
 
         Use this method to send a group of photos, live photos, videos, documents
@@ -1494,7 +1496,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendLocation`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
 
         Use this method to send point on the map. On success, the sent Message is returned.
@@ -1583,7 +1585,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendVenue`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
 
         Use this method to send information about a venue. On success, the sent Message
@@ -1670,7 +1672,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendContact`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
 
         Use this method to send phone contacts. On success, the sent Message is returned.
@@ -1765,7 +1767,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendPoll`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
 
         Use this method to send a native poll. On success, the sent Message is returned.
@@ -1887,7 +1889,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendChecklist`, see the [documentation](https://core.telegram.org/bots/api#sendchecklist)
 
         Use this method to send a checklist on behalf of a connected business account.
@@ -1934,7 +1936,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendDice`, see the [documentation](https://core.telegram.org/bots/api#senddice)
 
         Use this method to send an animated emoji that will display a random value.
@@ -1997,7 +1999,7 @@ class APIMethods:
         can_stop: bool | None = None,
         keep_on_stop: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `sendMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendmessagedraft)
 
         Use this method to stream a partial message to a user while the message is
@@ -2045,7 +2047,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `sendChatAction`, see the [documentation](https://core.telegram.org/bots/api#sendchataction)
 
         Use this method when you need to tell the user that something is happening
@@ -2086,7 +2088,7 @@ class APIMethods:
         reaction: list[ReactionType] | None = None,
         is_big: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setMessageReaction`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
 
         Use this method to change the chosen reactions on a message. Service messages
@@ -2122,7 +2124,7 @@ class APIMethods:
         offset: int | None = None,
         limit: int | None = None,
         **other: typing.Any,
-    ) -> Result[UserProfilePhotos, APIError]:
+    ) -> APIResult[UserProfilePhotos]:
         """Method `getUserProfilePhotos`, see the [documentation](https://core.telegram.org/bots/api#getuserprofilephotos)
 
         Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos
@@ -2150,7 +2152,7 @@ class APIMethods:
         offset: int | None = None,
         limit: int | None = None,
         **other: typing.Any,
-    ) -> Result[UserProfileAudios, APIError]:
+    ) -> APIResult[UserProfileAudios]:
         """Method `getUserProfileAudios`, see the [documentation](https://core.telegram.org/bots/api#getuserprofileaudios)
 
         Use this method to get a list of profile audios for a user. Returns a UserProfileAudios
@@ -2178,7 +2180,7 @@ class APIMethods:
         emoji_status_custom_emoji_id: str | None = None,
         emoji_status_expiration_date: datetime | int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setUserEmojiStatus`, see the [documentation](https://core.telegram.org/bots/api#setuseremojistatus)
 
         Changes the emoji status for a given user that previously allowed the bot
@@ -2204,7 +2206,7 @@ class APIMethods:
         *,
         file_id: str,
         **other: typing.Any,
-    ) -> Result[File, APIError]:
+    ) -> APIResult[File]:
         """Method `getFile`, see the [documentation](https://core.telegram.org/bots/api#getfile)
 
         Use this method to get basic information about a file and prepare it for downloading.
@@ -2233,7 +2235,7 @@ class APIMethods:
         until_date: datetime | int | None = None,
         revoke_messages: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `banChatMember`, see the [documentation](https://core.telegram.org/bots/api#banchatmember)
 
         Use this method to ban a user in a group, a supergroup or a channel. In the case
@@ -2269,7 +2271,7 @@ class APIMethods:
         user_id: int,
         only_if_banned: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `unbanChatMember`, see the [documentation](https://core.telegram.org/bots/api#unbanchatmember)
 
         Use this method to unban a previously banned user in a supergroup or channel.
@@ -2303,7 +2305,7 @@ class APIMethods:
         use_independent_chat_permissions: bool | None = None,
         until_date: datetime | int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `restrictChatMember`, see the [documentation](https://core.telegram.org/bots/api#restrictchatmember)
 
         Use this method to restrict a user in a supergroup. The bot must be an administrator
@@ -2359,7 +2361,7 @@ class APIMethods:
         can_manage_tags: bool | None = None,
         can_send_welcome_messages: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `promoteChatMember`, see the [documentation](https://core.telegram.org/bots/api#promotechatmember)
 
         Use this method to promote or demote a user in a supergroup or a channel. The
@@ -2437,7 +2439,7 @@ class APIMethods:
         user_id: int,
         custom_title: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setChatAdministratorCustomTitle`, see the [documentation](https://core.telegram.org/bots/api#setchatadministratorcustomtitle)
 
         Use this method to set a custom title for an administrator in a supergroup
@@ -2465,7 +2467,7 @@ class APIMethods:
         user_id: int,
         tag: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setChatMemberTag`, see the [documentation](https://core.telegram.org/bots/api#setchatmembertag)
 
         Use this method to set a tag for a regular member in a group or a supergroup.
@@ -2492,7 +2494,7 @@ class APIMethods:
         chat_id: int | str,
         sender_chat_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `banChatSenderChat`, see the [documentation](https://core.telegram.org/bots/api#banchatsenderchat)
 
         Use this method to ban a channel chat in a supergroup or a channel. Until the
@@ -2519,7 +2521,7 @@ class APIMethods:
         chat_id: int | str,
         sender_chat_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `unbanChatSenderChat`, see the [documentation](https://core.telegram.org/bots/api#unbanchatsenderchat)
 
         Use this method to unban a previously banned channel chat in a supergroup
@@ -2545,7 +2547,7 @@ class APIMethods:
         permissions: ChatPermissions,
         use_independent_chat_permissions: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setChatPermissions`, see the [documentation](https://core.telegram.org/bots/api#setchatpermissions)
 
         Use this method to set default chat permissions for all members. The bot
@@ -2576,7 +2578,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[str, APIError]:
+    ) -> APIResult[str]:
         """Method `exportChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#exportchatinvitelink)
 
         Use this method to generate a new primary invite link for a chat; any previously
@@ -2603,7 +2605,7 @@ class APIMethods:
         member_limit: int | None = None,
         creates_join_request: bool | None = None,
         **other: typing.Any,
-    ) -> Result[ChatInviteLink, APIError]:
+    ) -> APIResult[ChatInviteLink]:
         """Method `createChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#createchatinvitelink)
 
         Use this method to create an additional invite link for a chat. The bot must
@@ -2641,7 +2643,7 @@ class APIMethods:
         member_limit: int | None = None,
         creates_join_request: bool | None = None,
         **other: typing.Any,
-    ) -> Result[ChatInviteLink, APIError]:
+    ) -> APIResult[ChatInviteLink]:
         """Method `editChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#editchatinvitelink)
 
         Use this method to edit a non-primary invite link created by the bot. The
@@ -2679,7 +2681,7 @@ class APIMethods:
         subscription_price: int,
         name: str | None = None,
         **other: typing.Any,
-    ) -> Result[ChatInviteLink, APIError]:
+    ) -> APIResult[ChatInviteLink]:
         """Method `createChatSubscriptionInviteLink`, see the [documentation](https://core.telegram.org/bots/api#createchatsubscriptioninvitelink)
 
         Use this method to create a subscription invite link for a channel chat.
@@ -2713,7 +2715,7 @@ class APIMethods:
         invite_link: str,
         name: str | None = None,
         **other: typing.Any,
-    ) -> Result[ChatInviteLink, APIError]:
+    ) -> APIResult[ChatInviteLink]:
         """Method `editChatSubscriptionInviteLink`, see the [documentation](https://core.telegram.org/bots/api#editchatsubscriptioninvitelink)
 
         Use this method to edit a subscription invite link created by the bot. The
@@ -2740,7 +2742,7 @@ class APIMethods:
         chat_id: int | str,
         invite_link: str,
         **other: typing.Any,
-    ) -> Result[ChatInviteLink, APIError]:
+    ) -> APIResult[ChatInviteLink]:
         """Method `revokeChatInviteLink`, see the [documentation](https://core.telegram.org/bots/api#revokechatinvitelink)
 
         Use this method to revoke an invite link created by the bot. If the primary
@@ -2767,7 +2769,7 @@ class APIMethods:
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `approveChatJoinRequest`, see the [documentation](https://core.telegram.org/bots/api#approvechatjoinrequest)
 
         Use this method to approve a chat join request. The bot must be an administrator
@@ -2792,7 +2794,7 @@ class APIMethods:
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `declineChatJoinRequest`, see the [documentation](https://core.telegram.org/bots/api#declinechatjoinrequest)
 
         Use this method to decline a chat join request. The bot must be an administrator
@@ -2817,7 +2819,7 @@ class APIMethods:
         chat_join_request_query_id: str,
         result: typing.Literal["approve", "decline", "queue"],
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `answerChatJoinRequestQuery`, see the [documentation](https://core.telegram.org/bots/api#answerchatjoinrequestquery)
 
         Use this method to process a received chat join request query. Returns True
@@ -2842,7 +2844,7 @@ class APIMethods:
         chat_join_request_query_id: str,
         web_app_url: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `sendChatJoinRequestWebApp`, see the [documentation](https://core.telegram.org/bots/api#sendchatjoinrequestwebapp)
 
         Use this method to process a received chat join request query by showing
@@ -2868,7 +2870,7 @@ class APIMethods:
         chat_id: int | str,
         photo: InputFile,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#setchatphoto)
 
         Use this method to set a new profile photo for the chat. Photos can't be changed
@@ -2893,7 +2895,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteChatPhoto`, see the [documentation](https://core.telegram.org/bots/api#deletechatphoto)
 
         Use this method to delete a chat photo. Photos can't be changed for private
@@ -2916,7 +2918,7 @@ class APIMethods:
         chat_id: int | str,
         title: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setChatTitle`, see the [documentation](https://core.telegram.org/bots/api#setchattitle)
 
         Use this method to change the title of a chat. Titles can't be changed for
@@ -2941,7 +2943,7 @@ class APIMethods:
         chat_id: int | str,
         description: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setChatDescription`, see the [documentation](https://core.telegram.org/bots/api#setchatdescription)
 
         Use this method to change the description of a group, a supergroup or a channel.
@@ -2968,7 +2970,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         disable_notification: bool | None = DEFAULT_PARAMETERS["disable_notification"],
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `pinChatMessage`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
 
         Use this method to add a message to the list of pinned messages in a chat. In
@@ -3003,7 +3005,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         message_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `unpinChatMessage`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
 
         Use this method to remove a message from the list of pinned messages in a chat.
@@ -3034,7 +3036,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `unpinAllChatMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallchatmessages)
 
         Use this method to clear the list of pinned messages in a chat. In private
@@ -3059,7 +3061,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `leaveChat`, see the [documentation](https://core.telegram.org/bots/api#leavechat)
 
         Use this method for your bot to leave a group, supergroup or channel. Returns
@@ -3081,7 +3083,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[ChatFullInfo, APIError]:
+    ) -> APIResult[ChatFullInfo]:
         """Method `getChat`, see the [documentation](https://core.telegram.org/bots/api#getchat)
 
         Use this method to get up-to-date information about the chat. Returns a
@@ -3103,7 +3105,7 @@ class APIMethods:
         chat_id: int | str,
         return_bots: bool | None = None,
         **other: typing.Any,
-    ) -> Result[list[Sum[ChatMemberOwner, ChatMemberAdministrator]], APIError]:
+    ) -> APIResult[list[Sum[ChatMemberOwner, ChatMemberAdministrator]]]:
         """Method `getChatAdministrators`, see the [documentation](https://core.telegram.org/bots/api#getchatadministrators)
 
         Use this method to get a list of administrators in a chat. Returns an Array
@@ -3127,7 +3129,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[int, APIError]:
+    ) -> APIResult[int]:
         """Method `getChatMemberCount`, see the [documentation](https://core.telegram.org/bots/api#getchatmembercount)
 
         Use this method to get the number of members in a chat. Returns Integer on
@@ -3149,7 +3151,7 @@ class APIMethods:
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[
+    ) -> APIResult[
         Sum[
             ChatMemberOwner,
             ChatMemberAdministrator,
@@ -3157,8 +3159,7 @@ class APIMethods:
             ChatMemberRestricted,
             ChatMemberLeft,
             ChatMemberBanned,
-        ],
-        APIError,
+        ]
     ]:
         """Method `getChatMember`, see the [documentation](https://core.telegram.org/bots/api#getchatmember)
 
@@ -3194,7 +3195,7 @@ class APIMethods:
         user_id: int,
         limit: int,
         **other: typing.Any,
-    ) -> Result[list[Message], APIError]:
+    ) -> APIResult[list[Message]]:
         """Method `getUserPersonalChatMessages`, see the [documentation](https://core.telegram.org/bots/api#getuserpersonalchatmessages)
 
         Use this method to get the last messages from the personal chat (i.e., the
@@ -3218,7 +3219,7 @@ class APIMethods:
         chat_id: int | str,
         sticker_set_name: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setChatStickerSet`, see the [documentation](https://core.telegram.org/bots/api#setchatstickerset)
 
         Use this method to set a new group sticker set for a supergroup. The bot must
@@ -3244,7 +3245,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteChatStickerSet`, see the [documentation](https://core.telegram.org/bots/api#deletechatstickerset)
 
         Use this method to delete a group sticker set from a supergroup. The bot must
@@ -3263,7 +3264,7 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
-    async def get_forum_topic_icon_stickers(self, **other: typing.Any) -> Result[list[Sticker], APIError]:
+    async def get_forum_topic_icon_stickers(self, **other: typing.Any) -> APIResult[list[Sticker]]:
         """Method `getForumTopicIconStickers`, see the [documentation](https://core.telegram.org/bots/api#getforumtopiciconstickers)
 
         Use this method to get custom emoji stickers, which can be used as a forum
@@ -3285,7 +3286,7 @@ class APIMethods:
         icon_color: TopicIconColor | None = None,
         icon_custom_emoji_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[ForumTopic, APIError]:
+    ) -> APIResult[ForumTopic]:
         """Method `createForumTopic`, see the [documentation](https://core.telegram.org/bots/api#createforumtopic)
 
         Use this method to create a topic in a forum supergroup chat or a private chat
@@ -3320,7 +3321,7 @@ class APIMethods:
         name: str | None = None,
         icon_custom_emoji_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `editForumTopic`, see the [documentation](https://core.telegram.org/bots/api#editforumtopic)
 
         Use this method to edit name and icon of a topic in a forum supergroup chat
@@ -3354,7 +3355,7 @@ class APIMethods:
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `closeForumTopic`, see the [documentation](https://core.telegram.org/bots/api#closeforumtopic)
 
         Use this method to close an open topic in a forum supergroup chat. The bot
@@ -3380,7 +3381,7 @@ class APIMethods:
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `reopenForumTopic`, see the [documentation](https://core.telegram.org/bots/api#reopenforumtopic)
 
         Use this method to reopen a closed topic in a forum supergroup chat. The bot
@@ -3406,7 +3407,7 @@ class APIMethods:
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteForumTopic`, see the [documentation](https://core.telegram.org/bots/api#deleteforumtopic)
 
         Use this method to delete a forum topic along with all its messages in a forum
@@ -3432,7 +3433,7 @@ class APIMethods:
         chat_id: int | str,
         message_thread_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `unpinAllForumTopicMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallforumtopicmessages)
 
         Use this method to clear the list of pinned messages in a forum topic in a forum
@@ -3459,7 +3460,7 @@ class APIMethods:
         chat_id: int | str,
         name: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `editGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#editgeneralforumtopic)
 
         Use this method to edit the name of the 'General' topic in a forum supergroup
@@ -3483,7 +3484,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `closeGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#closegeneralforumtopic)
 
         Use this method to close an open 'General' topic in a forum supergroup chat.
@@ -3505,7 +3506,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `reopenGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#reopengeneralforumtopic)
 
         Use this method to reopen a closed 'General' topic in a forum supergroup
@@ -3528,7 +3529,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `hideGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#hidegeneralforumtopic)
 
         Use this method to hide the 'General' topic in a forum supergroup chat. The
@@ -3551,7 +3552,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `unhideGeneralForumTopic`, see the [documentation](https://core.telegram.org/bots/api#unhidegeneralforumtopic)
 
         Use this method to unhide the 'General' topic in a forum supergroup chat.
@@ -3573,7 +3574,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `unpinAllGeneralForumTopicMessages`, see the [documentation](https://core.telegram.org/bots/api#unpinallgeneralforumtopicmessages)
 
         Use this method to clear the list of pinned messages in a General forum topic.
@@ -3600,7 +3601,7 @@ class APIMethods:
         url: str | None = None,
         cache_time: timedelta | int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `answerCallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)
 
         Use this method to send answers to callback queries sent from inline keyboards.
@@ -3637,7 +3638,7 @@ class APIMethods:
         guest_query_id: str,
         result: InlineQueryResult,
         **other: typing.Any,
-    ) -> Result[SentGuestMessage, APIError]:
+    ) -> APIResult[SentGuestMessage]:
         """Method `answerGuestQuery`, see the [documentation](https://core.telegram.org/bots/api#answerguestquery)
 
         Use this method to reply to a received guest message. On success, a SentGuestMessage
@@ -3660,7 +3661,7 @@ class APIMethods:
         chat_id: int | str,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[UserChatBoosts, APIError]:
+    ) -> APIResult[UserChatBoosts]:
         """Method `getUserChatBoosts`, see the [documentation](https://core.telegram.org/bots/api#getuserchatboosts)
 
         Use this method to get the list of boosts added to a chat by a user. Requires
@@ -3682,7 +3683,7 @@ class APIMethods:
         *,
         business_connection_id: str,
         **other: typing.Any,
-    ) -> Result[BusinessConnection, APIError]:
+    ) -> APIResult[BusinessConnection]:
         """Method `getBusinessConnection`, see the [documentation](https://core.telegram.org/bots/api#getbusinessconnection)
 
         Use this method to get information about the connection of the bot with a
@@ -3702,7 +3703,7 @@ class APIMethods:
         *,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[str, APIError]:
+    ) -> APIResult[str]:
         """Method `getManagedBotToken`, see the [documentation](https://core.telegram.org/bots/api#getmanagedbottoken)
 
         Use this method to get the token of a managed bot. Returns the token as String
@@ -3722,7 +3723,7 @@ class APIMethods:
         *,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[str, APIError]:
+    ) -> APIResult[str]:
         """Method `replaceManagedBotToken`, see the [documentation](https://core.telegram.org/bots/api#replacemanagedbottoken)
 
         Use this method to revoke the current token of a managed bot and generate
@@ -3742,7 +3743,7 @@ class APIMethods:
         *,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[BotAccessSettings, APIError]:
+    ) -> APIResult[BotAccessSettings]:
         """Method `getManagedBotAccessSettings`, see the [documentation](https://core.telegram.org/bots/api#getmanagedbotaccesssettings)
 
         Use this method to get the access settings of a managed bot. Returns a BotAccessSettings
@@ -3764,7 +3765,7 @@ class APIMethods:
         is_access_restricted: bool,
         added_user_ids: list[int] | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setManagedBotAccessSettings`, see the [documentation](https://core.telegram.org/bots/api#setmanagedbotaccesssettings)
 
         Use this method to change the access settings of a managed bot. Returns True
@@ -3793,7 +3794,7 @@ class APIMethods:
         scope: BotCommandScope | None = None,
         language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setMyCommands`, see the [documentation](https://core.telegram.org/bots/api#setmycommands)
 
         Use this method to change the list of the bot's commands. See this manual
@@ -3822,7 +3823,7 @@ class APIMethods:
         scope: BotCommandScope | None = None,
         language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteMyCommands`, see the [documentation](https://core.telegram.org/bots/api#deletemycommands)
 
         Use this method to delete the list of the bot's commands for the given scope
@@ -3849,7 +3850,7 @@ class APIMethods:
         scope: BotCommandScope | None = None,
         language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[list[BotCommand], APIError]:
+    ) -> APIResult[list[BotCommand]]:
         """Method `getMyCommands`, see the [documentation](https://core.telegram.org/bots/api#getmycommands)
 
         Use this method to get the current list of the bot's commands for the given
@@ -3873,7 +3874,7 @@ class APIMethods:
         name: str | None = None,
         language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setMyName`, see the [documentation](https://core.telegram.org/bots/api#setmyname)
 
         Use this method to change the bot's name. Returns True on success.
@@ -3896,7 +3897,7 @@ class APIMethods:
         *,
         language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[BotName, APIError]:
+    ) -> APIResult[BotName]:
         """Method `getMyName`, see the [documentation](https://core.telegram.org/bots/api#getmyname)
 
         Use this method to get the current bot name for the given user language. Returns
@@ -3917,7 +3918,7 @@ class APIMethods:
         description: str | None = None,
         language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setMyDescription`, see the [documentation](https://core.telegram.org/bots/api#setmydescription)
 
         Use this method to change the bot's description, which is shown in the chat
@@ -3941,7 +3942,7 @@ class APIMethods:
         *,
         language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[BotDescription, APIError]:
+    ) -> APIResult[BotDescription]:
         """Method `getMyDescription`, see the [documentation](https://core.telegram.org/bots/api#getmydescription)
 
         Use this method to get the current bot description for the given user language.
@@ -3962,7 +3963,7 @@ class APIMethods:
         short_description: str | None = None,
         language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setMyShortDescription`, see the [documentation](https://core.telegram.org/bots/api#setmyshortdescription)
 
         Use this method to change the bot's short description, which is shown on
@@ -3987,7 +3988,7 @@ class APIMethods:
         *,
         language_code: str | None = None,
         **other: typing.Any,
-    ) -> Result[BotShortDescription, APIError]:
+    ) -> APIResult[BotShortDescription]:
         """Method `getMyShortDescription`, see the [documentation](https://core.telegram.org/bots/api#getmyshortdescription)
 
         Use this method to get the current bot short description for the given user
@@ -4007,7 +4008,7 @@ class APIMethods:
         *,
         photo: InputProfilePhoto,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setMyProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#setmyprofilephoto)
 
         Changes the profile photo of the bot. Returns True on success.
@@ -4021,7 +4022,7 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
-    async def remove_my_profile_photo(self, **other: typing.Any) -> Result[bool, APIError]:
+    async def remove_my_profile_photo(self, **other: typing.Any) -> APIResult[bool]:
         """Method `removeMyProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#removemyprofilephoto)
 
         Removes the profile photo of the bot. Requires no parameters. Returns True
@@ -4040,7 +4041,7 @@ class APIMethods:
         chat_id: int | None = None,
         menu_button: MenuButton | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setChatMenuButton`, see the [documentation](https://core.telegram.org/bots/api#setchatmenubutton)
 
         Use this method to change the bot's menu button in a private chat, or the default
@@ -4063,7 +4064,7 @@ class APIMethods:
         *,
         chat_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault], APIError]:
+    ) -> APIResult[Sum[MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault]]:
         """Method `getChatMenuButton`, see the [documentation](https://core.telegram.org/bots/api#getchatmenubutton)
 
         Use this method to get the current value of the bot's menu button in a private
@@ -4085,7 +4086,7 @@ class APIMethods:
         rights: ChatAdministratorRights | None = None,
         for_channels: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setMyDefaultAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#setmydefaultadministratorrights)
 
         Use this method to change the default administrator rights requested by
@@ -4112,7 +4113,7 @@ class APIMethods:
         *,
         for_channels: bool | None = None,
         **other: typing.Any,
-    ) -> Result[ChatAdministratorRights, APIError]:
+    ) -> APIResult[ChatAdministratorRights]:
         """Method `getMyDefaultAdministratorRights`, see the [documentation](https://core.telegram.org/bots/api#getmydefaultadministratorrights)
 
         Use this method to get the current default administrator rights of the bot.
@@ -4129,7 +4130,7 @@ class APIMethods:
         )
         return full_result(method_response, ChatAdministratorRights)
 
-    async def get_available_gifts(self, **other: typing.Any) -> Result[Gifts, APIError]:
+    async def get_available_gifts(self, **other: typing.Any) -> APIResult[Gifts]:
         """Method `getAvailableGifts`, see the [documentation](https://core.telegram.org/bots/api#getavailablegifts)
 
         Returns the list of gifts that can be sent by the bot to users and channel chats.
@@ -4153,7 +4154,7 @@ class APIMethods:
         text_parse_mode: str | None = DEFAULT_PARAMETERS["text_parse_mode"],
         text_entities: list[MessageEntity] | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `sendGift`, see the [documentation](https://core.telegram.org/bots/api#sendgift)
 
         Sends a gift to the given user or channel chat. The gift can't be converted
@@ -4199,7 +4200,7 @@ class APIMethods:
         text_parse_mode: str | None = DEFAULT_PARAMETERS["text_parse_mode"],
         text_entities: list[MessageEntity] | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `giftPremiumSubscription`, see the [documentation](https://core.telegram.org/bots/api#giftpremiumsubscription)
 
         Gifts a Telegram Premium subscription to the given user. Returns True on
@@ -4239,7 +4240,7 @@ class APIMethods:
         user_id: int,
         custom_description: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `verifyUser`, see the [documentation](https://core.telegram.org/bots/api#verifyuser)
 
         Verifies a user on behalf of the organization which is represented by the
@@ -4263,7 +4264,7 @@ class APIMethods:
         chat_id: int | str,
         custom_description: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `verifyChat`, see the [documentation](https://core.telegram.org/bots/api#verifychat)
 
         Verifies a chat on behalf of the organization which is represented by the
@@ -4288,7 +4289,7 @@ class APIMethods:
         *,
         user_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `removeUserVerification`, see the [documentation](https://core.telegram.org/bots/api#removeuserverification)
 
         Removes verification from a user who is currently verified on behalf of
@@ -4308,7 +4309,7 @@ class APIMethods:
         *,
         chat_id: int | str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `removeChatVerification`, see the [documentation](https://core.telegram.org/bots/api#removechatverification)
 
         Removes verification from a chat that is currently verified on behalf of
@@ -4331,7 +4332,7 @@ class APIMethods:
         chat_id: int,
         message_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `readBusinessMessage`, see the [documentation](https://core.telegram.org/bots/api#readbusinessmessage)
 
         Marks incoming message as read on behalf of a business account. Requires
@@ -4358,7 +4359,7 @@ class APIMethods:
         business_connection_id: str,
         message_ids: list[int],
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteBusinessMessages`, see the [documentation](https://core.telegram.org/bots/api#deletebusinessmessages)
 
         Delete messages on behalf of a business account. Requires the can_delete_sent_messages
@@ -4386,7 +4387,7 @@ class APIMethods:
         first_name: str,
         last_name: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setBusinessAccountName`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountname)
 
         Changes the first and last name of a managed business account. Requires
@@ -4411,7 +4412,7 @@ class APIMethods:
         business_connection_id: str,
         username: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setBusinessAccountUsername`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountusername)
 
         Changes the username of a managed business account. Requires the can_change_username
@@ -4434,7 +4435,7 @@ class APIMethods:
         business_connection_id: str,
         bio: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setBusinessAccountBio`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountbio)
 
         Changes the bio of a managed business account. Requires the can_change_bio
@@ -4458,7 +4459,7 @@ class APIMethods:
         photo: InputProfilePhoto,
         is_public: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setBusinessAccountProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountprofilephoto)
 
         Changes the profile photo of a managed business account. Requires the can_edit_profile_photo
@@ -4485,7 +4486,7 @@ class APIMethods:
         business_connection_id: str,
         is_public: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `removeBusinessAccountProfilePhoto`, see the [documentation](https://core.telegram.org/bots/api#removebusinessaccountprofilephoto)
 
         Removes the current profile photo of a managed business account. Requires
@@ -4511,7 +4512,7 @@ class APIMethods:
         show_gift_button: bool,
         accepted_gift_types: AcceptedGiftTypes,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setBusinessAccountGiftSettings`, see the [documentation](https://core.telegram.org/bots/api#setbusinessaccountgiftsettings)
 
         Changes the privacy settings pertaining to incoming gifts in a managed
@@ -4537,7 +4538,7 @@ class APIMethods:
         *,
         business_connection_id: str,
         **other: typing.Any,
-    ) -> Result[StarAmount, APIError]:
+    ) -> APIResult[StarAmount]:
         """Method `getBusinessAccountStarBalance`, see the [documentation](https://core.telegram.org/bots/api#getbusinessaccountstarbalance)
 
         Returns the amount of Telegram Stars owned by a managed business account.
@@ -4559,7 +4560,7 @@ class APIMethods:
         business_connection_id: str,
         star_count: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `transferBusinessAccountStars`, see the [documentation](https://core.telegram.org/bots/api#transferbusinessaccountstars)
 
         Transfers Telegram Stars from the business account balance to the bot's
@@ -4592,7 +4593,7 @@ class APIMethods:
         offset: str | None = None,
         limit: int | None = None,
         **other: typing.Any,
-    ) -> Result[OwnedGifts, APIError]:
+    ) -> APIResult[OwnedGifts]:
         """Method `getBusinessAccountGifts`, see the [documentation](https://core.telegram.org/bots/api#getbusinessaccountgifts)
 
         Returns the gifts received and owned by a managed business account. Requires
@@ -4646,7 +4647,7 @@ class APIMethods:
         offset: str | None = None,
         limit: int | None = None,
         **other: typing.Any,
-    ) -> Result[OwnedGifts, APIError]:
+    ) -> APIResult[OwnedGifts]:
         """Method `getUserGifts`, see the [documentation](https://core.telegram.org/bots/api#getusergifts)
 
         Returns the gifts owned and hosted by a user. Returns OwnedGifts on success.
@@ -4696,7 +4697,7 @@ class APIMethods:
         offset: str | None = None,
         limit: int | None = None,
         **other: typing.Any,
-    ) -> Result[OwnedGifts, APIError]:
+    ) -> APIResult[OwnedGifts]:
         """Method `getChatGifts`, see the [documentation](https://core.telegram.org/bots/api#getchatgifts)
 
         Returns the gifts owned by a chat. Returns OwnedGifts on success.
@@ -4746,7 +4747,7 @@ class APIMethods:
         business_connection_id: str,
         owned_gift_id: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `convertGiftToStars`, see the [documentation](https://core.telegram.org/bots/api#convertgifttostars)
 
         Converts a given regular gift to Telegram Stars. Requires the can_convert_gifts_to_stars
@@ -4772,7 +4773,7 @@ class APIMethods:
         keep_original_details: bool | None = None,
         star_count: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `upgradeGift`, see the [documentation](https://core.telegram.org/bots/api#upgradegift)
 
         Upgrades a given regular gift to a unique gift. Requires the can_transfer_and_upgrade_gifts
@@ -4807,7 +4808,7 @@ class APIMethods:
         new_owner_chat_id: int,
         star_count: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `transferGift`, see the [documentation](https://core.telegram.org/bots/api#transfergift)
 
         Transfers an owned unique gift to another user. Requires the can_transfer_and_upgrade_gifts
@@ -4845,7 +4846,7 @@ class APIMethods:
         post_to_chat_page: bool | None = None,
         protect_content: bool | None = DEFAULT_PARAMETERS["protect_content"],
         **other: typing.Any,
-    ) -> Result[Story, APIError]:
+    ) -> APIResult[Story]:
         """Method `postStory`, see the [documentation](https://core.telegram.org/bots/api#poststory)
 
         Posts a story on behalf of a managed business account. Requires the can_manage_stories
@@ -4890,7 +4891,7 @@ class APIMethods:
         post_to_chat_page: bool | None = None,
         protect_content: bool | None = DEFAULT_PARAMETERS["protect_content"],
         **other: typing.Any,
-    ) -> Result[Story, APIError]:
+    ) -> APIResult[Story]:
         """Method `repostStory`, see the [documentation](https://core.telegram.org/bots/api#repoststory)
 
         Reposts a story on behalf of a business account from another business account.
@@ -4931,7 +4932,7 @@ class APIMethods:
         caption_entities: list[MessageEntity] | None = None,
         areas: list[StoryArea] | None = None,
         **other: typing.Any,
-    ) -> Result[Story, APIError]:
+    ) -> APIResult[Story]:
         """Method `editStory`, see the [documentation](https://core.telegram.org/bots/api#editstory)
 
         Edits a story previously posted by the bot on behalf of a managed business
@@ -4967,7 +4968,7 @@ class APIMethods:
         business_connection_id: str,
         story_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteStory`, see the [documentation](https://core.telegram.org/bots/api#deletestory)
 
         Deletes a story previously posted by the bot on behalf of a managed business
@@ -4991,7 +4992,7 @@ class APIMethods:
         web_app_query_id: str,
         result: InlineQueryResult,
         **other: typing.Any,
-    ) -> Result[SentWebAppMessage, APIError]:
+    ) -> APIResult[SentWebAppMessage]:
         """Method `answerWebAppQuery`, see the [documentation](https://core.telegram.org/bots/api#answerwebappquery)
 
         Use this method to set the result of an interaction with a Web App and send
@@ -5019,7 +5020,7 @@ class APIMethods:
         allow_group_chats: bool | None = None,
         allow_channel_chats: bool | None = None,
         **other: typing.Any,
-    ) -> Result[PreparedInlineMessage, APIError]:
+    ) -> APIResult[PreparedInlineMessage]:
         """Method `savePreparedInlineMessage`, see the [documentation](https://core.telegram.org/bots/api#savepreparedinlinemessage)
 
         Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage
@@ -5050,7 +5051,7 @@ class APIMethods:
         user_id: int,
         button: KeyboardButton,
         **other: typing.Any,
-    ) -> Result[PreparedKeyboardButton, APIError]:
+    ) -> APIResult[PreparedKeyboardButton]:
         """Method `savePreparedKeyboardButton`, see the [documentation](https://core.telegram.org/bots/api#savepreparedkeyboardbutton)
 
         Stores a keyboard button that can be used by a user within a Mini App. Returns
@@ -5082,7 +5083,7 @@ class APIMethods:
         rich_message: InputRichMessage | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[Message, bool], APIError]:
+    ) -> APIResult[Sum[Message, bool]]:
         """Method `editMessageText`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
         Use this method to edit text, rich and game messages. On success, if the edited
@@ -5141,7 +5142,7 @@ class APIMethods:
         show_caption_above_media: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[Message, bool], APIError]:
+    ) -> APIResult[Sum[Message, bool]]:
         """Method `editMessageCaption`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
 
         Use this method to edit captions of messages. On success, if the edited message
@@ -5193,7 +5194,7 @@ class APIMethods:
         inline_message_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[Message, bool], APIError]:
+    ) -> APIResult[Sum[Message, bool]]:
         """Method `editMessageMedia`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
         Use this method to edit animation, audio, document, live photo, photo,
@@ -5246,7 +5247,7 @@ class APIMethods:
         proximity_alert_radius: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[Message, bool], APIError]:
+    ) -> APIResult[Sum[Message, bool]]:
         """Method `editMessageLiveLocation`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
 
         Use this method to edit live location messages. A location can be edited
@@ -5304,7 +5305,7 @@ class APIMethods:
         inline_message_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[Message, bool], APIError]:
+    ) -> APIResult[Sum[Message, bool]]:
         """Method `stopMessageLiveLocation`, see the [documentation](https://core.telegram.org/bots/api#stopmessagelivelocation)
 
         Use this method to stop updating a live location message before live_period
@@ -5342,7 +5343,7 @@ class APIMethods:
         checklist: InputChecklist,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `editMessageChecklist`, see the [documentation](https://core.telegram.org/bots/api#editmessagechecklist)
 
         Use this method to edit a checklist on behalf of a connected business account.
@@ -5376,7 +5377,7 @@ class APIMethods:
         inline_message_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[Message, bool], APIError]:
+    ) -> APIResult[Sum[Message, bool]]:
         """Method `editMessageReplyMarkup`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)
 
         Use this method to edit only the reply markup of messages. On success, if
@@ -5415,7 +5416,7 @@ class APIMethods:
         business_connection_id: str | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Poll, APIError]:
+    ) -> APIResult[Poll]:
         """Method `stopPoll`, see the [documentation](https://core.telegram.org/bots/api#stoppoll)
 
         Use this method to stop a poll which was sent by the bot. On success, the stopped
@@ -5451,7 +5452,7 @@ class APIMethods:
         link_preview_options: LinkPreviewOptions | None = DEFAULT_PARAMETERS["link_preview_options"],
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `editEphemeralMessageText`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagetext)
 
         Use this method to edit an ephemeral text or rich message. Note that it is
@@ -5496,7 +5497,7 @@ class APIMethods:
         media: InputMedia,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `editEphemeralMessageMedia`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagemedia)
 
         Use this method to edit the media of an ephemeral message. Note that it is
@@ -5533,7 +5534,7 @@ class APIMethods:
         show_caption_above_media: bool | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `editEphemeralMessageCaption`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagecaption)
 
         Use this method to edit the caption of an ephemeral message. Note that it
@@ -5575,7 +5576,7 @@ class APIMethods:
         ephemeral_message_id: int,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `editEphemeralMessageReplyMarkup`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagereplymarkup)
 
         Use this method to edit only the reply markup of an ephemeral message. Note
@@ -5605,7 +5606,7 @@ class APIMethods:
         message_id: int,
         send_date: datetime | int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `approveSuggestedPost`, see the [documentation](https://core.telegram.org/bots/api#approvesuggestedpost)
 
         Use this method to approve a suggested post in a direct messages chat. The
@@ -5635,7 +5636,7 @@ class APIMethods:
         message_id: int,
         comment: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `declineSuggestedPost`, see the [documentation](https://core.telegram.org/bots/api#declinesuggestedpost)
 
         Use this method to decline a suggested post in a direct messages chat. The
@@ -5661,7 +5662,7 @@ class APIMethods:
         chat_id: int | str,
         message_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteMessage`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
 
         Use this method to delete a message, including service messages, with the
@@ -5696,7 +5697,7 @@ class APIMethods:
         chat_id: int | str,
         message_ids: list[int],
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteMessages`, see the [documentation](https://core.telegram.org/bots/api#deletemessages)
 
         Use this method to delete multiple messages simultaneously. If some of
@@ -5723,7 +5724,7 @@ class APIMethods:
         receiver_user_id: int,
         ephemeral_message_id: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteEphemeralMessage`, see the [documentation](https://core.telegram.org/bots/api#deleteephemeralmessage)
 
         Use this method to delete an ephemeral message. Note that it is not guaranteed
@@ -5752,7 +5753,7 @@ class APIMethods:
         user_id: int | None = None,
         actor_chat_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteMessageReaction`, see the [documentation](https://core.telegram.org/bots/api#deletemessagereaction)
 
         Use this method to remove a reaction from a message in a group or a supergroup
@@ -5784,7 +5785,7 @@ class APIMethods:
         user_id: int | None = None,
         actor_chat_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteAllMessageReactions`, see the [documentation](https://core.telegram.org/bots/api#deleteallmessagereactions)
 
         Use this method to remove up to 10000 recent reactions in a group or a supergroup
@@ -5825,7 +5826,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendSticker`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
 
         Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
@@ -5889,7 +5890,7 @@ class APIMethods:
         *,
         name: str,
         **other: typing.Any,
-    ) -> Result[StickerSet, APIError]:
+    ) -> APIResult[StickerSet]:
         """Method `getStickerSet`, see the [documentation](https://core.telegram.org/bots/api#getstickerset)
 
         Use this method to get a sticker set. On success, a StickerSet object is returned.
@@ -5908,7 +5909,7 @@ class APIMethods:
         *,
         custom_emoji_ids: list[str],
         **other: typing.Any,
-    ) -> Result[list[Sticker], APIError]:
+    ) -> APIResult[list[Sticker]]:
         """Method `getCustomEmojiStickers`, see the [documentation](https://core.telegram.org/bots/api#getcustomemojistickers)
 
         Use this method to get information about custom emoji stickers by their
@@ -5931,7 +5932,7 @@ class APIMethods:
         sticker: InputFile,
         sticker_format: typing.Literal["static", "animated", "video"],
         **other: typing.Any,
-    ) -> Result[File, APIError]:
+    ) -> APIResult[File]:
         """Method `uploadStickerFile`, see the [documentation](https://core.telegram.org/bots/api#uploadstickerfile)
 
         Use this method to upload a file with a sticker for later use in the createNewStickerSet,
@@ -5962,7 +5963,7 @@ class APIMethods:
         sticker_type: typing.Literal["regular", "mask", "custom_emoji"] | None = None,
         needs_repainting: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `createNewStickerSet`, see the [documentation](https://core.telegram.org/bots/api#createnewstickerset)
 
         Use this method to create a new sticker set owned by a user. The bot will be
@@ -6002,7 +6003,7 @@ class APIMethods:
         name: str,
         sticker: InputSticker,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `addStickerToSet`, see the [documentation](https://core.telegram.org/bots/api#addstickertoset)
 
         Use this method to add a new sticker to a set created by the bot. Emoji sticker
@@ -6030,7 +6031,7 @@ class APIMethods:
         sticker: str,
         position: int,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setStickerPositionInSet`, see the [documentation](https://core.telegram.org/bots/api#setstickerpositioninset)
 
         Use this method to move a sticker in a set created by the bot to a specific position.
@@ -6052,7 +6053,7 @@ class APIMethods:
         *,
         sticker: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteStickerFromSet`, see the [documentation](https://core.telegram.org/bots/api#deletestickerfromset)
 
         Use this method to delete a sticker from a set created by the bot. Returns
@@ -6075,7 +6076,7 @@ class APIMethods:
         old_sticker: str,
         sticker: InputSticker,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `replaceStickerInSet`, see the [documentation](https://core.telegram.org/bots/api#replacestickerinset)
 
         Use this method to replace an existing sticker in a sticker set with a new
@@ -6105,7 +6106,7 @@ class APIMethods:
         sticker: str,
         emoji_list: list[str],
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setStickerEmojiList`, see the [documentation](https://core.telegram.org/bots/api#setstickeremojilist)
 
         Use this method to change the list of emoji assigned to a regular or custom
@@ -6129,7 +6130,7 @@ class APIMethods:
         sticker: str,
         keywords: list[str] | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setStickerKeywords`, see the [documentation](https://core.telegram.org/bots/api#setstickerkeywords)
 
         Use this method to change search keywords assigned to a regular or custom
@@ -6154,7 +6155,7 @@ class APIMethods:
         sticker: str,
         mask_position: MaskPosition | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setStickerMaskPosition`, see the [documentation](https://core.telegram.org/bots/api#setstickermaskposition)
 
         Use this method to change the mask position of a mask sticker. The sticker
@@ -6178,7 +6179,7 @@ class APIMethods:
         name: str,
         title: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setStickerSetTitle`, see the [documentation](https://core.telegram.org/bots/api#setstickersettitle)
 
         Use this method to set the title of a created sticker set. Returns True on
@@ -6203,7 +6204,7 @@ class APIMethods:
         format: typing.Literal["static", "animated", "video"],
         thumbnail: InputFile | str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setStickerSetThumbnail`, see the [documentation](https://core.telegram.org/bots/api#setstickersetthumbnail)
 
         Use this method to set the thumbnail of a regular or mask sticker set. The
@@ -6243,7 +6244,7 @@ class APIMethods:
         name: str,
         custom_emoji_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setCustomEmojiStickerSetThumbnail`, see the [documentation](https://core.telegram.org/bots/api#setcustomemojistickersetthumbnail)
 
         Use this method to set the thumbnail of a custom emoji sticker set. Returns
@@ -6266,7 +6267,7 @@ class APIMethods:
         *,
         name: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `deleteStickerSet`, see the [documentation](https://core.telegram.org/bots/api#deletestickerset)
 
         Use this method to delete a sticker set that was created by the bot. Returns
@@ -6298,7 +6299,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendRichMessage`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessage)
 
         Use this method to send rich messages. If the message contains a block with
@@ -6362,7 +6363,7 @@ class APIMethods:
         can_stop: bool | None = None,
         keep_on_stop: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `sendRichMessageDraft`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessagedraft)
 
         Use this method to stream a partial rich message to a user while the message
@@ -6406,7 +6407,7 @@ class APIMethods:
         next_offset: str | None = None,
         button: InlineQueryResultsButton | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `answerInlineQuery`, see the [documentation](https://core.telegram.org/bots/api#answerinlinequery)
 
         Use this method to send answers to an inline query. On success, True is returned.
@@ -6472,7 +6473,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendInvoice`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
         Use this method to send invoices. On success, the sent Message is returned.
@@ -6610,7 +6611,7 @@ class APIMethods:
         send_email_to_provider: bool | None = None,
         is_flexible: bool | None = None,
         **other: typing.Any,
-    ) -> Result[str, APIError]:
+    ) -> APIResult[str]:
         """Method `createInvoiceLink`, see the [documentation](https://core.telegram.org/bots/api#createinvoicelink)
 
         Use this method to create a link for an invoice. Returns the created invoice
@@ -6704,7 +6705,7 @@ class APIMethods:
         shipping_options: list[ShippingOption] | None = None,
         error_message: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `answerShippingQuery`, see the [documentation](https://core.telegram.org/bots/api#answershippingquery)
 
         If you sent an invoice requesting a shipping address and the parameter is_flexible
@@ -6739,7 +6740,7 @@ class APIMethods:
         ok: bool,
         error_message: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `answerPreCheckoutQuery`, see the [documentation](https://core.telegram.org/bots/api#answerprecheckoutquery)
 
         Once the user has confirmed their payment and shipping details, the Bot
@@ -6766,7 +6767,7 @@ class APIMethods:
         )
         return full_result(method_response, bool)
 
-    async def get_my_star_balance(self, **other: typing.Any) -> Result[StarAmount, APIError]:
+    async def get_my_star_balance(self, **other: typing.Any) -> APIResult[StarAmount]:
         """Method `getMyStarBalance`, see the [documentation](https://core.telegram.org/bots/api#getmystarbalance)
 
         A method to get the current Telegram Stars balance of the bot. Requires no
@@ -6785,7 +6786,7 @@ class APIMethods:
         offset: int | None = None,
         limit: int | None = None,
         **other: typing.Any,
-    ) -> Result[StarTransactions, APIError]:
+    ) -> APIResult[StarTransactions]:
         """Method `getStarTransactions`, see the [documentation](https://core.telegram.org/bots/api#getstartransactions)
 
         Returns the bot's Telegram Star transactions in chronological order.
@@ -6809,7 +6810,7 @@ class APIMethods:
         user_id: int,
         telegram_payment_charge_id: str,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `refundStarPayment`, see the [documentation](https://core.telegram.org/bots/api#refundstarpayment)
 
         Refunds a successful payment in Telegram Stars. Returns True on success.
@@ -6832,7 +6833,7 @@ class APIMethods:
         telegram_payment_charge_id: str,
         is_canceled: bool,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `editUserStarSubscription`, see the [documentation](https://core.telegram.org/bots/api#edituserstarsubscription)
 
         Allows the bot to cancel or re-enable extension of a subscription paid in
@@ -6860,7 +6861,7 @@ class APIMethods:
         user_id: int,
         errors: list[PassportElementError],
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Method `setPassportDataErrors`, see the [documentation](https://core.telegram.org/bots/api#setpassportdataerrors)
 
         Informs a user that some of the Telegram Passport elements they provided
@@ -6897,7 +6898,7 @@ class APIMethods:
         reply_parameters: ReplyParameters | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Message, APIError]:
+    ) -> APIResult[Message]:
         """Method `sendGame`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
 
         Use this method to send a game. On success, the sent Message is returned.
@@ -6950,7 +6951,7 @@ class APIMethods:
         message_id: int | None = None,
         inline_message_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[Message, bool], APIError]:
+    ) -> APIResult[Sum[Message, bool]]:
         """Method `setGameScore`, see the [documentation](https://core.telegram.org/bots/api#setgamescore)
 
         Use this method to set the score of the specified user in a game message. On
@@ -6992,7 +6993,7 @@ class APIMethods:
         message_id: int | None = None,
         inline_message_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[list[GameHighScore], APIError]:
+    ) -> APIResult[list[GameHighScore]]:
         """Method `getGameHighScores`, see the [documentation](https://core.telegram.org/bots/api#getgamehighscores)
 
         Use this method to get data for high score tables. Will return the score of

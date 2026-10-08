@@ -1,10 +1,8 @@
 import typing
 from datetime import datetime
 
-from kungfu.library.monad.result import Result
-
-from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
+from telegrinder.types.methods import APIResult
 from telegrinder.types.objects import *
 from telegrinder.types.utils import get_params
 
@@ -17,7 +15,7 @@ async def chat_member_interaction(
     method_name: str,
     params: dict[str, typing.Any],
     result_type: typing.Any,
-) -> Result[typing.Any, APIError]:
+) -> APIResult[typing.Any]:
     params = compose_method_params(
         get_params(params),
         update,
@@ -30,7 +28,10 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
     """Shortcut methods for `ChatMemberUpdatedCute`, `ChatJoinRequestCute` objects."""
 
     @shortcut(
-        "ban_chat_member", executor=chat_member_interaction, return_type=bool, custom_params={"chat_id", "user_id"}
+        "ban_chat_member",
+        executor=chat_member_interaction,
+        return_type=APIResult[bool],
+        custom_params={"chat_id", "user_id"},
     )
     async def ban_chat_member(
         self,
@@ -40,7 +41,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         until_date: datetime | int | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.ban_chat_member()`, see the [documentation](https://core.telegram.org/bots/api#banchatmember)
 
         Use this method to ban a user in a group, a supergroup or a channel. In the case
@@ -58,7 +59,10 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         ...
 
     @shortcut(
-        "unban_chat_member", executor=chat_member_interaction, return_type=bool, custom_params={"chat_id", "user_id"}
+        "unban_chat_member",
+        executor=chat_member_interaction,
+        return_type=APIResult[bool],
+        custom_params={"chat_id", "user_id"},
     )
     async def unban_chat_member(
         self,
@@ -67,7 +71,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         only_if_banned: bool | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.unban_chat_member()`, see the [documentation](https://core.telegram.org/bots/api#unbanchatmember)
 
         Use this method to unban a previously banned user in a supergroup or channel.
@@ -87,7 +91,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
     @shortcut(
         "restrict_chat_member",
         executor=chat_member_interaction,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "user_id"},
     )
     async def restrict_chat_member(
@@ -99,7 +103,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         use_independent_chat_permissions: bool | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.restrict_chat_member()`, see the [documentation](https://core.telegram.org/bots/api#restrictchatmember)
 
         Use this method to restrict a user in a supergroup. The bot must be an administrator
@@ -120,7 +124,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
     @shortcut(
         "promote_chat_member",
         executor=chat_member_interaction,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "user_id"},
     )
     async def promote_chat_member(
@@ -147,7 +151,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         is_anonymous: bool | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.promote_chat_member()`, see the [documentation](https://core.telegram.org/bots/api#promotechatmember)
 
         Use this method to promote or demote a user in a supergroup or a channel. The
@@ -194,7 +198,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
     @shortcut(
         "set_chat_administrator_custom_title",
         executor=chat_member_interaction,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "user_id"},
     )
     async def set_chat_administrator_custom_title(
@@ -204,7 +208,7 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
         chat_id: int | str | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.set_chat_administrator_custom_title()`, see the [documentation](https://core.telegram.org/bots/api#setchatadministratorcustomtitle)
 
         Use this method to set a custom title for an administrator in a supergroup

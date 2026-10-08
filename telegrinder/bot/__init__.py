@@ -1,6 +1,7 @@
 from telegrinder.bot.bot import Telegrinder
 from telegrinder.bot.cute_types import (
     BaseCute,
+    BotSubscriptionUpdatedCute,
     BusinessConnectionCute,
     BusinessMessagesDeletedCute,
     CallbackQueryCute,
@@ -12,6 +13,7 @@ from telegrinder.bot.cute_types import (
     InlineQueryCute,
     ManagedBotUpdatedCute,
     MessageCute,
+    MessageGenerationStoppedCute,
     MessageReactionCountUpdatedCute,
     MessageReactionUpdatedCute,
     PaidMediaPurchasedCute,
@@ -75,6 +77,7 @@ __all__ = (
     "AudioReplyHandler",
     "BaseCute",
     "BaseReturnManager",
+    "BotSubscriptionUpdatedCute",
     "BusinessConnectionCute",
     "BusinessMessagesDeletedCute",
     "CallbackQueryCute",
@@ -100,6 +103,7 @@ __all__ = (
     "MediaGroupReplyHandler",
     "MediaGroupView",
     "MessageCute",
+    "MessageGenerationStoppedCute",
     "MessageReactionCountUpdatedCute",
     "MessageReactionUpdatedCute",
     "MessageReplyHandler",

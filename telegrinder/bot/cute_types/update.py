@@ -23,6 +23,8 @@ from telegrinder.bot.cute_types.poll import PollCute
 from telegrinder.bot.cute_types.poll_answer import PollAnswerCute
 from telegrinder.bot.cute_types.pre_checkout_query import PreCheckoutQueryCute
 from telegrinder.bot.cute_types.shipping_query import ShippingQueryCute
+from telegrinder.bot.cute_types.stopped_message_generation import MessageGenerationStoppedCute
+from telegrinder.bot.cute_types.subscription import BotSubscriptionUpdatedCute
 from telegrinder.tools.bound_cute import BoundCute
 from telegrinder.types.objects import *
 
@@ -211,6 +213,18 @@ class UpdateCute(BaseCute[Update], Update, kw_only=True):
     )
     """Optional. A new bot was created to be managed by the bot, or token or owner
     of a managed bot was changed."""
+
+    subscription: Option[BoundCute[BotSubscriptionUpdatedCute]] = field(
+        default=...,
+        converter=From["BotSubscriptionUpdated | None"],
+    )
+    """Optional. User payment subscription has changed."""
+
+    stopped_message_generation: Option[BoundCute[MessageGenerationStoppedCute]] = field(
+        default=...,
+        converter=From["MessageGenerationStopped | None"],
+    )
+    """Optional. A user asked the bot to stop the generation of a message."""
 
     @cached_property
     def incoming_update(self) -> BaseCute:

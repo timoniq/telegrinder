@@ -73,6 +73,8 @@ class EventViewBox[
     ChatBoostView: EventView = EventView,
     RemovedChatBoostView: EventView = EventView,
     ManagedBotUpdatedView: EventView = EventView,
+    BotSubscriptionUpdatedView: EventView = EventView,
+    MessageGenerationStoppedView: EventView = EventView,
 ]:
     message: MessageView = dataclasses.field(default_factory=event_view(UpdateType.MESSAGE, MessageReturnManager()))
     edited_message: EditedMessageView = dataclasses.field(
@@ -128,8 +130,10 @@ class EventViewBox[
     removed_chat_boost: RemovedChatBoostView = dataclasses.field(
         default_factory=event_view(UpdateType.REMOVED_CHAT_BOOST),
     )
-    managed_bot: ManagedBotUpdatedView = dataclasses.field(
-        default_factory=event_view(UpdateType.MANAGED_BOT),
+    managed_bot: ManagedBotUpdatedView = dataclasses.field(default_factory=event_view(UpdateType.MANAGED_BOT))
+    subscription: BotSubscriptionUpdatedView = dataclasses.field(default_factory=event_view(UpdateType.SUBSCRIPTION))
+    stopped_message_generation: MessageGenerationStoppedView = dataclasses.field(
+        default_factory=event_view(UpdateType.STOPPED_MESSAGE_GENERATION),
     )
 
 
@@ -167,6 +171,8 @@ class ViewBox[
     ChatBoostView: EventView = EventView,
     RemovedChatBoostView: EventView = EventView,
     ManagedBotUpdatedView: EventView = EventView,
+    BotSubscriptionUpdatedView: EventView = EventView,
+    MessageGenerationStoppedView: EventView = EventView,
     MediaGroup: View = MediaGroupView,
     Error: ErrorView = ErrorView,
     RawEvent: RawEventView = RawEventView,
@@ -198,6 +204,8 @@ class ViewBox[
         ChatBoostView,
         RemovedChatBoostView,
         ManagedBotUpdatedView,
+        BotSubscriptionUpdatedView,
+        MessageGenerationStoppedView,
     ],
 ):
     event_error: Error = dataclasses.field(default_factory=view(ErrorView))

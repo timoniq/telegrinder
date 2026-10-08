@@ -25,6 +25,7 @@ from telegrinder.tools.waiter_machine.hasher import (
     MESSAGE_POST_IN_CHANNEL,
 )
 from telegrinder.types import *
+from telegrinder.types.methods import APIResult
 from telegrinder.types.utils import get_params
 from telegrinder.types.utils.lazy_result import lazy_result
 
@@ -37,7 +38,7 @@ type InputMediaType = str | InputMedia | InputFile
 type ReplyMarkup = InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 type Executor[Event] = typing.Callable[
     [Event, str, dict[str, typing.Any], typing.Any],
-    typing.Awaitable[Result[typing.Any, APIError]],
+    typing.Awaitable[APIResult[typing.Any]],
 ]
 
 
@@ -61,7 +62,7 @@ async def _execute_api_method(
     method_name: str,
     params: dict[str, typing.Any],
     result_type: typing.Any,
-) -> Result[typing.Any, APIError]:
+) -> APIResult[typing.Any]:
     if not _is_cute_result_type(result_type):
         return await getattr(bound_api, method_name)(**params)
 
@@ -280,7 +281,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_rich_message",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"chat_id", "reply_markup"},
     )
     async def answer_rich(
@@ -300,7 +301,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_rich_message()`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessage)
 
         Use this method to send rich messages. If the message contains a block with
@@ -334,7 +335,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_audio",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_audio(
@@ -361,7 +362,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         thumbnail: InputFile | str | None = None,
         title: str | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
 
         Use this method to send audio files, if you want Telegram clients to display
@@ -409,7 +410,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_animation",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_animation(
@@ -438,7 +439,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         thumbnail: InputFile | str | None = None,
         width: int | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
 
         Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without
@@ -487,7 +488,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_document",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_document(
@@ -513,7 +514,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         suggested_post_parameters: SuggestedPostParameters | None = None,
         thumbnail: InputFile | str | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
 
         Use this method to send general files. On success, the sent Message is returned.
@@ -555,7 +556,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_photo",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_photo(
@@ -580,7 +581,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
 
         Use this method to send photos. On success, the sent Message is returned.
@@ -621,7 +622,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_sticker",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_sticker(
@@ -642,7 +643,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
 
         Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
@@ -677,7 +678,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_video",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_video(
@@ -709,7 +710,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         thumbnail: InputFile | str | None = None,
         width: int | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
 
         Use this method to send video files, Telegram clients support MPEG4 videos
@@ -765,7 +766,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_video_note",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_video_note(
@@ -788,7 +789,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         suggested_post_parameters: SuggestedPostParameters | None = None,
         thumbnail: InputFile | str | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
         Use this method to send a rounded square MPEG4 video of up to 1 minute long.
@@ -826,7 +827,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_voice",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_voice(
@@ -850,7 +851,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
 
         Use this method to send audio files, if you want Telegram clients to display
@@ -894,7 +895,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_poll",
         executor=ANSWER_TO_THREAD_OR_BUSINESS,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_poll(
@@ -937,7 +938,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         shuffle_options: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
 
         Use this method to send a native poll. On success, the sent Message is returned.
@@ -1011,7 +1012,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_venue",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_venue(
@@ -1038,7 +1039,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
 
         Use this method to send information about a venue. On success, the sent Message
@@ -1085,7 +1086,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_dice",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_dice(
@@ -1104,7 +1105,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
 
         Use this method to send an animated emoji that will display a random value.
@@ -1134,7 +1135,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_game",
         executor=ANSWER_TO_THREAD_OR_BUSINESS,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_game(
@@ -1151,7 +1152,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_markup: InlineKeyboardMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
 
         Use this method to send a game. On success, the sent Message is returned.
@@ -1178,7 +1179,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_invoice",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_invoice(
@@ -1217,7 +1218,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         suggested_post_parameters: SuggestedPostParameters | None = None,
         suggested_tip_amounts: list[int] | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
         Use this method to send invoices. On success, the sent Message is returned.
@@ -1285,7 +1286,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_chat_action",
         executor=ANSWER_TO_THREAD_OR_BUSINESS,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"message_thread_id", "chat_id"},
     )
     async def answer_chat_action(
@@ -1296,7 +1297,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         chat_id: int | str | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.send_chat_action()`, see the [documentation](https://core.telegram.org/bots/api#sendchataction)
 
         Use this method when you need to tell the user that something is happening
@@ -1331,7 +1332,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         protect_content: bool | None = API.default_params["protect_content"],
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
-    ) -> Result[list[MessageCute], APIError]:
+    ) -> APIResult[list[MessageCute]]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
 
         Use this method to send a group of photos, live photos, videos, documents
@@ -1362,7 +1363,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_location",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_location(
@@ -1387,7 +1388,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
 
         Use this method to send point on the map. On success, the sent Message is returned.
@@ -1427,7 +1428,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_contact",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def answer_contact(
@@ -1450,7 +1451,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         suggested_post_parameters: SuggestedPostParameters | None = None,
         vcard: str | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
 
         Use this method to send phone contacts. On success, the sent Message is returned.
@@ -1488,7 +1489,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_live_photo",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"chat_id", "reply_markup"},
     )
     async def answer_live_photo(
@@ -1514,7 +1515,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_live_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendlivephoto)
 
         Use this method to send live photos. On success, the sent Message is returned.
@@ -1558,7 +1559,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_paid_media",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"chat_id", "reply_markup"},
     )
     async def answer_paid_media(
@@ -1582,7 +1583,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_paid_media()`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
 
         Use this method to send paid media. On success, the sent Message is returned.
@@ -1621,7 +1622,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_checklist",
         executor=ANSWER_TO_BUSINESS_CONNECTION,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"business_connection_id", "chat_id"},
     )
     async def answer_checklist(
@@ -1636,7 +1637,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         reply_markup: InlineKeyboardMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_checklist()`, see the [documentation](https://core.telegram.org/bots/api#sendchecklist)
 
         Use this method to send a checklist on behalf of a connected business account.
@@ -1662,7 +1663,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_rich_message",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"chat_id", "reply_markup"},
     )
     async def reply_rich(
@@ -1682,7 +1683,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_rich_message()`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessage)
 
         Use this method to send rich messages. If the message contains a block with
@@ -1716,7 +1717,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_audio",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_audio(
@@ -1743,7 +1744,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         thumbnail: InputFile | str | None = None,
         title: str | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
 
         Use this method to send audio files, if you want Telegram clients to display
@@ -1791,7 +1792,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_animation",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_animation(
@@ -1820,7 +1821,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         thumbnail: InputFile | str | None = None,
         width: int | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
 
         Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without
@@ -1869,7 +1870,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_document",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_document(
@@ -1895,7 +1896,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         suggested_post_parameters: SuggestedPostParameters | None = None,
         thumbnail: InputFile | str | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
 
         Use this method to send general files. On success, the sent Message is returned.
@@ -1937,7 +1938,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_photo",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_photo(
@@ -1962,7 +1963,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
 
         Use this method to send photos. On success, the sent Message is returned.
@@ -2003,7 +2004,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_sticker",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_sticker(
@@ -2024,7 +2025,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
 
         Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
@@ -2059,7 +2060,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_video",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_video(
@@ -2091,7 +2092,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         thumbnail: InputFile | str | None = None,
         width: int | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
 
         Use this method to send video files, Telegram clients support MPEG4 videos
@@ -2147,7 +2148,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_video_note",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_video_note(
@@ -2170,7 +2171,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         suggested_post_parameters: SuggestedPostParameters | None = None,
         thumbnail: InputFile | str | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
 
         Use this method to send a rounded square MPEG4 video of up to 1 minute long.
@@ -2208,7 +2209,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_voice",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_voice(
@@ -2232,7 +2233,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
 
         Use this method to send audio files, if you want Telegram clients to display
@@ -2276,7 +2277,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_poll",
         executor=REPLY_TO_THREAD_OR_BUSINESS,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_poll(
@@ -2319,7 +2320,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         shuffle_options: bool | None = None,
         type: typing.Literal["quiz", "regular"] | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_poll()`, see the [documentation](https://core.telegram.org/bots/api#sendpoll)
 
         Use this method to send a native poll. On success, the sent Message is returned.
@@ -2393,7 +2394,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_venue",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_venue(
@@ -2420,7 +2421,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
 
         Use this method to send information about a venue. On success, the sent Message
@@ -2467,7 +2468,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_dice",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_dice(
@@ -2486,7 +2487,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_dice()`, see the [documentation](https://core.telegram.org/bots/api#senddice)
 
         Use this method to send an animated emoji that will display a random value.
@@ -2516,7 +2517,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_game",
         executor=REPLY_TO_THREAD_OR_BUSINESS,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_game(
@@ -2533,7 +2534,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_markup: InlineKeyboardMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_game()`, see the [documentation](https://core.telegram.org/bots/api#sendgame)
 
         Use this method to send a game. On success, the sent Message is returned.
@@ -2560,7 +2561,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_invoice",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id"},
     )
     async def reply_invoice(
@@ -2599,7 +2600,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         suggested_post_parameters: SuggestedPostParameters | None = None,
         suggested_tip_amounts: list[int] | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
         Use this method to send invoices. On success, the sent Message is returned.
@@ -2686,7 +2687,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         protect_content: bool | None = API.default_params["protect_content"],
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
-    ) -> Result[list[MessageCute], APIError]:
+    ) -> APIResult[list[MessageCute]]:
         """Shortcut `API.send_media_group()`, see the [documentation](https://core.telegram.org/bots/api#sendmediagroup)
 
         Use this method to send a group of photos, live photos, videos, documents
@@ -2711,13 +2712,13 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
 
         :param reply_parameters: Description of the message to reply to."""
         params = get_params(locals())
-        params.setdefault("reply_parameters", ReplyParameters(self.cute.message_id))
+        params.setdefault("reply_parameters", ReplyParameters(message_id=self.cute.message_id))
         return await self.cute.answer_media_group(**params)
 
     @shortcut(
         "send_location",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_location(
@@ -2742,7 +2743,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
 
         Use this method to send point on the map. On success, the sent Message is returned.
@@ -2782,7 +2783,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_contact",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "reply_markup"},
     )
     async def reply_contact(
@@ -2805,7 +2806,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         suggested_post_parameters: SuggestedPostParameters | None = None,
         vcard: str | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
 
         Use this method to send phone contacts. On success, the sent Message is returned.
@@ -2843,7 +2844,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_live_photo",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"chat_id", "reply_markup"},
     )
     async def reply_live_photo(
@@ -2869,7 +2870,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_live_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendlivephoto)
 
         Use this method to send live photos. On success, the sent Message is returned.
@@ -2913,7 +2914,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_paid_media",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"chat_id", "reply_markup"},
     )
     async def reply_paid_media(
@@ -2937,7 +2938,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         show_caption_above_media: bool | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_paid_media()`, see the [documentation](https://core.telegram.org/bots/api#sendpaidmedia)
 
         Use this method to send paid media. On success, the sent Message is returned.
@@ -2976,7 +2977,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_checklist",
         executor=REPLY_TO_BUSINESS_CONNECTION,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"business_connection_id", "chat_id"},
     )
     async def reply_checklist(
@@ -2991,7 +2992,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         reply_markup: InlineKeyboardMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_checklist()`, see the [documentation](https://core.telegram.org/bots/api#sendchecklist)
 
         Use this method to send a checklist on behalf of a connected business account.
@@ -3017,7 +3018,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_ephemeral_message_text",
         executor=DEFAULT_EPHEMERAL_EDIT,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
     )
     async def edit_ephemeral_text(
@@ -3033,7 +3034,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         reply_markup: InlineKeyboardMarkup | None = None,
         rich_message: InputRichMessage | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.edit_ephemeral_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagetext)
 
         Use this method to edit an ephemeral text or rich message. Note that it is
@@ -3061,7 +3062,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_ephemeral_message_media",
         executor=DEFAULT_EPHEMERAL_EDIT,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
     )
     async def edit_ephemeral_media(
@@ -3073,7 +3074,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         receiver_user_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.edit_ephemeral_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagemedia)
 
         Use this method to edit the media of an ephemeral message. Note that it is
@@ -3093,7 +3094,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_ephemeral_message_caption",
         executor=DEFAULT_EPHEMERAL_EDIT,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
     )
     async def edit_ephemeral_caption(
@@ -3108,7 +3109,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         reply_markup: InlineKeyboardMarkup | None = None,
         show_caption_above_media: bool | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.edit_ephemeral_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagecaption)
 
         Use this method to edit the caption of an ephemeral message. Note that it
@@ -3133,7 +3134,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_ephemeral_message_reply_markup",
         executor=DEFAULT_EPHEMERAL_EDIT,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
     )
     async def edit_ephemeral_reply_markup(
@@ -3144,7 +3145,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         receiver_user_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.edit_ephemeral_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagereplymarkup)
 
         Use this method to edit only the reply markup of an ephemeral message. Note
@@ -3162,7 +3163,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "delete_ephemeral_message",
         executor=DEFAULT_EPHEMERAL_EDIT,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
     )
     async def delete_ephemeral(
@@ -3172,7 +3173,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         ephemeral_message_id: int | None = None,
         receiver_user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.delete_ephemeral_message()`, see the [documentation](https://core.telegram.org/bots/api#deleteephemeralmessage)
 
         Use this method to delete an ephemeral message. Note that it is not guaranteed
@@ -3188,7 +3189,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_message_live_location",
         executor=DEFAULT_EDIT,
-        return_type=Sum[BoundCute["MessageCute"], bool],
+        return_type=APIResult[Sum[BoundCute["MessageCute"], bool]],
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_live_location(
@@ -3207,7 +3208,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         proximity_alert_radius: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[MessageCute, bool], APIError]:
+    ) -> APIResult[Sum[MessageCute, bool]]:
         """Shortcut `API.edit_message_live_location()`, see the [documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
 
         Use this method to edit live location messages. A location can be edited
@@ -3239,7 +3240,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_message_caption",
         executor=DEFAULT_EDIT,
-        return_type=Sum[BoundCute["MessageCute"], bool],
+        return_type=APIResult[Sum[BoundCute["MessageCute"], bool]],
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_caption(
@@ -3256,7 +3257,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         reply_markup: InlineKeyboardMarkup | None = None,
         show_caption_above_media: bool | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[MessageCute, bool], APIError]:
+    ) -> APIResult[Sum[MessageCute, bool]]:
         """Shortcut `API.edit_message_caption()`, see the [documentation](https://core.telegram.org/bots/api#editmessagecaption)
 
         Use this method to edit captions of messages. On success, if the edited message
@@ -3294,7 +3295,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         message_thread_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[MessageCute, bool], APIError]: ...
+    ) -> APIResult[Sum[MessageCute, bool]]: ...
 
     @typing.overload
     async def edit_media(
@@ -3311,7 +3312,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         message_thread_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[MessageCute, bool], APIError]: ...
+    ) -> APIResult[Sum[MessageCute, bool]]: ...
 
     @shortcut(
         "edit_message_media",
@@ -3341,7 +3342,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         parse_mode: str | None = API.default_params["parse_mode"],
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[MessageCute, bool], APIError]:
+    ) -> APIResult[Sum[MessageCute, bool]]:
         """Shortcut `API.edit_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editmessagemedia)
 
         Use this method to edit animation, audio, document, live photo, photo,
@@ -3386,7 +3387,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_message_reply_markup",
         executor=DEFAULT_EDIT,
-        return_type=Sum[BoundCute["MessageCute"], bool],
+        return_type=APIResult[Sum[BoundCute["MessageCute"], bool]],
         custom_params={"message_thread_id", "chat_id", "message_id"},
     )
     async def edit_reply_markup(
@@ -3399,7 +3400,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         message_thread_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[MessageCute, bool], APIError]:
+    ) -> APIResult[Sum[MessageCute, bool]]:
         """Shortcut `API.edit_message_reply_markup()`, see the [documentation](https://core.telegram.org/bots/api#editmessagereplymarkup)
 
         Use this method to edit only the reply markup of messages. On success, if
@@ -3581,7 +3582,7 @@ class MessageCute(
     @shortcut(
         "send_message",
         executor=DEFAULT_ANSWER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"link_preview_options", "message_thread_id", "chat_id", "text", "reply_markup"},
     )
     async def answer(
@@ -3604,7 +3605,7 @@ class MessageCute(
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
 
         Use this method to send text messages. On success, the sent Message is returned.
@@ -3641,7 +3642,7 @@ class MessageCute(
     @shortcut(
         "send_message",
         executor=DEFAULT_WHISPER,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"chat_id", "receiver_user_id", "link_preview_options", "reply_markup"},
     )
     async def whisper(
@@ -3665,7 +3666,7 @@ class MessageCute(
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
 
         Use this method to send text messages. On success, the sent Message is returned.
@@ -3706,7 +3707,7 @@ class MessageCute(
         result: InlineQueryResult,
         guest_query_id: str | None = None,
         **other: typing.Any,
-    ) -> Result[SentGuestMessage, APIError]:
+    ) -> APIResult[SentGuestMessage]:
         """Shortcut `API.answer_guest_query()`, see the [documentation](https://core.telegram.org/bots/api#answerguestquery)
 
         Use this method to reply to a received guest message. On success, a SentGuestMessage
@@ -3725,7 +3726,7 @@ class MessageCute(
     @shortcut(
         "send_message",
         executor=DEFAULT_REPLY,
-        return_type=BoundCute["MessageCute"],
+        return_type=APIResult[BoundCute["MessageCute"]],
         custom_params={"message_thread_id", "chat_id", "message_id", "reply_markup"},
     )
     async def reply(
@@ -3749,7 +3750,7 @@ class MessageCute(
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
 
         Use this method to send text messages. On success, the sent Message is returned.
@@ -3786,7 +3787,7 @@ class MessageCute(
     @shortcut(
         "send_message_draft",
         executor=ANSWER_TO_THREAD,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id"},
     )
     async def stream(
@@ -3801,7 +3802,7 @@ class MessageCute(
         parse_mode: str | None = API.default_params["parse_mode"],
         text: str | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.send_message_draft()`, see the [documentation](https://core.telegram.org/bots/api#sendmessagedraft)
 
         Use this method to stream a partial message to a user while the message is
@@ -3828,7 +3829,7 @@ class MessageCute(
     @shortcut(
         "send_rich_message_draft",
         executor=ANSWER_TO_THREAD,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"chat_id"},
     )
     async def stream_rich(
@@ -3841,7 +3842,7 @@ class MessageCute(
         keep_on_stop: bool | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.send_rich_message_draft()`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessagedraft)
 
         Use this method to stream a partial rich message to a user while the message
@@ -3869,7 +3870,7 @@ class MessageCute(
         message_id: int | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.delete_message()`, see the [documentation](https://core.telegram.org/bots/api#deletemessage)
 
         Use this method to delete a message, including service messages, with the
@@ -3905,7 +3906,7 @@ class MessageCute(
         message_id: int | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.delete_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#deletemessagereaction)
 
         Use this method to remove a reaction from a message in a group or a supergroup
@@ -3937,7 +3938,7 @@ class MessageCute(
         chat_id: int | str | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.delete_all_message_reactions()`, see the [documentation](https://core.telegram.org/bots/api#deleteallmessagereactions)
 
         Use this method to remove up to 10000 recent reactions in a group or a supergroup
@@ -3962,7 +3963,7 @@ class MessageCute(
     @shortcut(
         "edit_message_text",
         executor=DEFAULT_EDIT,
-        return_type=Sum[BoundCute["MessageCute"], bool],
+        return_type=APIResult[Sum[BoundCute["MessageCute"], bool]],
         custom_params={"link_preview_options", "message_thread_id", "message_id"},
     )
     async def edit(
@@ -3980,7 +3981,7 @@ class MessageCute(
         reply_markup: InlineKeyboardMarkup | None = None,
         rich_message: InputRichMessage | None = None,
         **other: typing.Any,
-    ) -> Result[Sum[MessageCute, bool], APIError]:
+    ) -> APIResult[Sum[MessageCute, bool]]:
         """Shortcut `API.edit_message_text()`, see the [documentation](https://core.telegram.org/bots/api#editmessagetext)
 
         Use this method to edit text, rich and game messages. On success, if the edited
@@ -4034,7 +4035,7 @@ class MessageCute(
         suggested_post_parameters: SuggestedPostParameters | None = None,
         video_start_timestamp: timedelta | int | None = None,
         **other: typing.Any,
-    ) -> Result[MessageId, APIError]:
+    ) -> APIResult[MessageId]:
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
         Use this method to copy messages of any kind. Service messages, paid media
@@ -4106,7 +4107,7 @@ class MessageCute(
         message_id: int | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.set_message_reaction()`, see the [documentation](https://core.telegram.org/bots/api#setmessagereaction)
 
         Use this method to change the chosen reactions on a message. Service messages
@@ -4146,7 +4147,7 @@ class MessageCute(
         suggested_post_parameters: SuggestedPostParameters | None = None,
         video_start_timestamp: timedelta | int | None = None,
         **other: typing.Any,
-    ) -> Result[MessageCute, APIError]:
+    ) -> APIResult[MessageCute]:
         """Shortcut `API.forward_message()`, see the [documentation](https://core.telegram.org/bots/api#forwardmessage)
 
         Use this method to forward messages of any kind. Service messages and messages
@@ -4191,7 +4192,7 @@ class MessageCute(
         message_id: int | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.pin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#pinchatmessage)
 
         Use this method to add a message to the list of pinned messages in a chat. In
@@ -4223,7 +4224,7 @@ class MessageCute(
         message_id: int | None = None,
         message_thread_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.unpin_chat_message()`, see the [documentation](https://core.telegram.org/bots/api#unpinchatmessage)
 
         Use this method to remove a message from the list of pinned messages in a chat.
@@ -4256,7 +4257,7 @@ class MessageCute(
         text_parse_mode: str | None = API.default_params["parse_mode"],
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.send_gift()`, see the [documentation](https://core.telegram.org/bots/api#sendgift)
 
         Sends a gift to the given user or channel chat. The gift can't be converted

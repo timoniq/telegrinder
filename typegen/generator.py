@@ -429,7 +429,7 @@ class ObjectGenerator(ABCGenerator):
 
         code = (
             f"class {camel_to_pascal(object_schema.name)}"
-            f"({base_object_name if base_object_name and base_object_name != object_name else sybtypes_of}):\n{TAB}"
+            f"({base_object_name if base_object_name and base_object_name != object_name else sybtypes_of}, kw_only=True):\n{TAB}"
         )
         code += '"""%s\n\n%s\n"""' % (
             description,
@@ -761,8 +761,8 @@ class MethodGenerator(ABCGenerator):
 
     def make_return_type(self, returns: list[str] | None = None) -> str:
         if not returns:
-            return "Result[bool, APIError]"
-        return f"Result[{self.make_type_hint(returns, self.parent_types, is_return_type=True)}, APIError]"
+            return "APIResult[bool]"
+        return f"APIResult[{self.make_type_hint(returns, self.parent_types, is_return_type=True)}]"
 
     def make_method(self, method_schema: MethodSchema) -> str:
         return_type = self.get_method_return_type(method_schema.name)
@@ -803,8 +803,8 @@ class MethodGenerator(ABCGenerator):
             "from telegrinder.types.enums import *  # noqa: F403\n"
             "from telegrinder.types.objects import *  # noqa: F403\n\n"
             "if typing.TYPE_CHECKING:\n",
-            "    from telegrinder.api.api import API\n\n\n",
-            "class APIMethods:\n" + docstring,
+            "    from telegrinder.api.api import API\n\n",
+            "type APIResult[T] = Result[T, APIError]\n\nclass APIMethods:\n" + docstring,
             "\n\n    default_params = DEFAULT_PARAMETERS\n\n",
             '    def __init__(self, api: "API") -> None:\n',
             "        self.api = api\n\n",

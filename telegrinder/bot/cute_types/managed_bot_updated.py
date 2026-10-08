@@ -1,10 +1,8 @@
 import typing
 
-from kungfu.library.monad.result import Result
-
-from telegrinder.api.error import APIError
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.tools.magic.shortcut import shortcut
+from telegrinder.types.methods import APIResult
 from telegrinder.types.objects import BotAccessSettings, ManagedBotUpdated, User
 from telegrinder.types.utils import get_params
 
@@ -13,8 +11,8 @@ async def managed_bot_interaction(
     update: "ManagedBotUpdatedCute",
     method_name: str,
     params: dict[str, typing.Any],
-    result_type: typing.Any,
-) -> Result[typing.Any, APIError]:
+    _result_type: typing.Any,
+) -> APIResult[typing.Any]:
     params = get_params(params)
     params.setdefault("user_id", update.bot.id)
     return await getattr(update.bound_api, method_name)(**params)
@@ -28,7 +26,7 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
     @shortcut(
         "get_managed_bot_token",
         executor=managed_bot_interaction,
-        return_type=str,
+        return_type=APIResult[str],
         custom_params={"user_id"},
     )
     async def get_token(
@@ -36,7 +34,7 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
         *,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[str, APIError]:
+    ) -> APIResult[str]:
         """Shortcut `API.get_managed_bot_token()`, see the [documentation](https://core.telegram.org/bots/api#getmanagedbottoken)
 
         Use this method to get the token of a managed bot. Returns the token as String
@@ -47,7 +45,7 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
     @shortcut(
         "replace_managed_bot_token",
         executor=managed_bot_interaction,
-        return_type=str,
+        return_type=APIResult[str],
         custom_params={"user_id"},
     )
     async def replace_token(
@@ -55,7 +53,7 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
         *,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[str, APIError]:
+    ) -> APIResult[str]:
         """Shortcut `API.replace_managed_bot_token()`, see the [documentation](https://core.telegram.org/bots/api#replacemanagedbottoken)
 
         Use this method to revoke the current token of a managed bot and generate
@@ -66,7 +64,7 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
     @shortcut(
         "set_managed_bot_access_settings",
         executor=managed_bot_interaction,
-        return_type=bool,
+        return_type=APIResult[bool],
         custom_params={"user_id"},
     )
     async def set_access_settings(
@@ -76,7 +74,7 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
         added_user_ids: list[int] | None = None,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[bool, APIError]:
+    ) -> APIResult[bool]:
         """Shortcut `API.set_managed_bot_access_settings()`, see the [documentation](https://core.telegram.org/bots/api#setmanagedbotaccesssettings)
 
         Use this method to change the access settings of a managed bot. Returns True
@@ -90,7 +88,7 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
     @shortcut(
         "get_managed_bot_access_settings",
         executor=managed_bot_interaction,
-        return_type=BotAccessSettings,
+        return_type=APIResult[BotAccessSettings],
         custom_params={"user_id"},
     )
     async def get_access_settings(
@@ -98,7 +96,7 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
         *,
         user_id: int | None = None,
         **other: typing.Any,
-    ) -> Result[BotAccessSettings, APIError]:
+    ) -> APIResult[BotAccessSettings]:
         """Shortcut `API.get_managed_bot_access_settings()`, see the [documentation](https://core.telegram.org/bots/api#getmanagedbotaccesssettings)
 
         Use this method to get the access settings of a managed bot. Returns a BotAccessSettings

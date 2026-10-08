@@ -7,22 +7,22 @@ from functools import cache, wraps
 from kungfu.library.monad.result import Result
 
 from telegrinder.tools.magic.function import get_func_parameters
+from telegrinder.types.methods import APIResult
 
 if typing.TYPE_CHECKING:
-    from telegrinder.api.error import APIError
     from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts
 
 type Executor[T] = typing.Callable[
     [T, str, dict[str, typing.Any], typing.Any],
-    typing.Awaitable[Result[typing.Any, APIError]],
+    typing.Awaitable[APIResult[typing.Any]],
 ]
 type CuteMethod[T, **P, R] = typing.Callable[
     typing.Concatenate[T, P],
-    typing.Awaitable[Result[R, APIError]],
+    typing.Awaitable[APIResult[R]],
 ]
 type ShortcutMethod[**P, R] = typing.Callable[
     typing.Concatenate[typing.Any, P],
-    typing.Coroutine[typing.Any, typing.Any, Result[R, APIError]],
+    typing.Coroutine[typing.Any, typing.Any, APIResult[R]],
 ]
 
 
@@ -39,7 +39,7 @@ def resolve_shortcut_result_type(result_type: typing.Any, /) -> typing.Any:
     if result_type is None:
         return typing.Any
 
-    return typing.get_args(result_type)[0] if typing.get_origin(result_type) is Result else result_type
+    return typing.get_args(result_type)[0] if typing.get_origin(result_type) in {Result, APIResult} else result_type
 
 
 def get_shortcut_result_type(func: typing.Callable[..., typing.Any], /) -> typing.Any:
