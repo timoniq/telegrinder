@@ -1,8 +1,10 @@
 import dataclasses
-import typing
+import inspect
 from abc import ABC, abstractmethod
+from annotationlib import Format
 from functools import cached_property
 
+import typing_extensions as typing
 from kungfu.library.monad.result import Error
 from nodnod.agent.event_loop.agent import EventLoopAgent
 from nodnod.error import NodeError
@@ -21,11 +23,14 @@ if typing.TYPE_CHECKING:
 type ManagerFunction = typing.Callable[..., typing.Any | typing.Awaitable[typing.Any]]
 
 
-def register_manager(return_type: typing.Any, /) -> typing.Callable[[ManagerFunction], Manager]:
+def register_manager(
+    return_type: typing.TypeForm[typing.Any],
+    /,
+    *,
+    agent_cls: type[Agent] = EventLoopAgent,
+) -> typing.Callable[[ManagerFunction], Manager]:
     def wrapper(function: ManagerFunction, /) -> Manager:
-        function = function.__func__ if isinstance(function, classmethod | staticmethod) else function
-        types = _get_types(return_type)
-        return Manager((types,) if not isinstance(types, tuple) else types, function)
+        return Manager(_get_types(return_type), function, agent_cls=agent_cls)
 
     return wrapper
 
@@ -36,13 +41,23 @@ class Manager:
     function: ManagerFunction
     agent_cls: type[Agent] = EventLoopAgent
 
+    def __post_init__(self) -> None:
+        if not self.types:
+            raise ValueError("`Manager` must have at least one type.")
+
+        self._types = frozenset(self.types)
+        self._has_any_type = typing.Any in self._types
+        self._sig = inspect.signature(self.function, annotation_format=Format.STRING)
+        self._handler_response_required = "handler_response" in self._sig.parameters
+
     async def __call__(self, response: typing.Any, context: Context) -> None:
-        ctx = context.copy()
-        ctx.handler_response = response
+        if self._handler_response_required:
+            context = context.copy()
+            context.handler_response = response
 
         async with compose(
             self.function,
-            ctx,
+            context,
             agent_cls=self.agent_cls,
         ) as result:
             match result:
@@ -52,6 +67,9 @@ class Manager:
                         fullname(self.function),
                         NodeError(f"failed to compose return manager `{fullname(self.function)}`", from_error=error),
                     )
+
+    def check_respose_type(self, response_type: typing.TypeForm[typing.Any], /) -> bool:
+        return self._has_any_type or response_type in self._types
 
 
 class ABCReturnManager(ABC):
@@ -67,13 +85,11 @@ class ABCReturnManager(ABC):
 
 class BaseReturnManager(ABCReturnManager):
     def __repr__(self) -> str:
-        return "<{}: {}>".format(fullname(self), self.managers)
+        return "<{}: managers={!r}>".format(fullname(self), self.managers)
 
     @cached_property
     def managers(self) -> list[Manager]:
-        return [
-            manager for manager in (vars(BaseReturnManager) | vars(type(self))).values() if isinstance(manager, Manager)
-        ]
+        return [manager for manager in vars(type(self)).values() if isinstance(manager, Manager)]
 
     async def run(
         self,
@@ -82,8 +98,10 @@ class BaseReturnManager(ABCReturnManager):
         update: Update,
         context: Context,
     ) -> None:
+        response_type = type(response)
+
         for manager in self.managers:
-            if typing.Any in manager.types or type(response) in manager.types:
+            if manager.check_respose_type(response_type):
                 logger.debug(
                     "Running manager `{}` for response of type `{}`",
                     fullname(manager.function),
@@ -91,10 +109,15 @@ class BaseReturnManager(ABCReturnManager):
                 )
                 await manager(response, context)
 
-    def register_manager(self, return_type: typing.Any, /) -> typing.Callable[[ManagerFunction], Manager]:
+    def register_manager(
+        self,
+        return_type: typing.TypeForm[typing.Any],
+        /,
+        *,
+        agent_cls: type[Agent] = EventLoopAgent,
+    ) -> typing.Callable[[ManagerFunction], Manager]:
         def wrapper(function: ManagerFunction, /) -> Manager:
-            manager = register_manager(return_type)(function)
-            self.managers.append(manager)
+            self.managers.append(manager := register_manager(return_type, agent_cls=agent_cls)(function))
             return manager
 
         return wrapper

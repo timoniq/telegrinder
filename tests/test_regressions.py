@@ -76,9 +76,6 @@ def _isolate_global_context_storage():
         storage.pop(key, None)
 
 
-# --------------------------------------------------------------------------- helpers
-
-
 class _PassRule(ABCRule):
     async def check(self) -> bool:
         return True
@@ -112,9 +109,6 @@ class _FailingNode:
 
 class _Generic[T, *Ts]:  # PEP 695 generic where the TypeVarTuple is NOT the first parameter
     pass
-
-
-# --------------------------------------------------------------------------- dispatch & middleware
 
 
 @pytest.mark.asyncio()
@@ -189,9 +183,6 @@ def test_start_command_tolerates_malformed_deep_link_param():
     assert rule.check(bot_username="bot", message_entities=Nothing(), ctx=ctx) is False
 
 
-# --------------------------------------------------------------------------- cute types & API shortcuts
-
-
 def test_exclude_bound_parameters_flattens_other_and_drops_self():
     params = {"self": object(), "chat_id": 5, "other": {"foo": 1}}
     # Buggy behaviour raised ValueError (iterating a dict yields keys, unpacked as k, v).
@@ -264,9 +255,6 @@ def test_token_repr_does_not_leak_the_secret():
     assert "123" in representation
 
 
-# --------------------------------------------------------------------------- global context
-
-
 def test_global_context_copy_is_an_independent_snapshot():
     class _NamedContext(GlobalContext):
         __ctx_name__ = "regression_copy_ctx"
@@ -313,9 +301,6 @@ def test_global_context_update_enforces_const():
         a.update(b)
 
 
-# --------------------------------------------------------------------------- formatting (HTML & deep links)
-
-
 def test_link_escapes_its_href_attribute():
     result = link('a"b', text="x").formatting()
     # A raw double-quote broke out of the href attribute.
@@ -360,9 +345,6 @@ def test_parse_query_params_keeps_integer_zero_and_one():
     assert no_value == {"flag", "skip"}
 
 
-# --------------------------------------------------------------------------- serialization
-
-
 def test_msgpack_deserialize_returns_error_on_malformed_data():
     class _Model(msgspec.Struct):
         a: int
@@ -388,9 +370,6 @@ def test_json_serializer_deserializes_default_dict_model():
     # issubclass(dict[str, Any], dict) raised TypeError on the parameterized generic.
     result = ser.deserialize(serialized)
     assert result.unwrap() == {"a": 1}
-
-
-# --------------------------------------------------------------------------- waiter machine & state
 
 
 @pytest.mark.asyncio()
@@ -448,9 +427,6 @@ def test_limited_dict_reset_at_capacity_keeps_other_entries():
     assert d["b"] == 22
 
 
-# --------------------------------------------------------------------------- lifespan & async
-
-
 @pytest.mark.asyncio()
 async def test_lifespan_run_coro_tasks_survives_a_failing_task():
     async def bad(_: _FailingNode) -> None: ...
@@ -504,9 +480,6 @@ async def test_taskgroup_create_task_forwards_name():
         task = tg.create_task(coro(), name="my-task")
         # name/context were dropped, so the task got a default name.
         assert task.get_name() == "my-task"
-
-
-# --------------------------------------------------------------------------- polling & API
 
 
 @pytest.mark.asyncio()
@@ -573,9 +546,6 @@ async def test_request_returns_ok_none_when_result_missing(api: API):
     assert result.unwrap() is None
 
 
-# --------------------------------------------------------------------------- HTTP client
-
-
 @pytest.mark.asyncio()
 async def test_wreq_client_close_closes_the_underlying_client():
     client = WreqClient()
@@ -598,9 +568,6 @@ def test_wreq_request_methods_accept_positional_url():
         positional = code.co_varnames[: code.co_argcount]
         # url was keyword-only (after `*`), unlike ABCClient which declares it positional-or-keyword.
         assert "url" in positional, name
-
-
-# --------------------------------------------------------------------------- node composition
 
 
 @pytest.mark.asyncio()
@@ -652,7 +619,7 @@ def test_get_types_raises_on_unrecognized_annotation():
 
     def run() -> None:
         try:
-            _get_types(object())
+            _get_types(object())  # type: ignore
         except TypeError:
             outcome["raised"] = True
 
@@ -663,9 +630,6 @@ def test_get_types_raises_on_unrecognized_annotation():
     # _get_types used to spin forever on an unrecognized annotation.
     assert not thread.is_alive(), "_get_types did not terminate"
     assert outcome.get("raised") is True
-
-
-# --------------------------------------------------------------------------- introspection & tools
 
 
 def test_resolve_kwonly_arg_names_includes_first_kwonly():
