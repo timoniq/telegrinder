@@ -1,11 +1,11 @@
 """Modern visionary telegram bot framework.
 
-* Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
+* Type hinted & [type functional](https://luwqz1.github.io/telegrinder-docs-website/tutorial/functional-bits)
 * Customizable and extensible
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
 * API client powered by fast [wreq](https://github.com/0x676e67/wreq-python) library
 * Both low-level and high-level API
-* Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
+* Convenient [dependency injection](https://luwqz1.github.io/telegrinder-docs-website/tutorial/nodes) via nodes
 
 Basic example:
 

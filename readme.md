@@ -1,9 +1,9 @@
 <p>
   <a href="https://github.com/timoniq/telegrinder">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/timoniq/telegrinder/dev/docs/assets/logo-white.png">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/timoniq/telegrinder/dev/docs/assets/logo-black.png">
-      <img alt="Logo" src="https://raw.githubusercontent.com/timoniq/telegrinder/dev/docs/assets/logo-black.png" width="200">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/timoniq/telegrinder/dev/assets/logo-white.png">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/timoniq/telegrinder/dev/assets/logo-black.png">
+      <img alt="Logo" src="https://raw.githubusercontent.com/timoniq/telegrinder/dev/assets/logo-black.png" width="200">
     </picture>
   </a>
 </p>
@@ -27,12 +27,12 @@
 </p>
 
 
-* Type hinted & [type functional](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/3_functional_bits.md)
+* Type hinted & [type functional](https://luwqz1.github.io/telegrinder-docs-website/tutorial/functional-bits)
 * Customizable and extensible
 * Fast models built on [msgspec](https://github.com/jcrist/msgspec)
 * API client powered by fast [wreq](https://github.com/0x676e67/wreq-python) library
 * Both low-level and high-level API
-* Convenient [dependency injection](https://github.com/timoniq/telegrinder/blob/dev/docs/tutorial/en/5_nodes.md) via nodes
+* Convenient [dependency injection](https://luwqz1.github.io/telegrinder-docs-website/tutorial/nodes) via nodes
 * <details> <summary>A variety of state management tools</summary><p>○ <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/blueprint_bot/handlers/with_enum.py#L18">waiter machine</a> for runtime inline short state funneling<br>○  <a href="https://github.com/timoniq/telegrinder/blob/dev/examples/state_mutator_player.py">state mutator</a> to declare complex state sets</p></details>
 
 Basic example:
@@ -80,11 +80,11 @@ pip install git+https://github.com/timoniq/telegrinder@dev
 
 # Documentation
 
-[**Tutorial 📖**](/docs/tutorial/en/0_tutorial.md)
+[**Tutorial 📖**](https://luwqz1.github.io/telegrinder-docs-website)
 
 # Community
 
-Join one of our [forums](https://github.com/timoniq/telegrinder/blob/dev/docs/community_links.md).
+Join one of our [forums](https://github.com/timoniq/telegrinder/blob/dev/community_links.md).
 
 # License
 
@@ -103,4 +103,4 @@ Copyright © 2024 [luwqz1](https://github.com/luwqz1)
  <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder"/>
 </a>
 
-We welcome your pull requests ([contrubution notes](https://github.com/timoniq/telegrinder/blob/main/contributing.md)). Telegrinder is built by the community
+We welcome your pull requests ([contrubution notes](https://github.com/timoniq/telegrinder/blob/dev/contributing.md)). Telegrinder is built by the community

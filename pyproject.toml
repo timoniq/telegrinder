@@ -61,7 +61,7 @@ uvloop = ["uvloop; (sys_platform == 'darwin' or sys_platform == 'linux')"]
 [project.urls]
 Source = "https://github.com/timoniq/telegrinder"
 "Bug Tracker" = "https://github.com/timoniq/telegrinder/issues"
-Documentation = "https://github.com/timoniq/telegrinder/blob/dev/docs/index.md"
+Documentation = "https://luwqz1.github.io/telegrinder-docs-website"
 
 [dependency-groups]
 dev = [
