@@ -36,6 +36,7 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.bot.cute_types.base import BaseCute
     from telegrinder.bot.dispatch.middleware.filter import FilterMiddleware
+    from telegrinder.bot.dispatch.router.base import Injections
     from telegrinder.bot.dispatch.view.base import EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
     from telegrinder.tools.lifespan import Lifespan
@@ -44,6 +45,7 @@ if typing.TYPE_CHECKING:
 
     class DispatchParams[R, E](typing.TypedDict):
         name: typing.NotRequired[str]
+        injections: typing.NotRequired[Injections]
         router: typing.NotRequired[R]
         error_handler: typing.NotRequired[E]
         waiter_machine: typing.NotRequired[WaiterMachine]
@@ -178,19 +180,26 @@ class Dispatch[
     def __init__(self, *, name: str) -> None: ...
 
     @typing.overload
+    def __init__(self, *, injections: Injections) -> None: ...
+
+    @typing.overload
+    def __init__(self, *, name: str, injections: Injections) -> None: ...
+
+    @typing.overload
     def __init__(self, **params: typing.Unpack[DispatchParams[MainRouter, ErrorHandler]]) -> None: ...
 
     def __init__(
         self,
         *,
         name: str | None = None,
+        injections: Injections | None = None,
         router: MainRouter | None = None,
         waiter_machine: WaiterMachine | None = None,
         error_handler: ErrorHandler | None = None,
         middleware_box: MiddlewareBox | None = None,
     ) -> None:
         self.global_context = TelegrinderContext()
-        self.main_router = router or Router(name=name)  # type: ignore
+        self.main_router = router or Router(name=name, injections=injections or {})  # type: ignore
         self.error_handler = error_handler or ErrorView()  # type: ignore
         self.global_scope = self.global_context.node_global_scope
         self.loop_wrapper = self.global_context.loop_wrapper
@@ -219,6 +228,11 @@ class Dispatch[
         if self._routers is None:
             self._routers = deque((self.main_router,) if self.main_router else ())  # type: ignore
         return self._routers  # type: ignore
+
+    @property
+    def injections(self) -> Injections:
+        """Alias `injections` to get an injections container from the main router."""
+        return self.main_router.injections
 
     @property
     def patcher(self) -> ABCPatcher:

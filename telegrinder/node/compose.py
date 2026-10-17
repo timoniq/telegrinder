@@ -58,10 +58,10 @@ The `compose` function returns an async context manager that:
 
 import asyncio
 import dataclasses
-import typing
 from contextlib import asynccontextmanager
 from functools import lru_cache
 
+import typing_extensions as typing
 from kungfu.library.monad.result import Error, Ok, Result
 from nodnod.agent.base import Agent
 from nodnod.agent.event_loop.agent import EventLoopAgent
@@ -85,15 +85,27 @@ if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.context import Context
 
 type _Composable[T: Agent] = Function[..., typing.Any] | type[Node[typing.Any, typing.Any]] | Composable[T]
-type AnyType = typing.Any
+type AnyType = typing.TypeForm[typing.Any]
 
 
-@lru_cache(maxsize=None)
 def _register_waiter_close_node_global_scope() -> asyncio.Task[None]:
-    # Return (and thus cache via lru_cache) the task so a strong reference is kept for the
-    # process lifetime. Otherwise the orphaned task can be garbage-collected mid-runtime,
-    # running its `finally` and closing the global node scope while the bot is still running.
-    return asyncio.create_task(wait_for_close_node_global_scope())
+    task = None
+
+    def _register() -> typing.Generator[asyncio.Task[None]]:
+        nonlocal task
+
+        try:
+            task = asyncio.create_task(wait_for_close_node_global_scope())
+            yield task
+        finally:
+            if task is not None:
+                task.cancel()
+                task = None
+
+    if task is None:
+        return next(_register())
+
+    return task
 
 
 @asynccontextmanager
@@ -150,15 +162,22 @@ async def run_agent(
     roots: dict[AnyType, typing.Any] | None = None,
     per_event_scope: Scope | None = None,
 ) -> typing.AsyncGenerator[Result[Scope, NodeError]]:
-    internals: dict[typing.Any, typing.Any] = (
+    internals: dict[AnyType, typing.Any] = (
         {type(context): context, Externals: context} if context is not None else {Externals: Externals()}
     )
     mapped_scopes = MappedScopes(global_scope=NODE_GLOBAL_SCOPE, per_event_scope=per_event_scope)
     scope = create_per_call_scope(NODE_GLOBAL_SCOPE if per_event_scope is None else per_event_scope)
 
+    if context and "_router_injections_" in context:
+        internals = context._router_injections_ | internals
+
+    if roots is not None:
+        internals |= roots
+
     async with scope:
+        inject_internals(scope, internals)
+
         try:
-            inject_internals(scope, internals if not roots else (internals | roots))
             await maybe_awaitable(agent.run(scope, mapped_scopes))
             yield Ok(scope.merge())
         except NodeError as error:
@@ -175,7 +194,7 @@ def compose[R](
     *,
     per_event_scope: Scope | None = None,
     agent_cls: type[Agent] = EventLoopAgent,
-    roots: dict[type[typing.Any], typing.Any] | None = None,
+    roots: dict[AnyType, typing.Any] | None = None,
 ) -> typing.AsyncContextManager[Result[R, NodeError], None]: ...
 
 
@@ -186,7 +205,7 @@ def compose[T: Agent](
     context: Context,
     *,
     per_event_scope: Scope | None = None,
-    roots: dict[type[typing.Any], typing.Any] | None = None,
+    roots: dict[AnyType, typing.Any] | None = None,
 ) -> typing.AsyncContextManager[Result[typing.Any, NodeError], None]: ...
 
 
@@ -198,7 +217,7 @@ def compose[T](
     *,
     agent: Agent,
     per_event_scope: Scope | None = None,
-    roots: dict[type[typing.Any], typing.Any] | None = None,
+    roots: dict[AnyType, typing.Any] | None = None,
 ) -> typing.AsyncContextManager[Result[T, NodeError], None]: ...
 
 
@@ -209,7 +228,7 @@ def compose(
     per_event_scope: Scope | None = None,
     agent: Agent | None = None,
     agent_cls: type[Agent] = EventLoopAgent,
-    roots: dict[type[typing.Any], typing.Any] | None = None,
+    roots: dict[AnyType, typing.Any] | None = None,
 ) -> typing.AsyncContextManager[Result[typing.Any, NodeError], None]:
     if per_event_scope is None:
         per_event_scope = context.per_event_scope

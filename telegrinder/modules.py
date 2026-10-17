@@ -317,7 +317,7 @@ def set_log_scope(scope: str, /) -> contextvars.Token[str]:
 
 
 @contextlib.contextmanager
-def log_buffer(scope: str, /) -> typing.Iterator[None]:
+def log_buffer(scope: str, /) -> typing.Generator[None]:
     if logger.logger is None:
         yield
         return

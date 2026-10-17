@@ -1,6 +1,6 @@
 import dataclasses
-import typing
 
+import typing_extensions as typing
 from kungfu.library.monad.result import Error as Err
 from kungfu.library.monad.result import Ok
 
@@ -15,6 +15,10 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.base import ErrorView, EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
+
+    type DependencyType = typing.TypeForm[typing.Any]
+    type Dependency = typing.Any
+    type Injections = dict[DependencyType, Dependency]
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -85,14 +89,17 @@ class Router[
     ],
 ):
     name: str | None = None
+    injections: Injections = dataclasses.field(default_factory=dict["DependencyType", "Dependency"])
 
     def __post_init__(self) -> None:
         self.qualname = ":".join((type(self).__name__, self.name or hex(id(self))))
         self.module = get_frame_module_name()
-        self.ident = ":".join((self.module, self.qualname))
+        self.ident = ":".join(
+            (self.module, self.qualname) if self.name else (self.module, type(self).__name__, f"at {hex(id(self))}")
+        )
 
     def __repr__(self) -> str:
-        return f"<{self.ident if not self.name else self.qualname}>"
+        return f"<{self.ident}>"
 
     def __hash__(self) -> int:
         return hash(self.ident)
@@ -144,6 +151,8 @@ class Router[
             return result
 
     async def route(self, api: API, update: Update, context: Context) -> bool:
+        context.setdefault("_router_injections_", {}).update(self.injections)
+
         with log_scope(lambda: f"Module:{self.module} > {self.qualname}"):
             try:
                 for event_view in self.event_views.values():

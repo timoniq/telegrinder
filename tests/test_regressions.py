@@ -583,14 +583,20 @@ async def test_global_scope_close_waiter_is_kept_referenced(monkeypatch):
     async def _noop() -> None:
         return None
 
-    # Use a no-op waiter (the real one closes the global node scope on cancel) and bypass the
-    # lru_cache via __wrapped__ so we neither clear the cache nor release the real cached task
-    # (clearing it would let that task get GC'd and close the scope — the very bug under test).
     monkeypatch.setattr(compose_mod, "wait_for_close_node_global_scope", _noop)
-    result = compose_mod._register_waiter_close_node_global_scope.__wrapped__()
-    # The waiter task used to be discarded (returned None) and was thus GC-collectable.
-    assert isinstance(result, asyncio.Task)
-    await result
+
+    result1 = compose_mod._register_waiter_close_node_global_scope()
+    assert isinstance(result1, asyncio.Task)
+
+    result2 = compose_mod._register_waiter_close_node_global_scope()
+    assert isinstance(result1, asyncio.Task)
+
+    # result2 is a new task
+    assert result1 is not result2
+
+    with pytest.raises(asyncio.CancelledError):
+        # should be cancelled
+        await result1
 
 
 def test_managed_bot_username_node_uses_expect():

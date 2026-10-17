@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
 
     from telegrinder.api.api import API
     from telegrinder.bot.cute_types.update import UpdateCute
-    from telegrinder.bot.dispatch.router.base import Router
+    from telegrinder.bot.dispatch.router.base import Injections, Router
     from telegrinder.types.objects import Update
 
     type Key = str
@@ -37,6 +37,7 @@ class Context(Externals):
         per_event_scope: Scope
         exceptions_update: dict[Router, BaseException]
         exception_update: Option[BaseException]
+        _router_injections_: Injections
 
         @typing.overload
         def __init__(self) -> None: ...
