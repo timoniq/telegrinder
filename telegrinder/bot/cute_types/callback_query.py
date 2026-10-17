@@ -96,6 +96,11 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         return self.message.unwrap().only().map(lambda m: m.receiver_user.unwrap()).cast(Some, Nothing)
 
     @property
+    def receiver_user_id(self) -> Option[int]:
+        """User's ID who received the ephemeral message that originated the query, when available."""
+        return self.receiver_user.map(lambda user: user.id)
+
+    @property
     def chat(self) -> Option[Chat]:
         """Optional. Chat the callback query originated from. This will be present
         if the message is sent by the bot with the callback button that originated the query.

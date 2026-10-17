@@ -1,6 +1,8 @@
 import collections
 import typing
 
+from msgspex import UNSET
+
 from telegrinder.tools.formatting.html import FORMATTERS, date_time, link, pre_code, tg_emoji
 from telegrinder.tools.strings import to_utf16_map, utf8_utf16_length, utf16_to_py_index
 from telegrinder.types.enums import ContentType, MessageEntityType
@@ -137,7 +139,7 @@ def compose_reactions(
 
 
 def input_media(
-    type: MediaType,
+    type: MediaType | None,
     media: str | InputFile,
     *,
     caption: str | None = None,
@@ -145,6 +147,16 @@ def input_media(
     caption_entities: list[MessageEntity] | None = None,
     **other: typing.Any,
 ) -> InputMedia:
+    if type is None:
+        return InputMediaDocument.initialize(
+            media=media,
+            type=UNSET,
+            caption=caption,
+            caption_entities=caption_entities,
+            parse_mode=parse_mode,
+            **other,
+        )
+
     return INPUT_MEDIA_TYPES[ContentType(type)](**get_params(locals()))
 
 

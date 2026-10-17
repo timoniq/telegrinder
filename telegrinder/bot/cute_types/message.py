@@ -47,6 +47,30 @@ def _to_api_method_name(method_name: str, /) -> str:
     return first + "".join(part.capitalize() for part in parts)
 
 
+def _to_input_media(
+    media: InputMedia | InputFile | str,
+    /,
+    *,
+    type: MediaType | None,
+    caption: str | None,
+    caption_entities: list[MessageEntity] | None,
+    parse_mode: str | None,
+) -> InputMedia:
+    if not isinstance(media, InputFile | str):
+        return media
+
+    if isinstance(media, InputFile) and type is None:
+        raise AssertionError("Parameter `type` is required, because `media` is an `InputFile` object.")
+
+    return input_media(
+        type,
+        media,
+        caption=caption,
+        caption_entities=caption_entities,
+        parse_mode=parse_mode,
+    )
+
+
 @cache
 def _is_cute_result_type(result_type: typing.Any, /) -> bool:
     origin = typing.get_origin(result_type) or result_type
@@ -102,16 +126,19 @@ def execute_method_answer(*, default_params: set[str | tuple[str, str]] | None =
     return executor
 
 
-def execute_method_whisper[**P](*, inner_executor: Executor) -> Executor[MessageCute]:
+def execute_method_whisper(*, inner_executor: Executor) -> Executor[MessageCute]:
     async def executor(
         message: MessageCute,
         method_name: str,
         params: dict[str, typing.Any],
         result_type: typing.Any,
     ) -> Result[typing.Any, APIError]:
+        params = get_params(params)
+        receiver_user_id = params.pop("receiver_user_id", None)
+
         if "ephemeral_message_parameters" not in params:
             params["ephemeral_message_parameters"] = EphemeralMessageParameters.initialize(
-                receiver_user_id=params.get("receiver_user_id") or message.from_user.id,
+                receiver_user_id=receiver_user_id or message.from_user.id,
             )
 
         return await inner_executor(message, method_name, params, result_type)
@@ -147,7 +174,8 @@ def execute_method_reply(*, default_params: set[str | tuple[str, str]] | None = 
 
 
 def execute_method_edit(
-    *, default_params: set[str | tuple[str, str]] | None = None
+    *,
+    default_params: set[str | tuple[str, str]] | None = None,
 ) -> Executor[MessageCute | CallbackQueryCute]:
     async def executor(
         update: MessageCute | CallbackQueryCute,
@@ -202,17 +230,7 @@ DEFAULT_ANSWER: typing.Final = execute_method_answer(
         "message_thread_id",
     }
 )
-DEFAULT_WHISPER: typing.Final = execute_method_whisper(
-    inner_executor=execute_method_answer(
-        default_params={
-            "chat_id",
-            "receiver_user_id",
-            "business_connection_id",
-            "direct_messages_topic",
-            "message_thread_id",
-        },
-    ),
-)
+DEFAULT_WHISPER: typing.Final = execute_method_whisper(inner_executor=DEFAULT_ANSWER)
 ANSWER_TO_BUSINESS_CONNECTION: typing.Final = execute_method_answer(
     default_params={
         "chat_id",
@@ -240,6 +258,7 @@ DEFAULT_REPLY: typing.Final = execute_method_reply(
         "message_thread_id",
     }
 )
+DEFAULT_WHISPER_REPLY: typing.Final = execute_method_whisper(inner_executor=DEFAULT_REPLY)
 REPLY_TO_BUSINESS_CONNECTION: typing.Final = execute_method_reply(
     default_params={
         "chat_id",
@@ -268,11 +287,11 @@ DEFAULT_EDIT: typing.Final = execute_method_edit(
         "business_connection_id",
     },
 )
-DEFAULT_EPHEMERAL_EDIT: typing.Final = execute_method_answer(
+DEFAULT_WHISPER_EDIT: typing.Final = execute_method_edit(
     default_params={
         "chat_id",
         "ephemeral_message_id",
-        "receiver_user",
+        "receiver_user_id",
     },
 )
 
@@ -1659,6 +1678,974 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         ...
 
 
+class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
+    @shortcut(
+        "send_message",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={
+            "link_preview_options",
+            "receiver_user_id",
+            "text",
+            "chat_id",
+            "reply_markup",
+            "message_thread_id",
+        },
+    )
+    async def whisper(
+        self,
+        text: str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        entities: list[MessageEntity] | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        link_preview_options: LinkPreviewOptions | None = API.default_params["link_preview_options"],
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
+
+        Use this method to send text messages. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_rich_message",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_rich(
+        self,
+        rich_message: InputRichMessage,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_rich_message()`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessage)
+
+        Use this method to send rich messages. If the message contains a block with
+        a media element, then the bot must have the right to send the media to the chat.
+        On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent. Bot can send rich messages on behalf of a business account onlyif the corresponding user can send rich messages.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param rich_message: The message to be sent.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_audio",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_audio(
+        self,
+        audio: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        performer: str | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        thumbnail: InputFile | str | None = None,
+        title: str | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
+
+        Use this method to send audio files, if you want Telegram clients to display
+        them in the music player. Your audio must be in the .MP3 or .M4A format. On
+        success, the sent Message is returned. Bots can currently send audio files
+        of up to 50 MB in size, this limit may be changed in the future. For sending
+        voice messages, use the sendVoice method instead.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Audio caption, 0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the audio caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param duration: Duration of the audio in seconds.
+
+        :param performer: Performer.
+
+        :param title: Track name.
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_animation",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_animation(
+        self,
+        animation: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        has_spoiler: bool | None = None,
+        height: int | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        thumbnail: InputFile | str | None = None,
+        width: int | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
+
+        Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without
+        sound). On success, the sent Message is returned. Bots can currently send
+        animation files of up to 50 MB in size, this limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param duration: Duration of sent animation in seconds.
+
+        :param width: Animation width.
+
+        :param height: Animation height.
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Animation caption (may also be used when resending animation by file_id),0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the animation caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_document",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_document(
+        self,
+        document: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_content_type_detection: bool | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        thumbnail: InputFile | str | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
+
+        Use this method to send general files. On success, the sent Message is returned.
+        Bots can currently send files of any type of up to 50 MB in size, this limit
+        may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Document caption (may also be used when resending documents by file_id),0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the document caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param disable_content_type_detection: Disables automatic server-side content type detection for files uploadedusing multipart/form-data.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_photo",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_photo(
+        self,
+        photo: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        has_spoiler: bool | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
+
+        Use this method to send photos. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the photo caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_sticker",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_sticker(
+        self,
+        sticker: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        emoji: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
+
+        Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
+        On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
+
+        :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_video",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_video(
+        self,
+        video: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        cover: InputFile | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        emoji: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        has_spoiler: bool | None = None,
+        height: int | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        start_timestamp: timedelta | int | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        supports_streaming: bool | None = None,
+        thumbnail: InputFile | str | None = None,
+        width: int | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
+
+        Use this method to send video files, Telegram clients support MPEG4 videos
+        (other formats may be sent as Document). On success, the sent Message is
+        returned. Bots can currently send video files of up to 50 MB in size, this
+        limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param duration: Duration of sent video in seconds.
+
+        :param width: Video width.
+
+        :param height: Video height.
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param cover: Cover for the video in the message. Pass a file_id to send a file that existson the Telegram servers (recommended), pass an HTTP URL for Telegram toget a file from the Internet, or pass `attach://<file_attach_name>` toupload a new one using multipart/form-data under <file_attach_name>name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param start_timestamp: Start timestamp for the video in the message.
+
+        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
+
+        :param supports_streaming: Pass True if the uploaded video is suitable for streaming.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_video_note",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_video_note(
+        self,
+        video_note: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        length: int | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        thumbnail: InputFile | str | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
+
+        Use this method to send a rounded square MPEG4 video of up to 1 minute long.
+        On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
+
+        :param duration: Duration of sent video in seconds.
+
+        :param length: Video width and height, i.e. diameter of the video message.
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_voice",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_voice(
+        self,
+        voice: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
+
+        Use this method to send audio files, if you want Telegram clients to display
+        the file as a playable voice message. For this to work, your audio must be
+        in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other
+        formats may be sent as Audio or Document). On success, the sent Message is
+        returned. Bots can currently send voice messages of up to 50 MB in size, this
+        limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Voice message caption, 0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the voice message caption. See formattingoptions for more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param duration: Duration of the voice message in seconds.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_venue",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_venue(
+        self,
+        *,
+        address: str,
+        latitude: float,
+        longitude: float,
+        title: str,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        foursquare_id: str | None = None,
+        foursquare_type: str | None = None,
+        google_place_id: str | None = None,
+        google_place_type: str | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
+
+        Use this method to send information about a venue. On success, the sent Message
+        is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param latitude: Latitude of the venue.
+
+        :param longitude: Longitude of the venue.
+
+        :param title: Name of the venue.
+
+        :param address: Address of the venue.
+
+        :param foursquare_id: Foursquare identifier of the venue.
+
+        :param foursquare_type: Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,`arts_entertainment/aquarium` or `food/icecream`.).
+
+        :param google_place_id: Google Places identifier of the venue.
+
+        :param google_place_type: Google Places type of the venue. (See supported types.).
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_location",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_location(
+        self,
+        *,
+        latitude: float,
+        longitude: float,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        heading: int | None = None,
+        horizontal_accuracy: float | None = None,
+        live_period: int | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        proximity_alert_radius: int | None = None,
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
+
+        Use this method to send point on the map. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param latitude: Latitude of the location.
+
+        :param longitude: Longitude of the location.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param live_period: Period in seconds during which the location will be updated (see Live Locations),must be between 60 and 86400, or 0x7FFFFFFF for live locations that can beedited indefinitely. Must be 0 for ephemeral messages.
+
+        :param heading: For live locations, a direction in which the user is moving, in degrees.Must be between 1 and 360 if specified.
+
+        :param proximity_alert_radius: For live locations, a maximum distance for proximity alerts about approachinganother chat member, in meters. Must be between 1 and 100000 if specified.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_contact",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "message_thread_id", "chat_id"},
+    )
+    async def whisper_contact(
+        self,
+        *,
+        first_name: str,
+        phone_number: str,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        last_name: str | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        vcard: str | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
+
+        Use this method to send phone contacts. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param phone_number: Contact's phone number.
+
+        :param first_name: Contact's first name.
+
+        :param last_name: Contact's last name.
+
+        :param vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_live_photo",
+        executor=DEFAULT_WHISPER,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"reply_markup", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_live_photo(
+        self,
+        *,
+        live_photo: InputFile | str,
+        photo: InputFile | str,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        has_spoiler: bool | None = None,
+        message_effect_id: str | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_live_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendlivephoto)
+
+        Use this method to send live photos. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
+
+        :param photo: The static photo to send. Pass a file_id as String to send a photo that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
+
+        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+
 class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
     @shortcut(
         "send_rich_message",
@@ -3013,15 +4000,996 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
 
+    @shortcut(
+        "send_message",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={
+            "message_id",
+            "link_preview_options",
+            "receiver_user_id",
+            "text",
+            "chat_id",
+            "reply_markup",
+            "message_thread_id",
+        },
+    )
+    async def whisper_reply(
+        self,
+        text: str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        entities: list[MessageEntity] | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        link_preview_options: LinkPreviewOptions | None = API.default_params["link_preview_options"],
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
+
+        Use this method to send text messages. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
+        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
+
+        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
+
+        :param link_preview_options: Link preview generation options for the message.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_rich_message",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_rich(
+        self,
+        rich_message: InputRichMessage,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_rich_message()`, see the [documentation](https://core.telegram.org/bots/api#sendrichmessage)
+
+        Use this method to send rich messages. If the message contains a block with
+        a media element, then the bot must have the right to send the media to the chat.
+        On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent. Bot can send rich messages on behalf of a business account onlyif the corresponding user can send rich messages.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param rich_message: The message to be sent.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_audio",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_audio(
+        self,
+        audio: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        performer: str | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        thumbnail: InputFile | str | None = None,
+        title: str | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_audio()`, see the [documentation](https://core.telegram.org/bots/api#sendaudio)
+
+        Use this method to send audio files, if you want Telegram clients to display
+        them in the music player. Your audio must be in the .MP3 or .M4A format. On
+        success, the sent Message is returned. Bots can currently send audio files
+        of up to 50 MB in size, this limit may be changed in the future. For sending
+        voice messages, use the sendVoice method instead.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param audio: Audio file to send. Pass a file_id as String to send an audio file that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an audio file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Audio caption, 0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the audio caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param duration: Duration of the audio in seconds.
+
+        :param performer: Performer.
+
+        :param title: Track name.
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_animation",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_animation(
+        self,
+        animation: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        has_spoiler: bool | None = None,
+        height: int | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        thumbnail: InputFile | str | None = None,
+        width: int | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_animation()`, see the [documentation](https://core.telegram.org/bots/api#sendanimation)
+
+        Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without
+        sound). On success, the sent Message is returned. Bots can currently send
+        animation files of up to 50 MB in size, this limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param animation: Animation to send. Pass a file_id as String to send an animation that existson the Telegram servers (recommended), pass an HTTP URL as a String for Telegramto get an animation from the Internet, or upload a new animation using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param duration: Duration of sent animation in seconds.
+
+        :param width: Animation width.
+
+        :param height: Animation height.
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Animation caption (may also be used when resending animation by file_id),0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the animation caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the animation needs to be covered with a spoiler animation.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_document",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_document(
+        self,
+        document: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_content_type_detection: bool | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        thumbnail: InputFile | str | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_document()`, see the [documentation](https://core.telegram.org/bots/api#senddocument)
+
+        Use this method to send general files. On success, the sent Message is returned.
+        Bots can currently send files of any type of up to 50 MB in size, this limit
+        may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param document: File to send. Pass a file_id as String to send a file that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get afile from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Document caption (may also be used when resending documents by file_id),0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the document caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param disable_content_type_detection: Disables automatic server-side content type detection for files uploadedusing multipart/form-data.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_photo",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_photo(
+        self,
+        photo: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        has_spoiler: bool | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendphoto)
+
+        Use this method to send photos. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param photo: Photo to send. Pass a file_id as String to send a photo that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get aphoto from the Internet, or upload a new photo using multipart/form-data.The photo must be at most 10 MB in size. The photo's width and height must notexceed 10000 in total. Width and height ratio must be at most 20. More informationon Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Photo caption (may also be used when resending photos by file_id), 0-1024characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the photo caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the photo needs to be covered with a spoiler animation.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_sticker",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_sticker(
+        self,
+        sticker: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        emoji: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_sticker()`, see the [documentation](https://core.telegram.org/bots/api#sendsticker)
+
+        Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers.
+        On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param sticker: Sticker to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBMsticker using multipart/form-data. More information on Sending Files:https://core.telegram.org/bots/api#sending-files. Video and animatedstickers can't be sent via an HTTP URL.
+
+        :param emoji: Emoji associated with the sticker; only for just uploaded stickers.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_video",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_video(
+        self,
+        video: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        cover: InputFile | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        emoji: str | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        has_spoiler: bool | None = None,
+        height: int | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        start_timestamp: timedelta | int | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        supports_streaming: bool | None = None,
+        thumbnail: InputFile | str | None = None,
+        width: int | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_video()`, see the [documentation](https://core.telegram.org/bots/api#sendvideo)
+
+        Use this method to send video files, Telegram clients support MPEG4 videos
+        (other formats may be sent as Document). On success, the sent Message is
+        returned. Bots can currently send video files of up to 50 MB in size, this
+        limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param video: Video to send. Pass a file_id as String to send a video that exists on the Telegramservers (recommended), pass an HTTP URL as a String for Telegram to get avideo from the Internet, or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param duration: Duration of sent video in seconds.
+
+        :param width: Video width.
+
+        :param height: Video height.
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param cover: Cover for the video in the message. Pass a file_id to send a file that existson the Telegram servers (recommended), pass an HTTP URL for Telegram toget a file from the Internet, or pass `attach://<file_attach_name>` toupload a new one using multipart/form-data under <file_attach_name>name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param start_timestamp: Start timestamp for the video in the message.
+
+        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
+
+        :param supports_streaming: Pass True if the uploaded video is suitable for streaming.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_video_note",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_video_note(
+        self,
+        video_note: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        length: int | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        thumbnail: InputFile | str | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_video_note()`, see the [documentation](https://core.telegram.org/bots/api#sendvideonote)
+
+        Use this method to send a rounded square MPEG4 video of up to 1 minute long.
+        On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param video_note: Video note to send. Pass a file_id as String to send a video note that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending video notes by a URL is currently unsupported.
+
+        :param duration: Duration of sent video in seconds.
+
+        :param length: Video width and height, i.e. diameter of the video message.
+
+        :param thumbnail: Thumbnail of the file sent; can be ignored if thumbnail generation for thefile is supported server-side. The thumbnail should be in JPEG format andless than 200 kB in size. A thumbnail's width and height should not exceed320. Ignored if the file is not uploaded using multipart/form-data. Thumbnailscan't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>`if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_voice",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_voice(
+        self,
+        voice: InputFile | str,
+        *,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        duration: int | None = None,
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_voice()`, see the [documentation](https://core.telegram.org/bots/api#sendvoice)
+
+        Use this method to send audio files, if you want Telegram clients to display
+        the file as a playable voice message. For this to work, your audio must be
+        in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other
+        formats may be sent as Audio or Document). On success, the sent Message is
+        returned. Bots can currently send voice messages of up to 50 MB in size, this
+        limit may be changed in the future.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param voice: Audio file to send. Pass a file_id as String to send a file that exists on theTelegram servers (recommended), pass an HTTP URL as a String for Telegramto get a file from the Internet, or upload a new one using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.
+        :param caption: Voice message caption, 0-1024 characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the voice message caption. See formattingoptions for more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param duration: Duration of the voice message in seconds.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_venue",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_venue(
+        self,
+        *,
+        address: str,
+        latitude: float,
+        longitude: float,
+        title: str,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        foursquare_id: str | None = None,
+        foursquare_type: str | None = None,
+        google_place_id: str | None = None,
+        google_place_type: str | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_venue()`, see the [documentation](https://core.telegram.org/bots/api#sendvenue)
+
+        Use this method to send information about a venue. On success, the sent Message
+        is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param latitude: Latitude of the venue.
+
+        :param longitude: Longitude of the venue.
+
+        :param title: Name of the venue.
+
+        :param address: Address of the venue.
+
+        :param foursquare_id: Foursquare identifier of the venue.
+
+        :param foursquare_type: Foursquare type of the venue, if known. (For example, `arts_entertainment/default`,`arts_entertainment/aquarium` or `food/icecream`.).
+
+        :param google_place_id: Google Places identifier of the venue.
+
+        :param google_place_type: Google Places type of the venue. (See supported types.).
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_location",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_location(
+        self,
+        *,
+        latitude: float,
+        longitude: float,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        heading: int | None = None,
+        horizontal_accuracy: float | None = None,
+        live_period: int | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        proximity_alert_radius: int | None = None,
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_location()`, see the [documentation](https://core.telegram.org/bots/api#sendlocation)
+
+        Use this method to send point on the map. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param latitude: Latitude of the location.
+
+        :param longitude: Longitude of the location.
+
+        :param horizontal_accuracy: The radius of uncertainty for the location, measured in meters; 0-1500.
+        :param live_period: Period in seconds during which the location will be updated (see Live Locations),must be between 60 and 86400, or 0x7FFFFFFF for live locations that can beedited indefinitely. Must be 0 for ephemeral messages.
+
+        :param heading: For live locations, a direction in which the user is moving, in degrees.Must be between 1 and 360 if specified.
+
+        :param proximity_alert_radius: For live locations, a maximum distance for proximity alerts about approachinganother chat member, in meters. Must be between 1 and 100000 if specified.
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_contact",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "message_thread_id", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_contact(
+        self,
+        *,
+        first_name: str,
+        phone_number: str,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        last_name: str | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        vcard: str | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_contact()`, see the [documentation](https://core.telegram.org/bots/api#sendcontact)
+
+        Use this method to send phone contacts. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param phone_number: Contact's phone number.
+
+        :param first_name: Contact's first name.
+
+        :param last_name: Contact's last name.
+
+        :param vcard: Additional data about the contact in the form of a vCard, 0-2048 bytes.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
+    @shortcut(
+        "send_live_photo",
+        executor=DEFAULT_WHISPER_REPLY,
+        return_type=APIResult[BoundCute["MessageCute"]],
+        custom_params={"message_id", "reply_markup", "receiver_user_id", "chat_id"},
+    )
+    async def whisper_reply_live_photo(
+        self,
+        *,
+        live_photo: InputFile | str,
+        photo: InputFile | str,
+        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
+        business_connection_id: str | None = None,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        direct_messages_topic_id: int | None = None,
+        disable_notification: bool | None = API.default_params["disable_notification"],
+        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
+        has_spoiler: bool | None = None,
+        message_effect_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        protect_content: bool | None = API.default_params["protect_content"],
+        receiver_user_id: int | None = None,
+        reply_markup: ReplyMarkup | None = None,
+        reply_parameters: ReplyParameters | None = None,
+        show_caption_above_media: bool | None = None,
+        suggested_post_parameters: SuggestedPostParameters | None = None,
+        **other: typing.Any,
+    ) -> APIResult[MessageCute]:
+        """Shortcut `API.send_live_photo()`, see the [documentation](https://core.telegram.org/bots/api#sendlivephoto)
+
+        Use this method to send live photos. On success, the sent Message is returned.
+        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
+
+        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+
+        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
+
+        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
+
+        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
+
+        :param live_photo: Live photo video to send. The video must be no longer than 10 seconds and mustnot exceed 10 MB in size. Pass a file_id as String to send a video that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
+
+        :param photo: The static photo to send. Pass a file_id as String to send a photo that existson the Telegram servers (recommended) or upload a new video using multipart/form-data.More information on Sending Files: https://core.telegram.org/bots/api#sending-files.Sending live photos by a URL is currently unsupported.
+
+        :param caption: Video caption (may also be used when resending videos by file_id), 0-1024characters after entities parsing.
+
+        :param parse_mode: Mode for parsing entities in the video caption. See formatting optionsfor more details.
+
+        :param caption_entities: A JSON-serialized list of special entities that appear in the caption,which can be specified instead of parse_mode.
+
+        :param show_caption_above_media: Pass True if the caption must be shown above the message media.
+
+        :param has_spoiler: Pass True if the video needs to be covered with a spoiler animation.
+
+        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
+        :param protect_content: Protects the contents of the sent message from forwarding and saving.
+
+        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
+
+        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
+
+        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
+        :param reply_parameters: Description of the message to reply to.
+
+        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
+        ...
+
 
 class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @shortcut(
         "edit_ephemeral_message_text",
-        executor=DEFAULT_EPHEMERAL_EDIT,
+        executor=DEFAULT_WHISPER_EDIT,
         return_type=APIResult[bool],
         custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
     )
-    async def edit_ephemeral_text(
+    async def edit_whisper_text(
         self,
         text: str | None = None,
         *,
@@ -3059,20 +5027,70 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
         ...
 
-    @shortcut(
-        "edit_ephemeral_message_media",
-        executor=DEFAULT_EPHEMERAL_EDIT,
-        return_type=APIResult[bool],
-        custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
-    )
-    async def edit_ephemeral_media(
+    @typing.overload
+    async def edit_whisper_media(
         self,
         media: InputMedia,
         *,
         chat_id: int | str | None = None,
-        ephemeral_message_id: int | None = None,
         receiver_user_id: int | None = None,
+        ephemeral_message_id: int | None = None,
         reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> APIResult[bool]: ...
+
+    @typing.overload
+    async def edit_whisper_media(
+        self,
+        media: str,
+        *,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        ephemeral_message_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> APIResult[bool]: ...
+
+    @typing.overload
+    async def edit_whisper_media(
+        self,
+        media: InputFile,
+        *,
+        type: MediaType,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        ephemeral_message_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> APIResult[bool]: ...
+
+    @shortcut(
+        "edit_ephemeral_message_media",
+        custom_params={
+            "type",
+            "caption",
+            "caption_entities",
+            "chat_id",
+            "ephemeral_message_id",
+            "parse_mode",
+        },
+    )
+    async def edit_whisper_media(
+        self,
+        media: InputMedia | InputFile | str,
+        *,
+        receiver_user_id: int,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        chat_id: int | str | None = None,
+        ephemeral_message_id: int | None = None,
+        parse_mode: str | None = API.default_params["parse_mode"],
+        reply_markup: InlineKeyboardMarkup | None = None,
+        type: MediaType | None = None,
         **other: typing.Any,
     ) -> APIResult[bool]:
         """Shortcut `API.edit_ephemeral_message_media()`, see the [documentation](https://core.telegram.org/bots/api#editephemeralmessagemedia)
@@ -3089,15 +5107,26 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         :param media: A JSON-serialized object for the new media content of the message.
 
         :param reply_markup: A JSON-serialized object for an inline keyboard."""
-        ...
+
+        params = get_params(locals())
+
+        params["media"] = _to_input_media(
+            media,
+            type=params.pop("type", None),
+            caption=params.pop("caption", None),
+            caption_entities=params.pop("caption_entities", None),
+            parse_mode=params.pop("parse_mode", None),
+        )
+
+        return await DEFAULT_WHISPER_EDIT(self.cute, "edit_ephemeral_message_media", params, Sum[MessageCute, bool])
 
     @shortcut(
         "edit_ephemeral_message_caption",
-        executor=DEFAULT_EPHEMERAL_EDIT,
+        executor=DEFAULT_WHISPER_EDIT,
         return_type=APIResult[bool],
         custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
     )
-    async def edit_ephemeral_caption(
+    async def edit_whisper_caption(
         self,
         caption: str | None = None,
         *,
@@ -3133,11 +5162,11 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
 
     @shortcut(
         "edit_ephemeral_message_reply_markup",
-        executor=DEFAULT_EPHEMERAL_EDIT,
+        executor=DEFAULT_WHISPER_EDIT,
         return_type=APIResult[bool],
         custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
     )
-    async def edit_ephemeral_reply_markup(
+    async def edit_whisper_reply_markup(
         self,
         *,
         chat_id: int | str | None = None,
@@ -3162,11 +5191,11 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
 
     @shortcut(
         "delete_ephemeral_message",
-        executor=DEFAULT_EPHEMERAL_EDIT,
+        executor=DEFAULT_WHISPER_EDIT,
         return_type=APIResult[bool],
         custom_params={"chat_id", "receiver_user_id", "ephemeral_message_id"},
     )
-    async def delete_ephemeral(
+    async def delete_whisper(
         self,
         *,
         chat_id: int | str | None = None,
@@ -3300,7 +5329,24 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
     @typing.overload
     async def edit_media(
         self,
-        media: InputFile | str,
+        media: str,
+        type: MediaType | None = None,
+        *,
+        caption: str | None = None,
+        caption_entities: list[MessageEntity] | None = None,
+        business_connection_id: str | None = None,
+        chat_id: int | str | None = None,
+        inline_message_id: str | None = None,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        reply_markup: InlineKeyboardMarkup | None = None,
+        **other: typing.Any,
+    ) -> APIResult[Sum[MessageCute, bool]]: ...
+
+    @typing.overload
+    async def edit_media(
+        self,
+        media: InputFile,
         type: MediaType,
         *,
         caption: str | None = None,
@@ -3368,19 +5414,13 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         :param reply_markup: A JSON-serialized object for a new inline keyboard."""
         params = get_params(locals())
 
-        if not isinstance(media, InputMedia):
-            if type is None:
-                raise AssertionError(
-                    "Parameter 'type' is required, because 'media' is a file id or an 'InputFile' object."
-                )
-
-            params["media"] = input_media(
-                params.pop("type"),
-                media,
-                caption=caption,
-                caption_entities=caption_entities,
-                parse_mode=parse_mode,
-            )
+        params["media"] = _to_input_media(
+            media,
+            type=params.pop("type", None),
+            caption=params.pop("caption", None),
+            caption_entities=params.pop("caption_entities", None),
+            parse_mode=params.pop("parse_mode", None),
+        )
 
         return await DEFAULT_EDIT(self.cute, "edit_message_media", params, Sum[MessageCute, bool])
 
@@ -3425,6 +5465,7 @@ class MessageCute(
     MessageEditShortcuts,
     MessageReplyShortcuts,
     MessageAnswerShortcuts,
+    MessageWhisperShortcuts,
     Message,
     kw_only=True,
 ):
@@ -3485,6 +5526,11 @@ class MessageCute(
     def date_time_format(self) -> option.Option[DateTimeFormatSeq]:
         """The sequence of the char that defines the formatting of the date and time."""
         return get_entity_value("date_time_format", self.entities, self.caption_entities)
+
+    @property
+    def receiver_user_id(self) -> option.Option[int]:
+        """User's ID who received the ephemeral message, when available."""
+        return self.receiver_user.map(lambda user: user.id)
 
     def build_html_text(self, text: Option[str], entities: Option[list[MessageEntity]], /) -> Option[str]:
         if not text:
@@ -3601,67 +5647,6 @@ class MessageCute(
         message_thread_id: int | None = None,
         parse_mode: str | None = API.default_params["parse_mode"],
         protect_content: bool | None = API.default_params["protect_content"],
-        reply_markup: ReplyMarkup | None = None,
-        reply_parameters: ReplyParameters | None = None,
-        suggested_post_parameters: SuggestedPostParameters | None = None,
-        **other: typing.Any,
-    ) -> APIResult[MessageCute]:
-        """Shortcut `API.send_message()`, see the [documentation](https://core.telegram.org/bots/api#sendmessage)
-
-        Use this method to send text messages. On success, the sent Message is returned.
-        :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
-
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
-
-        :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
-
-        :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
-
-        :param ephemeral_message_parameters: A JSON-serialized object containing the parameters of the ephemeral messageto send.
-
-        :param text: Text of the message to be sent, 1-4096 characters after entities parsing.
-        :param parse_mode: Mode for parsing entities in the message text. See formatting options formore details.
-
-        :param entities: A JSON-serialized list of special entities that appear in message text,which can be specified instead of parse_mode.
-
-        :param link_preview_options: Link preview generation options for the message.
-
-        :param disable_notification: Sends the message silently. Users will receive a notification with no sound.
-        :param protect_content: Protects the contents of the sent message from forwarding and saving.
-
-        :param allow_paid_broadcast: Pass True to allow up to 1000 messages per second, ignoring broadcastinglimits for a fee of 0.1 Telegram Stars per message. The relevant Stars willbe withdrawn from the bot's balance.
-
-        :param message_effect_id: Unique identifier of the message effect to be added to the message; for privatechats only.
-
-        :param suggested_post_parameters: A JSON-serialized object containing the parameters of the suggested postto send; for direct messages chats only. If the message is sent as a replyto another suggested post, then that suggested post is automatically declined.
-        :param reply_parameters: Description of the message to reply to.
-
-        :param reply_markup: Additional interface options. A JSON-serialized object for an inlinekeyboard, custom reply keyboard, instructions to remove a reply keyboardor to force a reply from the user."""
-        ...
-
-    @shortcut(
-        "send_message",
-        executor=DEFAULT_WHISPER,
-        return_type=APIResult[BoundCute["MessageCute"]],
-        custom_params={"chat_id", "receiver_user_id", "link_preview_options", "reply_markup"},
-    )
-    async def whisper(
-        self,
-        text: str,
-        *,
-        allow_paid_broadcast: bool | None = API.default_params["allow_paid_broadcast"],
-        business_connection_id: str | None = None,
-        chat_id: int | None = None,
-        direct_messages_topic_id: int | None = None,
-        disable_notification: bool | None = API.default_params["disable_notification"],
-        entities: list[MessageEntity] | None = None,
-        ephemeral_message_parameters: EphemeralMessageParameters | None = None,
-        link_preview_options: LinkPreviewOptions | None = API.default_params["link_preview_options"],
-        message_effect_id: str | None = None,
-        message_thread_id: int | None = None,
-        parse_mode: str | None = API.default_params["parse_mode"],
-        protect_content: bool | None = API.default_params["protect_content"],
-        receiver_user_id: int | None = None,
         reply_markup: ReplyMarkup | None = None,
         reply_parameters: ReplyParameters | None = None,
         suggested_post_parameters: SuggestedPostParameters | None = None,
