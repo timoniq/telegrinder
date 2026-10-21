@@ -40,7 +40,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "certifi (>=2026.7.22)",
+    "certifi (>=2026.10.19)",
     "choicelib (>=0.1.5)",
     "env-better (>=1.0.0)",
     "kungfu-fp (>=1.1.1)",
@@ -65,15 +65,15 @@ Documentation = "https://luwqz1.github.io/telegrinder-docs-website"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.17.0,<1",
+    "ruff>=0.17.1,<1",
     "basedpyright>=1.40.2,<2",
-    "tomlkit>=0.15.1,<1",
+    "tomlkit>=0.15.2,<1",
     "libcst>=1.9.0,<2",
     "pytest>=9.1.1,<10",
     "pytest-asyncio>=1.4.0,<2",
     "pytest-cov>=7.1.0,<8",
-    "pytest-mock>=3.16.0,<4",
-    "pre-commit>=4.6.2,<5",
+    "pytest-mock>=3.17.0,<4",
+    "pre-commit>=4.7.0,<5",
 ]
 
 [tool.uv]
