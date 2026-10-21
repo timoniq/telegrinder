@@ -35,11 +35,9 @@ setup_logger(
 )
 
 api = API(token=Token.from_env())
-dp = Dispatch()
+dp = Dispatch(name="root", filter=IsUser())
 bot = Telegrinder(api, dispatch=dp)
 kitten_pic = InputFile.from_path(pathlib.Path("examples/assets/kitten.jpg"))
-
-dp.message.auto_rules = IsUser()
 
 
 async def on_drop(chat_id: int) -> None:
@@ -107,7 +105,7 @@ async def reverse(message: Message, text: str):
 #   1) declare patterns ordered by their broadness
 #   2) don't forget to set default value for optional arguments
 @bot.on.message(Markup(["/predict", "/predict <thing>"]))
-async def predict(thing: str = "it"):
+def predict(thing: str = "it"):
     probability_percent = random.randint(0, 100)
     return f"I predict the probability {thing} will happen is {probability_percent}%"
 
@@ -127,7 +125,7 @@ async def freeze_handler(message: Message, user_id: UserId):
     ).unwrap()
 
     with dp.callback_query.hold(UserId, user_id):
-        cb, _ = await dp.callback_query.wait(msg.CALLBACK_QUERY(), release=CallbackDataEq("unfreeze"))
+        cb, _ = await dp.wait(msg.CALLBACK_QUERY(), release=CallbackDataEq("unfreeze"))
         await cb.edit_text("Wow heated!")
 
 

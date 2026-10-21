@@ -6,6 +6,7 @@ from kungfu.library.monad.result import Ok
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.dispatch.process import check_rule
 from telegrinder.bot.dispatch.router.abc import ABCRouter
 from telegrinder.bot.dispatch.view.box import ViewBox
 from telegrinder.modules import log_scope, logger
@@ -15,6 +16,7 @@ from telegrinder.types.objects import Update
 if typing.TYPE_CHECKING:
     from telegrinder.bot.dispatch.view.base import ErrorView, EventView, RawEventView, View
     from telegrinder.bot.dispatch.view.media_group import MediaGroupView
+    from telegrinder.bot.rules.abc import ABCRule
 
     type DependencyType = typing.TypeForm[typing.Any]
     type Dependency = typing.Any
@@ -90,13 +92,15 @@ class Router[
 ):
     name: str | None = None
     injections: Injections = dataclasses.field(default_factory=dict["DependencyType", "Dependency"])
+    filter: dataclasses.InitVar[ABCRule | None] = None
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, filter: ABCRule | None) -> None:
         self.qualname = ":".join((type(self).__name__, self.name or hex(id(self))))
         self.module = get_frame_module_name()
         self.ident = ":".join(
-            (self.module, self.qualname) if self.name else (self.module, type(self).__name__, f"at {hex(id(self))}")
+            (self.module, self.qualname) if self.name else (self.module, type(self).__name__, f"at {hex(id(self))}"),
         )
+        self._filter = filter
 
     def __repr__(self) -> str:
         return f"<{self.ident}>"
@@ -109,6 +113,9 @@ class Router[
 
     @staticmethod
     async def check_view(view: View, api: API, update: Update, context: Context) -> bool:
+        if not view:
+            return False
+
         with log_scope(str, view):
             logger.debug("Checking...")
 
@@ -155,8 +162,11 @@ class Router[
 
         with log_scope(lambda: f"Module:{self.module} > {self.qualname}"):
             try:
+                if self._filter is not None and not await check_rule(self._filter, context):
+                    return False
+
                 for event_view in self.event_views.values():
-                    if event_view and await self.check_view(event_view, api, update, context):
+                    if await self.check_view(event_view, api, update, context):
                         return await self.process_view(event_view, api, update, context, raw_process_on_fail=True)
 
                 return False

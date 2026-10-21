@@ -14,6 +14,25 @@ TELEGRINDER_CONTEXT: typing.Final = TelegrinderContext()
 
 
 class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.Polling]:
+    @typing.overload
+    def __init__(self, api: API) -> None: ...
+
+    @typing.overload
+    def __init__(self, api: API, *, polling: Polling) -> None: ...
+
+    @typing.overload
+    def __init__(self, api: API, *, dispatch: Dispatch) -> None: ...
+
+    @typing.overload
+    def __init__(
+        self,
+        api: API,
+        *,
+        polling: Polling = ...,
+        dispatch: Dispatch = ...,
+        loop_wrapper: LoopWrapper = ...,
+    ) -> None: ...
+
     def __init__(
         self,
         api: API,
