@@ -160,7 +160,7 @@ class View(ABCView):
         self.middlewares.put(middleware() if isinstance(middleware, type) else middleware)
         return middleware if isinstance(middleware, type) else None
 
-    def load(self, external: typing.Self, /) -> None:
+    def load(self, external: View, /) -> None:
         if not external:
             return
 

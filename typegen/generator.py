@@ -78,7 +78,7 @@ def download_schema(config_toml: ConfigTOML, config_model: Config, /) -> Telegra
 
     if schema_version > config_model.telegram_bot_api.version_number:
         logger.debug("New version of the schema, upgrade version of the telegram bot api in config.")
-        config_toml.document["telegram-bot-api"]["version"] = f"v{schema_version}"  # type: ignore
+        config_toml.document["telegram-bot-api"]["version"] = f"v{schema_version}"
         config_toml.save()
 
     return msgspec.convert(obj=schema, type=TelegramBotAPISchema)

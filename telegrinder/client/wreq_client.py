@@ -12,6 +12,7 @@ from wreq import DnsOptions, exceptions, wreq
 from telegrinder.__meta__ import __version__
 from telegrinder.client.abc import ABCClient, Response
 from telegrinder.modules import json
+from telegrinder.tools.fullname import fullname
 
 if typing.TYPE_CHECKING:
     from wreq.wreq import ClientConfig, Request
@@ -110,8 +111,8 @@ class WreqClient(ABCClient):
         self._client = wreq.Client(**params)
 
     def __repr__(self) -> str:
-        return "<{} {!r}, timeout={!r}>".format(
-            type(self).__name__,
+        return "<{}: {!r}, timeout={!r}>".format(
+            fullname(self),
             self._client,
             self._timeout.total_seconds(),
         )

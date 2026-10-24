@@ -14,6 +14,7 @@ from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
 from telegrinder.api.token import Token
 from telegrinder.client import ABCClient, WreqClient
+from telegrinder.tools.fullname import fullname
 from telegrinder.types.methods import APIMethods
 
 type Json = str | int | float | bool | list[Json] | dict[str, Json] | None
@@ -97,7 +98,7 @@ class API(APIMethods):
 
     def __repr__(self) -> str:
         return "<{}: id={}, http={!r}, max_retries={}>".format(
-            type(self).__name__,
+            fullname(self),
             self.id,
             self.http,
             self._max_retries,

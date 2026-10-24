@@ -6,6 +6,7 @@ from telegrinder.bot.dispatch.abc import ABCDispatch
 from telegrinder.bot.polling import polling as pg
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.modules import logger
+from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context.builtin_context import TelegrinderContext
 from telegrinder.tools.lifespan import Lifespan
 from telegrinder.tools.loop_wrapper import LoopWrapper
@@ -48,7 +49,7 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
 
     def __repr__(self) -> str:
         return "<{}: api={!r}, dispatch={!r}, polling={!r}, loop_wrapper={!r}>".format(
-            type(self).__name__,
+            fullname(self),
             self.api,
             self.dispatch,
             self.polling,

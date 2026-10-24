@@ -45,6 +45,12 @@ if typing.TYPE_CHECKING:
     from telegrinder.tools.waiter_machine.actions import WaiterActions
     from telegrinder.tools.waiter_machine.hasher.hasher import Hasher
 
+    class ExternalDispatch(typing.Protocol):
+        error_handler: ErrorView
+
+        @property
+        def routers(self) -> deque[Router]: ...
+
     class RouterParams(typing.TypedDict):
         name: typing.NotRequired[str]
         injections: typing.NotRequired[Injections]
@@ -218,7 +224,7 @@ class Dispatch[
                 filter=filter,
             ),
         )
-        self.error_handler = error_handler or ErrorView()  # type: ignore
+        self.error_handler = typing.cast("typing.Any", error_handler or ErrorView())
         self.global_scope = self.global_context.node_global_scope
         self.loop_wrapper = self.global_context.loop_wrapper
         self.waiter_machine = self.global_context.setdefault_value(
@@ -239,14 +245,23 @@ class Dispatch[
         )
         self._routers = None
 
+    def __repr__(self) -> str:
+        return "<{}: main_router={!r}, routers={!r}>".format(
+            fullname(self),
+            self.main_router,
+            self._routers,
+        )
+
     def __setitem__(self, injection_type: typing.Any, injection_value: typing.Any, /) -> None:
         self.global_scope.inject(injection_type, injection_value)
 
     @property
     def routers(self) -> deque[Router]:
-        if self._routers is None:
-            self._routers = deque((self.main_router,) if self.main_router else ())  # type: ignore
-        return self._routers  # type: ignore
+        if self._routers is not None:
+            return self._routers
+
+        self._routers = typing.cast("deque[Router]", deque((self.main_router,) if self.main_router else ()))
+        return self._routers
 
     @property
     def injections(self) -> Injections:
@@ -396,6 +411,7 @@ class Dispatch[
 
     async def feed(self, api: API, update: Update) -> None:
         async with self._create_update_context(api, update) as context:
+            logger.debug("Feeding to dispatch")
             start_time = time.perf_counter_ns()
             ok = False
 
@@ -403,10 +419,9 @@ class Dispatch[
                 for middleware in self.middlewares:
                     if await run_pre_middleware(middleware, context) is not True:
                         logger.info(
-                            "Dispatch pre-middleware `{}` raised failure.",
+                            "Dispatch's pre-middleware `{}` raised failure, skipping the update.",
                             fullname(middleware),
                         )
-                        ok = True
                         return
 
                 if self.routers:
@@ -481,8 +496,8 @@ class Dispatch[
             **actions,
         )
 
-    def load(self, external: typing.Self) -> None:
-        self.routers.extend(filter(None, external.routers))
+    def load(self, external: ExternalDispatch) -> None:
+        self.routers.extend((router for router in external.routers if router))
         self.error_handler.load(external.error_handler)
 
 

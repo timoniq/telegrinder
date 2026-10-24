@@ -1,6 +1,7 @@
 import dataclasses
 import pathlib
 import typing
+from functools import cached_property
 
 import msgspec
 from tomlkit.toml_document import TOMLDocument
@@ -12,7 +13,10 @@ type Path = str | pathlib.Path
 @dataclasses.dataclass
 class ConfigTOML:
     file: TOMLFile
-    document: TOMLDocument
+
+    @cached_property
+    def document(self) -> TOMLDocument:
+        return self.file.read()
 
     def save(self) -> None:
         self.file.write(data=self.document)
@@ -28,8 +32,7 @@ class ConfigTOML:
 
 
 def read_config(path: Path, /) -> ConfigTOML:
-    file = TOMLFile(path)
-    return ConfigTOML(file, document=file.read())
+    return ConfigTOML(file=TOMLFile(path))
 
 
 __all__ = ("ConfigTOML", "read_config")

@@ -15,6 +15,7 @@ from telegrinder.bot.polling.error_handler import ErrorHandler, StopPolling
 from telegrinder.bot.polling.utils import compute_number
 from telegrinder.modules import logger
 from telegrinder.tools.bound_cute import BoundCuteMixin
+from telegrinder.tools.fullname import fullname
 from telegrinder.types.objects import Update, UpdateType
 
 DEFAULT_UPDATE_MODEL: typing.Final = UpdateCute
@@ -87,7 +88,7 @@ class Polling(ABCPolling):
             "<{}: api={!r}, update_model={!r}, running={}, offset={}, timeout={!r}, "
             "limit={}, allowed_updates={!r}, max_reconnects={}, reconnect_after={}>"
         ).format(
-            type(self).__name__,
+            fullname(self),
             self.api,
             self.update_model,
             self._running,
