@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 import time
 import typing
@@ -20,6 +21,7 @@ from telegrinder.modules import log_buffer, logger
 from telegrinder.node.scope import create_per_event_scope
 from telegrinder.scenario.checkbox import Checkbox
 from telegrinder.scenario.choice import Choice
+from telegrinder.tools.exceptions import iter_exceptions
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.global_context import TelegrinderContext
 from telegrinder.tools.waiter_machine.machine import (
@@ -312,64 +314,111 @@ class Dispatch[
         api: API,
         update: Update,
         context: Context,
-    ) -> None:
+    ) -> bool:
+        exceptions: list[BaseException] = []
+
         if context.exceptions_update:
+            routed_exception_ids = {id(error) for error in context.exceptions_update.values()}
+
+            if isinstance(exception, BaseExceptionGroup):
+                _, remaining = exception.split(lambda error: id(error) in routed_exception_ids)
+            else:
+                remaining = None if id(exception) in routed_exception_ids else exception
+
             try:
                 await self._process_exceptions_update(api, update, context)
-                return
             except BaseExceptionGroup as group:
-                if not self.error_handler:
-                    raise
+                exceptions.extend(group.exceptions)
 
-                exceptions = group.exceptions
+            if remaining is not None:
+                exceptions.append(remaining)
+
+            if not exceptions:
+                return True
         else:
-            exceptions = (exception,)
+            exceptions.append(exception)
 
         if self.error_handler:
             logger.debug("Caught unhandled exceptions, running the dispatch's error handler...")
             await self._handle_exceptions(api, update, context, exceptions)
-            return
+            return True
 
-        raise exception from None
+        if context.exceptions_update:
+            raise BaseExceptionGroup("Unhandled exceptions:", exceptions) from None
+
+        return False
 
     async def _handle_exceptions(
         self,
         api: API,
         update: Update,
         context: Context,
-        exceptions: typing.Iterable[BaseException | BaseExceptionGroup[BaseException]],
+        exceptions: typing.Iterable[BaseException],
     ) -> None:
-        for exception in exceptions:
-            if isinstance(exception, KeyboardInterrupt | SystemExit):
-                raise exception from None
+        await self._run_exception_handlers(
+            api,
+            update,
+            context,
+            (
+                (self.main_router, self.error_handler, exception)
+                for exception in iter_exceptions(exceptions)
+                if not isinstance(exception, BaseExceptionGroup)
+            ),
+        )
 
+    async def _process_exception_view(
+        self,
+        router: Router | MainRouter,
+        view: ErrorView,
+        api: API,
+        update: Update,
+        context: Context,
+    ) -> bool:
+        if not await router.check_view(view, api, update, context):
+            return False
+        return await router.process_view(view, api, update, context)
+
+    async def _run_exception_handlers(
+        self,
+        api: API,
+        update: Update,
+        context: Context,
+        handlers: typing.Iterable[tuple[Router | MainRouter, ErrorView, BaseException]],
+    ) -> None:
+        tasks: dict[asyncio.Task[bool], BaseException] = {}
         unhandled_exceptions: list[BaseException] = []
 
         try:
             async with self.loop_wrapper.create_task_group() as task_group:
-                for exception in exceptions:
-                    if isinstance(exception, BaseExceptionGroup):
-                        await self._handle_exceptions(api, update, context, exception.exceptions)
-                    elif await self.main_router.check_view(
-                        self.error_handler,
-                        api,
-                        update,
-                        copy_context := context.copy().add_exception_update(exception),
-                    ):
-                        task_group.create_task(
-                            self.main_router.process_view(
-                                self.error_handler,
-                                api,
-                                update,
-                                copy_context,
-                            ),
-                        )
-                    else:
-                        unhandled_exceptions.append(exception)
+                for router, view, exception in handlers:
+                    if isinstance(exception, KeyboardInterrupt | SystemExit):
+                        raise exception from None
+
+                    task = task_group.create_task(
+                        self._process_exception_view(
+                            router,
+                            view,
+                            api,
+                            update,
+                            context.copy().add_exception_update(exception),
+                        ),
+                    )
+                    tasks[task] = exception
         except KeyboardInterrupt, SystemExit:
             raise
-        except BaseException as e:
-            raise BaseExceptionGroup("Unhandled exceptions:", (e, *unhandled_exceptions)) from None
+        except BaseException as error:
+            unhandled_exceptions.append(error)
+
+        reported_ids = {id(error) for error in iter_exceptions(unhandled_exceptions)}
+        for task, exception in tasks.items():
+            if id(exception) not in reported_ids and (
+                task.cancelled() or task.exception() is not None or task.result() is not True
+            ):
+                unhandled_exceptions.append(exception)
+                reported_ids.add(id(exception))
+
+        if unhandled_exceptions:
+            raise BaseExceptionGroup("Unhandled exceptions:", unhandled_exceptions) from None
 
     async def _process_exceptions_update(
         self,
@@ -377,22 +426,12 @@ class Dispatch[
         update: Update,
         context: Context,
     ) -> None:
-        logger.debug(
-            "Processing error views with exceptions [{}]",
-            ", ".join(fullname(e) for e in context.exceptions_update.values()),
+        await self._run_exception_handlers(
+            api,
+            update,
+            context,
+            ((router, router.event_error, exception) for router, exception in context.exceptions_update.items()),
         )
-
-        async with self.loop_wrapper.create_task_group() as task_group:
-            for router, exception in context.exceptions_update.items():
-                logger.debug("Proccessing exception via router `{!r}`", router)
-                task_group.create_task(
-                    router.process_view(
-                        router.event_error,
-                        api,
-                        update,
-                        context.copy().add_exception_update(exception),
-                    ),
-                )
 
     async def _route_update(self, api: API, update: Update, context: Context) -> None:
         async with self.loop_wrapper.create_task_group() as task_group:
@@ -412,10 +451,10 @@ class Dispatch[
     async def feed(self, api: API, update: Update) -> None:
         async with self._create_update_context(api, update) as context:
             logger.debug("Feeding to dispatch")
-            start_time = time.perf_counter_ns()
-            ok = False
 
             try:
+                start_time = time.perf_counter_ns()
+
                 for middleware in self.middlewares:
                     if await run_pre_middleware(middleware, context) is not True:
                         logger.info(
@@ -424,30 +463,22 @@ class Dispatch[
                         )
                         return
 
-                if self.routers:
-                    await self._route_update(api, update, context)
+                await self._route_update(api, update, context)
 
                 for middleware in self.middlewares:
                     await run_post_middleware(middleware, context)
 
-                ok = True
+                elapsed_ms = (elapsed_ns := time.perf_counter_ns() - start_time) / NANOSECONDS_PER_MILLISECOND
+                logger.debug(
+                    "Processed in {:,} {}.",
+                    elapsed_ns if elapsed_ms < 1 else int(elapsed_ms) if elapsed_ms < 1000 else int(elapsed_ms // 1000),
+                    "ns" if elapsed_ms < 1 else "ms" if elapsed_ms < 1000 else "s",
+                )
             except KeyboardInterrupt, SystemExit:
                 raise
             except BaseException as exception:
-                await self._process_exception(exception, api, update, context)
-            finally:
-                if ok:
-                    elapsed_ns = time.perf_counter_ns() - start_time
-                    elapsed_ms = elapsed_ns / NANOSECONDS_PER_MILLISECOND
-                    logger.debug(
-                        "Processed in {:,} {}.",
-                        elapsed_ns
-                        if elapsed_ms < 1
-                        else int(elapsed_ms)
-                        if elapsed_ms < 1000
-                        else int(elapsed_ms // 1000),
-                        "ns" if elapsed_ms < 1 else "ms" if elapsed_ms < 1000 else "s",
-                    )
+                if not await self._process_exception(exception, api, update, context):
+                    raise
 
     async def feed_raw(self, api: API, raw_update: str | bytes) -> None:
         await self.feed(api, UpdateCute.from_raw(raw_update, api))

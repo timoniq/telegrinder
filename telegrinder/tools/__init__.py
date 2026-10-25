@@ -10,6 +10,7 @@ from telegrinder.tools.aio import (
 )
 from telegrinder.tools.decode import bound_cute_hook, int_timestamp_to_datetime_hook
 from telegrinder.tools.encode import datetime_to_int_timestamp_hook, timedelta_to_int_timedelta
+from telegrinder.tools.exceptions import iter_exceptions
 from telegrinder.tools.formatting import (
     HTML,
     blockquote,
@@ -247,6 +248,7 @@ __all__ = (
     "get_tasks_results",
     "int_timestamp_to_datetime_hook",
     "italic",
+    "iter_exceptions",
     "link",
     "maybe_awaitable",
     "mention",
