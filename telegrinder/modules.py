@@ -158,36 +158,51 @@ ASSIGNMENT_OPERATOR: typing.Final = "="
 LOGGER_LEVELS: typing.Final = ("DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL", "EXCEPTION")
 LOGGER_MODULES: typing.Final = ("logging", "loguru", "structlog")
 _NODEFAULT: typing.Final = typing.cast("typing.Any", object())
-_LOAD_ENV_FILE = False
-_ENV_FILE_NAME = ".env"
-_ENV_FILE_PATH: pathlib.Path | None = None
 _ANSI_ESCAPE: typing.Final = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
-def _find_env_file() -> Option[pathlib.Path]:
-    caller_frame = sys._getframe()
+def _is_project_root(directory: pathlib.Path, /) -> bool:
+    return (
+        (directory / "pyproject.toml").is_file()
+        or (directory / ".venv").is_dir()
+        or (directory / "requirements.txt").is_file()
+        or (directory / ".git").exists()
+    )
 
-    while caller_frame:
-        if caller_frame.f_back is None:
+
+def _find_env_file() -> Option[pathlib.Path]:
+    """Find a dotenv file relative to the current working directory, within its project."""
+    start_dir = pathlib.Path.cwd()
+    project_root = next(
+        (directory for directory in (start_dir, *start_dir.parents) if _is_project_root(directory)),
+        start_dir,
+    )
+    directory = start_dir
+
+    while True:
+        env_file = directory / _ENV_FILE_NAME
+
+        if env_file.is_file():
+            return Some(env_file)
+
+        if directory == project_root:
             break
 
-        caller_frame = caller_frame.f_back
+        directory = directory.parent
 
-    caller_dir = os.path.dirname(caller_frame.f_code.co_filename)
-    start_dir = sys.path[0]
+    for root, directories, files in os.walk(project_root):
+        root_path = pathlib.Path(root)
 
-    # Handle empty paths (can happen on Windows in certain launch conditions)
-    if not caller_dir or not start_dir:
-        search_path = caller_dir or start_dir or "."
-    else:
-        try:
-            search_path = os.path.relpath(caller_dir, start_dir)
-        except ValueError:
-            search_path = caller_dir
+        if _ENV_FILE_NAME in files and (env_file := root_path / _ENV_FILE_NAME).is_file():
+            return Some(env_file)
 
-    for root, _, files in os.walk(search_path):
-        if _ENV_FILE_NAME in files:
-            return Some(pathlib.Path(root) / _ENV_FILE_NAME)
+        directories[:] = [
+            name
+            for name in sorted(directories)
+            if name not in {".git", ".venv", "__pycache__"}
+            and not ((child := root_path / name) / "pyvenv.cfg").is_file()
+            and not _is_project_root(child)
+        ]
 
     return NOTHING
 
@@ -198,7 +213,7 @@ def log_scope(
     /,
     *args: typing.Any,
     **kwargs: typing.Any,
-) -> typing.Iterator[None]:
+) -> typing.Generator[None]:
     """Context manager to set a log scope for the current async task.
 
     >>> with log_scope("{handlers_folder} → {view!r}", handlers_folder="handlers", view=view):
@@ -432,7 +447,7 @@ CASTERS: typing.Final[dict[type[typing.Any], betterconf.AbstractCaster]] = {
 
 @betterconf.betterconf(prefix="TELEGRINDER_LOGGER", provider=DOTENV)
 class LoggerConfig:
-    MODULE: typing.Literal["logging", "loguru", "structlog"] = betterconf.field(
+    MODULE: LoggerModule = betterconf.field(
         default=LOGGER_MODULE,
         caster=_LoggerModuleCaster(),
     )
@@ -445,11 +460,14 @@ class LoggerConfig:
         default=True,
         caster=betterconf.caster.to_bool,
     )
-    FILE_HANDLER_FORMAT: str | None = betterconf.constant_field(None)
-    FILE_HANDLER_COLORIZE: bool = betterconf.field(
-        default=False,
-        caster=betterconf.caster.to_bool,
-    )
+
+    @betterconf.betterconf(prefix="FILE_HANDLER", provider=DOTENV, subconfig=True)
+    class FileHandlerConfig:
+        FORMAT: str | None = betterconf.constant_field(None)
+        COLORIZE: bool = betterconf.field(
+            default=False,
+            caster=betterconf.caster.to_bool,
+        )
 
 
 def _is_async_logger(logger: typing.Any, /) -> bool:
@@ -845,12 +863,49 @@ class _LoggerProxy:
 
 
 class _SetupLoggerKwargs(typing.TypedDict):
+    """Optional keyword arguments for the first call to `setup_logger`.
+
+    Explicit values override the corresponding `LoggerConfig` defaults. Subsequent calls to
+    `setup_logger` return the already configured logger without applying new settings.
+    """
+
     module: typing.NotRequired[LoggerModule]
+    """Logging backend: `logging`, `loguru`, or `structlog`.
+
+    Defaults to `TELEGRINDER_LOGGER_MODULE` when set. Otherwise, the first installed backend
+    in the order `structlog`, `loguru` is selected, falling back to the standard `logging` module.
+    """
+
     level: typing.NotRequired[LoggerLevel]
+    """Minimum log level. Defaults to `TELEGRINDER_LOGGER_LEVEL`, or `DEBUG` when unset."""
+
     format: typing.NotRequired[str]
+    """Console format string for `logging` and `structlog`; defaults to the backend's built-in format.
+
+    The `loguru` console handler uses `DEFAULT_BUFFERED_LOGURU_FORMAT` instead of this option.
+    File output formatting is configured separately through `file`.
+    """
+
     colorize: typing.NotRequired[bool]
+    """Whether to colorize console output.
+
+    Defaults to `TELEGRINDER_LOGGER_COLORIZE`, or `True` when unset.
+    File output colorization is configured separately through `file`.
+    """
+
     console_sink: typing.NotRequired[Sink | None]
+    """Writable console stream, defaulting to `sys.stderr`.
+
+    Set to `None` to disable console output without disabling the configured file handler.
+    """
+
     file: typing.NotRequired[FileHandlerConfig]
+    """Additional file handler configuration; no file handler is installed by default.
+
+    Use `FileHandlerConfig.from_logging` for `logging` and `structlog`, or
+    `FileHandlerConfig.from_loguru` for `loguru`. File formatting and colorization are
+    independent of the console settings.
+    """
 
 
 class _LoguruFileHandlerConfig(_LoguruFileHandler):
@@ -870,14 +925,14 @@ class FileHandlerConfig:
         logger_module: str = LOGGER_MODULE,
     ) -> None:
         config = LoggerConfig()
-        format = (config.FILE_HANDLER_FORMAT if format is _NODEFAULT else format) or (
+        format = (config.FileHandlerConfig.FORMAT if format is _NODEFAULT else format) or (
             DEFAULT_LOGURU_FORMAT
             if logger_module == "loguru"
             else DEFAULT_STRUCTLOG_FORMAT
             if logger_module == "structlog"
             else DEFAULT_LOGGING_FORMAT
         )
-        colorize = config.FILE_HANDLER_COLORIZE if colorize is _NODEFAULT else colorize
+        colorize = config.FileHandlerConfig.COLORIZE if colorize is _NODEFAULT else colorize
 
         self.handler = handler
 
@@ -1282,6 +1337,8 @@ def _configure_logging(
 
 
 def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> Logger:
+    """Setting up the telegrinder's logger."""
+
     if logger.logger is not None:
         return logger
 
@@ -1307,6 +1364,11 @@ def setup_logger(**setup_kwargs: typing.Unpack[_SetupLoggerKwargs]) -> Logger:
     return logger
 
 
+_LOAD_ENV_FILE = False
+_ENV_FILE_NAME = ".env"
+_ENV_FILE_PATH = None
+
+
 @typing.overload
 def configure_dotenv() -> None: ...
 
@@ -1324,11 +1386,18 @@ def configure_dotenv(
     file_name: str | None = _ENV_FILE_PATH,
     file_path: str | pathlib.Path | None = _ENV_FILE_PATH,
 ) -> None:
-    """Configure the dotenv file to load and load it if exists.
+    """Configure lazy loading of a dotenv file.
 
     Args:
         file_name: The name of the env file. If None, will use `.env` by default.
-        file_path: The path to the env file. If None, will find recursively from the directory of the caller.
+        file_path: The path to the env file. If None, discover it from the current working directory.
+
+    Discovery first checks the working directory and its ancestors up to the nearest project root
+    (a directory containing `pyproject.toml`, `requirements.txt`, `.git`, or `.venv`). It then searches that project's
+    subdirectories in sorted depth-first order, skipping virtual environments, Git metadata,
+    Python bytecode caches, and nested projects. Directory symlinks are not followed.
+    Without a project marker, discovery stays within the working directory and its descendants.
+    The working directory is evaluated when the file is loaded, not when this function is called.
 
     Raises:
         FileNotFoundError: If the env file is not found.

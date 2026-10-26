@@ -47,7 +47,7 @@ dependencies = [
     "msgspex (>=1.8.0)",
     "nodnod (>=1.1.0)",
     "vbml2 (>=2.0.2)",
-    "wreq (>=0.13.0)",
+    "wreq (==0.13.0)",
     "typing-extensions (>=4.16.0)",
 ]
 
@@ -70,7 +70,7 @@ dev = [
     "tomlkit>=0.15.2,<1",
     "libcst>=1.9.0,<2",
     "pytest>=9.1.1,<10",
-    "pytest-asyncio>=1.4.0,<2",
+    "pytest-asyncio>=1.4.1,<2",
     "pytest-cov>=7.1.0,<8",
     "pytest-mock>=3.17.0,<4",
     "pre-commit>=4.7.0,<5",
