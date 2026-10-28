@@ -58,6 +58,7 @@ The `compose` function returns an async context manager that:
 
 import asyncio
 import dataclasses
+import functools
 from contextlib import asynccontextmanager
 from functools import lru_cache
 
@@ -88,24 +89,22 @@ type _Composable[T: Agent] = Function[..., typing.Any] | type[Node[typing.Any, t
 type AnyType = typing.TypeForm[typing.Any]
 
 
-def _register_waiter_close_node_global_scope() -> asyncio.Task[None]:
+def _register_waiter_close_node_global_scope[**P, R](
+    runner: typing.Callable[P, typing.AsyncGenerator[R]],
+    /,
+) -> typing.Callable[P, typing.AsyncGenerator[R]]:
     task = None
 
-    def _register() -> typing.Generator[asyncio.Task[None]]:
+    @functools.wraps(runner)
+    def _wrapper(*args: P.args, **kwargs: P.kwargs) -> typing.AsyncGenerator[R]:
         nonlocal task
 
-        try:
+        if task is None:
             task = asyncio.create_task(wait_for_close_node_global_scope())
-            yield task
-        finally:
-            if task is not None:
-                task.cancel()
-                task = None
 
-    if task is None:
-        return next(_register())
+        return runner(*args, **kwargs)
 
-    return task
+    return _wrapper
 
 
 @asynccontextmanager
@@ -155,6 +154,7 @@ def create_composable[T: Agent](
 
 
 @asynccontextmanager
+@_register_waiter_close_node_global_scope
 async def run_agent(
     agent: Agent,
     context: Context | None = None,
@@ -182,8 +182,6 @@ async def run_agent(
             yield Ok(scope.merge())
         except NodeError as error:
             yield Error(error)
-        finally:
-            _register_waiter_close_node_global_scope()
 
 
 @typing.overload

@@ -570,35 +570,6 @@ def test_wreq_request_methods_accept_positional_url():
         assert "url" in positional, name
 
 
-@pytest.mark.asyncio()
-async def test_global_scope_close_waiter_is_kept_referenced(monkeypatch):
-    import sys
-
-    import telegrinder.node.compose  # noqa: F401  (ensure the submodule is imported)
-
-    # `telegrinder.node.compose` the attribute is the compose() function (re-exported by the
-    # package), so fetch the actual module object from sys.modules.
-    compose_mod = sys.modules["telegrinder.node.compose"]
-
-    async def _noop() -> None:
-        return None
-
-    monkeypatch.setattr(compose_mod, "wait_for_close_node_global_scope", _noop)
-
-    result1 = compose_mod._register_waiter_close_node_global_scope()
-    assert isinstance(result1, asyncio.Task)
-
-    result2 = compose_mod._register_waiter_close_node_global_scope()
-    assert isinstance(result1, asyncio.Task)
-
-    # result2 is a new task
-    assert result1 is not result2
-
-    with pytest.raises(asyncio.CancelledError):
-        # should be cancelled
-        await result1
-
-
 def test_managed_bot_username_node_uses_expect():
     src = (REPO_ROOT / "telegrinder/node/nodes/managed_bot.py").read_text()
     assert "managed_bot_created_bot.username.unwrap()" not in src
