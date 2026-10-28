@@ -13,16 +13,65 @@ from telegrinder.bot.cute_types.utils import MediaType, build_html, compose_reac
 from telegrinder.tools.bound_cute import BoundCute, BoundCuteMixin
 from telegrinder.tools.magic.descriptors import additional_property
 from telegrinder.tools.waiter_machine.hasher import (
+    ANY_MESSAGE_FOR_RECEIVER_USER,
+    ANY_MESSAGE_FROM_SENDER_CHAT,
+    ANY_MESSAGE_FROM_SENDER_CHAT_IN_CHAT,
+    ANY_MESSAGE_FROM_USER,
+    ANY_MESSAGE_FROM_USER_IN_CHAT,
+    ANY_MESSAGE_FROM_USER_IN_CHAT_THREAD,
+    ANY_MESSAGE_FROM_VIA_BOT,
+    ANY_MESSAGE_IN_CHAT,
+    ANY_MESSAGE_IN_CHAT_DIRECT_MESSAGES_TOPIC,
+    ANY_MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE,
+    ANY_MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER,
+    ANY_MESSAGE_IN_CHAT_FOR_MEDIA_GROUP,
+    ANY_MESSAGE_IN_CHAT_FOR_MESSAGE,
+    ANY_MESSAGE_IN_CHAT_THREAD,
     BUSINESS_MESSAGE,
+    BUSINESS_MESSAGE_FOR_CONNECTION_IN_CHAT_FOR_MESSAGE,
+    BUSINESS_MESSAGE_FROM_BUSINESS_BOT,
+    BUSINESS_MESSAGE_FROM_BUSINESS_BOT_FOR_CONNECTION,
+    BUSINESS_MESSAGE_FROM_USER,
+    BUSINESS_MESSAGE_FROM_USER_IN_CHAT,
+    BUSINESS_MESSAGE_FROM_USER_IN_CHAT_FOR_CONNECTION,
+    BUSINESS_MESSAGE_IN_CHAT,
+    BUSINESS_MESSAGE_IN_CHAT_FOR_CONNECTION,
+    BUSINESS_MESSAGE_IN_CHAT_THREAD_FOR_CONNECTION,
     CALLBACK_QUERY_FOR_MESSAGE,
     CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
     CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE,
+    GUEST_MESSAGE,
+    GUEST_MESSAGE_FOR_QUERY_FROM_USER,
+    GUEST_MESSAGE_FROM_USER,
+    GUEST_MESSAGE_FROM_USER_IN_CHAT,
+    GUEST_MESSAGE_FROM_USER_IN_CHAT_THREAD,
+    GUEST_MESSAGE_FROM_USER_IN_THREAD,
+    GUEST_MESSAGE_IN_CHAT,
+    GUEST_MESSAGE_IN_CHAT_FOR_MESSAGE,
+    GUEST_MESSAGE_IN_CHAT_FOR_QUERY,
+    GUEST_MESSAGE_IN_CHAT_THREAD,
+    GUEST_MESSAGE_IN_THREAD,
+    MESSAGE_FOR_RECEIVER_USER,
+    MESSAGE_FROM_SENDER_CHAT,
+    MESSAGE_FROM_SENDER_CHAT_IN_CHAT,
     MESSAGE_FROM_USER,
     MESSAGE_FROM_USER_IN_CHAT,
     MESSAGE_FROM_USER_IN_CHAT_THREAD,
     MESSAGE_FROM_USER_IN_THREAD,
+    MESSAGE_FROM_VIA_BOT,
     MESSAGE_IN_CHAT,
+    MESSAGE_IN_CHAT_DIRECT_MESSAGES_TOPIC,
+    MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE,
+    MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER,
+    MESSAGE_IN_CHAT_FOR_MEDIA_GROUP,
+    MESSAGE_IN_CHAT_FOR_MESSAGE,
+    MESSAGE_IN_CHAT_THREAD,
+    MESSAGE_IN_TRHEAD,
+    MESSAGE_POST_FROM_SENDER_CHAT,
+    MESSAGE_POST_FROM_USER,
     MESSAGE_POST_IN_CHANNEL,
+    MESSAGE_POST_IN_CHANNEL_FOR_MEDIA_GROUP,
+    MESSAGE_POST_IN_CHANNEL_FOR_MESSAGE,
 )
 from telegrinder.types import *
 from telegrinder.types.methods import APIResult
@@ -5541,6 +5590,552 @@ class MessageCute(
                 return option.Some(build_html(text.unwrap(), ents))
             case _:
                 return option.NOTHING
+
+    def ANY_FROM_USER(self, user_id: int | None = None):
+        return ANY_MESSAGE_FROM_USER(
+            user_id
+            if user_id is not None
+            else self.from_.map(lambda user: user.id).expect(ValueError("ANY_MESSAGE_FROM_USER requires user_id.")),
+        )
+
+    def ANY_IN_CHAT(self, chat_id: int | None = None):
+        return ANY_MESSAGE_IN_CHAT(
+            chat_id if chat_id is not None else self.chat_id,
+        )
+
+    def ANY_FROM_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return ANY_MESSAGE_FROM_USER_IN_CHAT(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                user_id
+                if user_id is not None
+                else self.from_.map(lambda user: user.id).expect(
+                    ValueError("ANY_MESSAGE_FROM_USER_IN_CHAT requires user_id.")
+                ),
+            ),
+        )
+
+    def IN_CHAT_THREAD(self, message_thread_id: int | None = None, chat_id: int | None = None):
+        return MESSAGE_IN_CHAT_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(ValueError("MESSAGE_IN_CHAT_THREAD requires message_thread_id.")),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def ANY_IN_CHAT_THREAD(self, message_thread_id: int | None = None, chat_id: int | None = None):
+        return ANY_MESSAGE_IN_CHAT_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("ANY_MESSAGE_IN_CHAT_THREAD requires message_thread_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def ANY_FROM_USER_IN_CHAT_THREAD(
+        self, message_thread_id: int | None = None, chat_id: int | None = None, user_id: int | None = None
+    ):
+        return ANY_MESSAGE_FROM_USER_IN_CHAT_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("ANY_MESSAGE_FROM_USER_IN_CHAT_THREAD requires message_thread_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+                user_id
+                if user_id is not None
+                else self.from_.map(lambda user: user.id).expect(
+                    ValueError("ANY_MESSAGE_FROM_USER_IN_CHAT_THREAD requires user_id.")
+                ),
+            ),
+        )
+
+    def IN_CHAT_FOR_MESSAGE(self, chat_id: int | None = None, message_id: int | None = None):
+        return MESSAGE_IN_CHAT_FOR_MESSAGE(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                message_id if message_id is not None else self.message_id,
+            ),
+        )
+
+    def ANY_IN_CHAT_FOR_MESSAGE(self, chat_id: int | None = None, message_id: int | None = None):
+        return ANY_MESSAGE_IN_CHAT_FOR_MESSAGE(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                message_id if message_id is not None else self.message_id,
+            ),
+        )
+
+    def FROM_SENDER_CHAT(self, sender_chat_id: int | None = None):
+        return MESSAGE_FROM_SENDER_CHAT(
+            sender_chat_id
+            if sender_chat_id is not None
+            else self.sender_chat.map(lambda chat: chat.id).expect(
+                ValueError("MESSAGE_FROM_SENDER_CHAT requires sender_chat_id.")
+            ),
+        )
+
+    def ANY_FROM_SENDER_CHAT(self, sender_chat_id: int | None = None):
+        return ANY_MESSAGE_FROM_SENDER_CHAT(
+            sender_chat_id
+            if sender_chat_id is not None
+            else self.sender_chat.map(lambda chat: chat.id).expect(
+                ValueError("ANY_MESSAGE_FROM_SENDER_CHAT requires sender_chat_id.")
+            ),
+        )
+
+    def FROM_SENDER_CHAT_IN_CHAT(self, chat_id: int | None = None, sender_chat_id: int | None = None):
+        return MESSAGE_FROM_SENDER_CHAT_IN_CHAT(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                sender_chat_id
+                if sender_chat_id is not None
+                else self.sender_chat.map(lambda chat: chat.id).expect(
+                    ValueError("MESSAGE_FROM_SENDER_CHAT_IN_CHAT requires sender_chat_id.")
+                ),
+            ),
+        )
+
+    def ANY_FROM_SENDER_CHAT_IN_CHAT(self, chat_id: int | None = None, sender_chat_id: int | None = None):
+        return ANY_MESSAGE_FROM_SENDER_CHAT_IN_CHAT(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                sender_chat_id
+                if sender_chat_id is not None
+                else self.sender_chat.map(lambda chat: chat.id).expect(
+                    ValueError("ANY_MESSAGE_FROM_SENDER_CHAT_IN_CHAT requires sender_chat_id.")
+                ),
+            ),
+        )
+
+    def FOR_RECEIVER_USER(self, receiver_user_id: int | None = None):
+        return MESSAGE_FOR_RECEIVER_USER(
+            receiver_user_id
+            if receiver_user_id is not None
+            else self.receiver_user_id.expect(ValueError("MESSAGE_FOR_RECEIVER_USER requires receiver_user_id.")),
+        )
+
+    def ANY_FOR_RECEIVER_USER(self, receiver_user_id: int | None = None):
+        return ANY_MESSAGE_FOR_RECEIVER_USER(
+            receiver_user_id
+            if receiver_user_id is not None
+            else self.receiver_user_id.expect(ValueError("ANY_MESSAGE_FOR_RECEIVER_USER requires receiver_user_id.")),
+        )
+
+    def IN_CHAT_FOR_EPHEMERAL_MESSAGE(self, chat_id: int | None = None, ephemeral_message_id: int | None = None):
+        return MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                ephemeral_message_id
+                if ephemeral_message_id is not None
+                else self.ephemeral_message_id.expect(
+                    ValueError("MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE requires ephemeral_message_id.")
+                ),
+            ),
+        )
+
+    def ANY_IN_CHAT_FOR_EPHEMERAL_MESSAGE(self, chat_id: int | None = None, ephemeral_message_id: int | None = None):
+        return ANY_MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                ephemeral_message_id
+                if ephemeral_message_id is not None
+                else self.ephemeral_message_id.expect(
+                    ValueError("ANY_MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE requires ephemeral_message_id.")
+                ),
+            ),
+        )
+
+    def IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER(
+        self, chat_id: int | None = None, ephemeral_message_id: int | None = None, receiver_user_id: int | None = None
+    ):
+        return MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                ephemeral_message_id
+                if ephemeral_message_id is not None
+                else self.ephemeral_message_id.expect(
+                    ValueError("MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER requires ephemeral_message_id.")
+                ),
+                receiver_user_id
+                if receiver_user_id is not None
+                else self.receiver_user_id.expect(
+                    ValueError("MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER requires receiver_user_id.")
+                ),
+            ),
+        )
+
+    def ANY_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER(
+        self, chat_id: int | None = None, ephemeral_message_id: int | None = None, receiver_user_id: int | None = None
+    ):
+        return ANY_MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                ephemeral_message_id
+                if ephemeral_message_id is not None
+                else self.ephemeral_message_id.expect(
+                    ValueError("ANY_MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER requires ephemeral_message_id.")
+                ),
+                receiver_user_id
+                if receiver_user_id is not None
+                else self.receiver_user_id.expect(
+                    ValueError("ANY_MESSAGE_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FOR_USER requires receiver_user_id.")
+                ),
+            ),
+        )
+
+    def IN_CHAT_FOR_MEDIA_GROUP(self, media_group_id: str | None = None, chat_id: int | None = None):
+        return MESSAGE_IN_CHAT_FOR_MEDIA_GROUP(
+            (
+                media_group_id
+                if media_group_id is not None
+                else self.media_group_id.expect(ValueError("MESSAGE_IN_CHAT_FOR_MEDIA_GROUP requires media_group_id.")),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def ANY_IN_CHAT_FOR_MEDIA_GROUP(self, media_group_id: str | None = None, chat_id: int | None = None):
+        return ANY_MESSAGE_IN_CHAT_FOR_MEDIA_GROUP(
+            (
+                media_group_id
+                if media_group_id is not None
+                else self.media_group_id.expect(
+                    ValueError("ANY_MESSAGE_IN_CHAT_FOR_MEDIA_GROUP requires media_group_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def IN_CHAT_DIRECT_MESSAGES_TOPIC(self, direct_messages_topic_id: int | None = None, chat_id: int | None = None):
+        return MESSAGE_IN_CHAT_DIRECT_MESSAGES_TOPIC(
+            (
+                direct_messages_topic_id
+                if direct_messages_topic_id is not None
+                else self.direct_messages_topic.map(lambda topic: topic.topic_id).expect(
+                    ValueError("MESSAGE_IN_CHAT_DIRECT_MESSAGES_TOPIC requires direct_messages_topic_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def ANY_IN_CHAT_DIRECT_MESSAGES_TOPIC(
+        self, direct_messages_topic_id: int | None = None, chat_id: int | None = None
+    ):
+        return ANY_MESSAGE_IN_CHAT_DIRECT_MESSAGES_TOPIC(
+            (
+                direct_messages_topic_id
+                if direct_messages_topic_id is not None
+                else self.direct_messages_topic.map(lambda topic: topic.topic_id).expect(
+                    ValueError("ANY_MESSAGE_IN_CHAT_DIRECT_MESSAGES_TOPIC requires direct_messages_topic_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def FROM_VIA_BOT(self, via_bot_id: int | None = None):
+        return MESSAGE_FROM_VIA_BOT(
+            via_bot_id
+            if via_bot_id is not None
+            else self.via_bot.map(lambda bot: bot.id).expect(ValueError("MESSAGE_FROM_VIA_BOT requires via_bot_id.")),
+        )
+
+    def ANY_FROM_VIA_BOT(self, via_bot_id: int | None = None):
+        return ANY_MESSAGE_FROM_VIA_BOT(
+            via_bot_id
+            if via_bot_id is not None
+            else self.via_bot.map(lambda bot: bot.id).expect(
+                ValueError("ANY_MESSAGE_FROM_VIA_BOT requires via_bot_id.")
+            ),
+        )
+
+    def IN_THREAD(self, message_thread_id: int | None = None):
+        return MESSAGE_IN_TRHEAD(
+            message_thread_id
+            if message_thread_id is not None
+            else self.message_thread_id.expect(ValueError("MESSAGE_IN_TRHEAD requires message_thread_id.")),
+        )
+
+    def GUEST(self, guest_query_id: str | None = None):
+        return GUEST_MESSAGE(
+            guest_query_id
+            if guest_query_id is not None
+            else self.guest_query_id.expect(ValueError("GUEST_MESSAGE requires guest_query_id.")),
+        )
+
+    def GUEST_FROM_USER(self, user_id: int | None = None):
+        return GUEST_MESSAGE_FROM_USER(
+            user_id
+            if user_id is not None
+            else self.from_.map(lambda user: user.id).expect(ValueError("GUEST_MESSAGE_FROM_USER requires user_id.")),
+        )
+
+    def GUEST_IN_CHAT(self, chat_id: int | None = None):
+        return GUEST_MESSAGE_IN_CHAT(
+            chat_id if chat_id is not None else self.chat_id,
+        )
+
+    def GUEST_IN_THREAD(self, message_thread_id: int | None = None):
+        return GUEST_MESSAGE_IN_THREAD(
+            message_thread_id
+            if message_thread_id is not None
+            else self.message_thread_id.expect(ValueError("GUEST_MESSAGE_IN_THREAD requires message_thread_id.")),
+        )
+
+    def GUEST_IN_CHAT_THREAD(self, message_thread_id: int | None = None, chat_id: int | None = None):
+        return GUEST_MESSAGE_IN_CHAT_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("GUEST_MESSAGE_IN_CHAT_THREAD requires message_thread_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def GUEST_FROM_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return GUEST_MESSAGE_FROM_USER_IN_CHAT(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                user_id
+                if user_id is not None
+                else self.from_.map(lambda user: user.id).expect(
+                    ValueError("GUEST_MESSAGE_FROM_USER_IN_CHAT requires user_id.")
+                ),
+            ),
+        )
+
+    def GUEST_FROM_USER_IN_THREAD(self, message_thread_id: int | None = None, user_id: int | None = None):
+        return GUEST_MESSAGE_FROM_USER_IN_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("GUEST_MESSAGE_FROM_USER_IN_THREAD requires message_thread_id.")
+                ),
+                user_id
+                if user_id is not None
+                else self.from_.map(lambda user: user.id).expect(
+                    ValueError("GUEST_MESSAGE_FROM_USER_IN_THREAD requires user_id.")
+                ),
+            ),
+        )
+
+    def GUEST_FROM_USER_IN_CHAT_THREAD(
+        self, message_thread_id: int | None = None, chat_id: int | None = None, user_id: int | None = None
+    ):
+        return GUEST_MESSAGE_FROM_USER_IN_CHAT_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("GUEST_MESSAGE_FROM_USER_IN_CHAT_THREAD requires message_thread_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+                user_id
+                if user_id is not None
+                else self.from_.map(lambda user: user.id).expect(
+                    ValueError("GUEST_MESSAGE_FROM_USER_IN_CHAT_THREAD requires user_id.")
+                ),
+            ),
+        )
+
+    def GUEST_IN_CHAT_FOR_MESSAGE(self, chat_id: int | None = None, message_id: int | None = None):
+        return GUEST_MESSAGE_IN_CHAT_FOR_MESSAGE(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                message_id if message_id is not None else self.message_id,
+            ),
+        )
+
+    def GUEST_IN_CHAT_FOR_QUERY(self, guest_query_id: str | None = None, chat_id: int | None = None):
+        return GUEST_MESSAGE_IN_CHAT_FOR_QUERY(
+            (
+                guest_query_id
+                if guest_query_id is not None
+                else self.guest_query_id.expect(ValueError("GUEST_MESSAGE_IN_CHAT_FOR_QUERY requires guest_query_id.")),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def GUEST_FOR_QUERY_FROM_USER(self, guest_query_id: str | None = None, user_id: int | None = None):
+        return GUEST_MESSAGE_FOR_QUERY_FROM_USER(
+            (
+                guest_query_id
+                if guest_query_id is not None
+                else self.guest_query_id.expect(
+                    ValueError("GUEST_MESSAGE_FOR_QUERY_FROM_USER requires guest_query_id.")
+                ),
+                user_id
+                if user_id is not None
+                else self.from_.map(lambda user: user.id).expect(
+                    ValueError("GUEST_MESSAGE_FOR_QUERY_FROM_USER requires user_id.")
+                ),
+            ),
+        )
+
+    def BUSINESS_IN_CHAT(self, chat_id: int | None = None):
+        return BUSINESS_MESSAGE_IN_CHAT(
+            chat_id if chat_id is not None else self.chat_id,
+        )
+
+    def BUSINESS_FROM_USER(self, user_id: int | None = None):
+        return BUSINESS_MESSAGE_FROM_USER(
+            user_id
+            if user_id is not None
+            else self.from_.map(lambda user: user.id).expect(
+                ValueError("BUSINESS_MESSAGE_FROM_USER requires user_id.")
+            ),
+        )
+
+    def BUSINESS_FROM_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return BUSINESS_MESSAGE_FROM_USER_IN_CHAT(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                user_id
+                if user_id is not None
+                else self.from_.map(lambda user: user.id).expect(
+                    ValueError("BUSINESS_MESSAGE_FROM_USER_IN_CHAT requires user_id.")
+                ),
+            ),
+        )
+
+    def BUSINESS_IN_CHAT_FOR_CONNECTION(self, business_connection_id: str | None = None, chat_id: int | None = None):
+        return BUSINESS_MESSAGE_IN_CHAT_FOR_CONNECTION(
+            (
+                business_connection_id
+                if business_connection_id is not None
+                else self.business_connection_id.expect(
+                    ValueError("BUSINESS_MESSAGE_IN_CHAT_FOR_CONNECTION requires business_connection_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def BUSINESS_FROM_USER_IN_CHAT_FOR_CONNECTION(
+        self, business_connection_id: str | None = None, chat_id: int | None = None, user_id: int | None = None
+    ):
+        return BUSINESS_MESSAGE_FROM_USER_IN_CHAT_FOR_CONNECTION(
+            (
+                business_connection_id
+                if business_connection_id is not None
+                else self.business_connection_id.expect(
+                    ValueError("BUSINESS_MESSAGE_FROM_USER_IN_CHAT_FOR_CONNECTION requires business_connection_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+                user_id
+                if user_id is not None
+                else self.from_.map(lambda user: user.id).expect(
+                    ValueError("BUSINESS_MESSAGE_FROM_USER_IN_CHAT_FOR_CONNECTION requires user_id.")
+                ),
+            ),
+        )
+
+    def BUSINESS_FOR_CONNECTION_IN_CHAT_FOR_MESSAGE(
+        self, business_connection_id: str | None = None, chat_id: int | None = None, message_id: int | None = None
+    ):
+        return BUSINESS_MESSAGE_FOR_CONNECTION_IN_CHAT_FOR_MESSAGE(
+            (
+                business_connection_id
+                if business_connection_id is not None
+                else self.business_connection_id.expect(
+                    ValueError("BUSINESS_MESSAGE_FOR_CONNECTION_IN_CHAT_FOR_MESSAGE requires business_connection_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+                message_id if message_id is not None else self.message_id,
+            ),
+        )
+
+    def BUSINESS_IN_CHAT_THREAD_FOR_CONNECTION(
+        self,
+        business_connection_id: str | None = None,
+        message_thread_id: int | None = None,
+        chat_id: int | None = None,
+    ):
+        return BUSINESS_MESSAGE_IN_CHAT_THREAD_FOR_CONNECTION(
+            (
+                business_connection_id
+                if business_connection_id is not None
+                else self.business_connection_id.expect(
+                    ValueError("BUSINESS_MESSAGE_IN_CHAT_THREAD_FOR_CONNECTION requires business_connection_id.")
+                ),
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("BUSINESS_MESSAGE_IN_CHAT_THREAD_FOR_CONNECTION requires message_thread_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
+
+    def BUSINESS_FROM_BUSINESS_BOT(self, sender_business_bot_id: int | None = None):
+        return BUSINESS_MESSAGE_FROM_BUSINESS_BOT(
+            sender_business_bot_id
+            if sender_business_bot_id is not None
+            else self.sender_business_bot.map(lambda bot: bot.id).expect(
+                ValueError("BUSINESS_MESSAGE_FROM_BUSINESS_BOT requires sender_business_bot_id.")
+            ),
+        )
+
+    def BUSINESS_FROM_BUSINESS_BOT_FOR_CONNECTION(
+        self, business_connection_id: str | None = None, sender_business_bot_id: int | None = None
+    ):
+        return BUSINESS_MESSAGE_FROM_BUSINESS_BOT_FOR_CONNECTION(
+            (
+                business_connection_id
+                if business_connection_id is not None
+                else self.business_connection_id.expect(
+                    ValueError("BUSINESS_MESSAGE_FROM_BUSINESS_BOT_FOR_CONNECTION requires business_connection_id.")
+                ),
+                sender_business_bot_id
+                if sender_business_bot_id is not None
+                else self.sender_business_bot.map(lambda bot: bot.id).expect(
+                    ValueError("BUSINESS_MESSAGE_FROM_BUSINESS_BOT_FOR_CONNECTION requires sender_business_bot_id.")
+                ),
+            ),
+        )
+
+    def POST_IN_CHANNEL_FOR_MESSAGE(self, chat_id: int | None = None, message_id: int | None = None):
+        return MESSAGE_POST_IN_CHANNEL_FOR_MESSAGE(
+            (
+                chat_id if chat_id is not None else self.chat_id,
+                message_id if message_id is not None else self.message_id,
+            ),
+        )
+
+    def POST_FROM_USER(self, user_id: int | None = None):
+        return MESSAGE_POST_FROM_USER(
+            user_id
+            if user_id is not None
+            else self.from_.map(lambda user: user.id).expect(ValueError("MESSAGE_POST_FROM_USER requires user_id.")),
+        )
+
+    def POST_FROM_SENDER_CHAT(self, sender_chat_id: int | None = None):
+        return MESSAGE_POST_FROM_SENDER_CHAT(
+            sender_chat_id
+            if sender_chat_id is not None
+            else self.sender_chat.map(lambda chat: chat.id).expect(
+                ValueError("MESSAGE_POST_FROM_SENDER_CHAT requires sender_chat_id.")
+            ),
+        )
+
+    def POST_IN_CHANNEL_FOR_MEDIA_GROUP(self, media_group_id: str | None = None, chat_id: int | None = None):
+        return MESSAGE_POST_IN_CHANNEL_FOR_MEDIA_GROUP(
+            (
+                media_group_id
+                if media_group_id is not None
+                else self.media_group_id.expect(
+                    ValueError("MESSAGE_POST_IN_CHANNEL_FOR_MEDIA_GROUP requires media_group_id.")
+                ),
+                chat_id if chat_id is not None else self.chat_id,
+            ),
+        )
 
     def BUSINESS(self, business_connection_id: str | None = None):
         return BUSINESS_MESSAGE(

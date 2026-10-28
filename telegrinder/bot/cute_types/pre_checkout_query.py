@@ -7,6 +7,9 @@ from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, sho
 from telegrinder.tools.waiter_machine.hasher import (
     PRE_CHECKOUT_QUERY,
     PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER,
+    PRE_CHECKOUT_QUERY_FOR_PAYLOAD_AND_SHIPPING_OPTION,
+    PRE_CHECKOUT_QUERY_FOR_SHIPPING_OPTION,
+    PRE_CHECKOUT_QUERY_FOR_SHIPPING_OPTION_FROM_USER,
     PRE_CHECKOUT_QUERY_FROM_USER,
     PRE_CHECKOUT_QUERY_OPTION,
 )
@@ -33,6 +36,41 @@ class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only
             (
                 self.invoice_payload if option is None else option,
                 self.from_user.id if user_id is None else user_id,
+            ),
+        )
+
+    def FOR_SHIPPING_OPTION(self, shipping_option_id: str | None = None):
+        return PRE_CHECKOUT_QUERY_FOR_SHIPPING_OPTION(
+            shipping_option_id
+            if shipping_option_id is not None
+            else self.shipping_option_id.expect(
+                ValueError("PRE_CHECKOUT_QUERY_FOR_SHIPPING_OPTION requires shipping_option_id.")
+            ),
+        )
+
+    def FOR_SHIPPING_OPTION_FROM_USER(self, shipping_option_id: str | None = None, user_id: int | None = None):
+        return PRE_CHECKOUT_QUERY_FOR_SHIPPING_OPTION_FROM_USER(
+            (
+                shipping_option_id
+                if shipping_option_id is not None
+                else self.shipping_option_id.expect(
+                    ValueError("PRE_CHECKOUT_QUERY_FOR_SHIPPING_OPTION_FROM_USER requires shipping_option_id.")
+                ),
+                user_id if user_id is not None else self.from_user.id,
+            ),
+        )
+
+    def FOR_PAYLOAD_AND_SHIPPING_OPTION(
+        self, invoice_payload: str | None = None, shipping_option_id: str | None = None
+    ):
+        return PRE_CHECKOUT_QUERY_FOR_PAYLOAD_AND_SHIPPING_OPTION(
+            (
+                invoice_payload if invoice_payload is not None else self.invoice_payload,
+                shipping_option_id
+                if shipping_option_id is not None
+                else self.shipping_option_id.expect(
+                    ValueError("PRE_CHECKOUT_QUERY_FOR_PAYLOAD_AND_SHIPPING_OPTION requires shipping_option_id.")
+                ),
             ),
         )
 

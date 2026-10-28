@@ -3,6 +3,14 @@ import typing
 from telegrinder.bot.cute_types.base import BaseCute, shortcut
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberShortcuts, chat_member_interaction
 from telegrinder.bot.cute_types.message import execute_method_answer
+from telegrinder.tools.waiter_machine.hasher import (
+    CHAT_JOIN_REQUEST,
+    CHAT_JOIN_REQUEST_FROM_USER,
+    CHAT_JOIN_REQUEST_FROM_USER_IN_CHAT,
+    CHAT_JOIN_REQUEST_FROM_USER_IN_USER_CHAT,
+    CHAT_JOIN_REQUEST_IN_CHAT,
+    CHAT_JOIN_REQUEST_IN_USER_CHAT,
+)
 from telegrinder.types.methods import APIResult
 from telegrinder.types.objects import *
 
@@ -19,6 +27,36 @@ class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMember
     @property
     def user_id(self) -> int:
         return self.from_user.id
+
+    def REQUEST(self, query_id: str | None = None):
+        return CHAT_JOIN_REQUEST(
+            self.query_id.expect(ValueError("query_id is missing.")) if query_id is None else query_id
+        )
+
+    def IN_CHAT(self, chat_id: int | None = None):
+        return CHAT_JOIN_REQUEST_IN_CHAT(self.chat.id if chat_id is None else chat_id)
+
+    def FROM_USER(self, user_id: int | None = None):
+        return CHAT_JOIN_REQUEST_FROM_USER(self.from_.id if user_id is None else user_id)
+
+    def FROM_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return CHAT_JOIN_REQUEST_FROM_USER_IN_CHAT(
+            (
+                self.chat.id if chat_id is None else chat_id,
+                self.from_.id if user_id is None else user_id,
+            )
+        )
+
+    def IN_USER_CHAT(self, user_chat_id: int | None = None):
+        return CHAT_JOIN_REQUEST_IN_USER_CHAT(self.user_chat_id if user_chat_id is None else user_chat_id)
+
+    def FROM_USER_IN_USER_CHAT(self, user_chat_id: int | None = None, user_id: int | None = None):
+        return CHAT_JOIN_REQUEST_FROM_USER_IN_USER_CHAT(
+            (
+                self.user_chat_id if user_chat_id is None else user_chat_id,
+                self.from_.id if user_id is None else user_id,
+            )
+        )
 
     @shortcut(
         "answer_chat_join_request_query",

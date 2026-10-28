@@ -20,11 +20,26 @@ from telegrinder.bot.cute_types.message import (
 from telegrinder.bot.cute_types.utils import exclude_bound_parameters
 from telegrinder.tools.bound_cute import BoundCute
 from telegrinder.tools.waiter_machine.hasher import (
+    CALLBACK_QUERY,
+    CALLBACK_QUERY_FOR_DATA,
+    CALLBACK_QUERY_FOR_DATA_FROM_USER,
+    CALLBACK_QUERY_FOR_INLINE_MESSAGE,
+    CALLBACK_QUERY_FOR_INLINE_MESSAGE_FROM_USER,
     CALLBACK_QUERY_FOR_MESSAGE,
+    CALLBACK_QUERY_FOR_RECEIVER_USER,
     CALLBACK_QUERY_FROM_CHAT,
+    CALLBACK_QUERY_FROM_CHAT_INSTANCE,
     CALLBACK_QUERY_FROM_CHAT_THREAD,
+    CALLBACK_QUERY_FROM_USER,
+    CALLBACK_QUERY_FROM_USER_IN_CHAT,
+    CALLBACK_QUERY_FROM_USER_IN_CHAT_INSTANCE,
+    CALLBACK_QUERY_FROM_USER_IN_CHAT_THREAD,
+    CALLBACK_QUERY_IN_CHAT_FOR_EPHEMERAL_MESSAGE,
+    CALLBACK_QUERY_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FROM_USER,
     CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE,
+    CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE_FROM_USER,
     CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE,
+    CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE_FROM_USER,
 )
 from telegrinder.types.methods import APIResult
 from telegrinder.types.objects import *
@@ -198,6 +213,179 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
                 chat_id
                 if chat_id is not None
                 else self.chat_id.expect(ValueError("Callback query thread message hasher requires chat_id.")),
+            ),
+        )
+
+    def QUERY(self, query_id: str | None = None):
+        return CALLBACK_QUERY(
+            query_id if query_id is not None else self.id,
+        )
+
+    def FROM_USER(self, user_id: int | None = None):
+        return CALLBACK_QUERY_FROM_USER(
+            user_id if user_id is not None else self.from_user.id,
+        )
+
+    def FROM_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return CALLBACK_QUERY_FROM_USER_IN_CHAT(
+            (
+                chat_id
+                if chat_id is not None
+                else self.chat_id.expect(ValueError("CALLBACK_QUERY_FROM_USER_IN_CHAT requires chat_id.")),
+                user_id if user_id is not None else self.from_user.id,
+            ),
+        )
+
+    def FROM_USER_IN_CHAT_THREAD(
+        self, message_thread_id: int | None = None, chat_id: int | None = None, user_id: int | None = None
+    ):
+        return CALLBACK_QUERY_FROM_USER_IN_CHAT_THREAD(
+            (
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("CALLBACK_QUERY_FROM_USER_IN_CHAT_THREAD requires message_thread_id.")
+                ),
+                chat_id
+                if chat_id is not None
+                else self.chat_id.expect(ValueError("CALLBACK_QUERY_FROM_USER_IN_CHAT_THREAD requires chat_id.")),
+                user_id if user_id is not None else self.from_user.id,
+            ),
+        )
+
+    def IN_CHAT_FOR_MESSAGE_FROM_USER(
+        self, chat_id: int | None = None, message_id: int | None = None, user_id: int | None = None
+    ):
+        return CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE_FROM_USER(
+            (
+                chat_id
+                if chat_id is not None
+                else self.chat_id.expect(ValueError("CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE_FROM_USER requires chat_id.")),
+                message_id
+                if message_id is not None
+                else self.message_id.expect(
+                    ValueError("CALLBACK_QUERY_IN_CHAT_FOR_MESSAGE_FROM_USER requires message_id.")
+                ),
+                user_id if user_id is not None else self.from_user.id,
+            ),
+        )
+
+    def IN_CHAT_THREAD_FOR_MESSAGE_FROM_USER(
+        self,
+        message_id: int | None = None,
+        message_thread_id: int | None = None,
+        chat_id: int | None = None,
+        user_id: int | None = None,
+    ):
+        return CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE_FROM_USER(
+            (
+                message_id
+                if message_id is not None
+                else self.message_id.expect(
+                    ValueError("CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE_FROM_USER requires message_id.")
+                ),
+                message_thread_id
+                if message_thread_id is not None
+                else self.message_thread_id.expect(
+                    ValueError("CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE_FROM_USER requires message_thread_id.")
+                ),
+                chat_id
+                if chat_id is not None
+                else self.chat_id.expect(
+                    ValueError("CALLBACK_QUERY_IN_CHAT_THREAD_FOR_MESSAGE_FROM_USER requires chat_id.")
+                ),
+                user_id if user_id is not None else self.from_user.id,
+            ),
+        )
+
+    def FOR_INLINE_MESSAGE(self, inline_message_id: str | None = None):
+        return CALLBACK_QUERY_FOR_INLINE_MESSAGE(
+            inline_message_id
+            if inline_message_id is not None
+            else self.inline_message_id.expect(
+                ValueError("CALLBACK_QUERY_FOR_INLINE_MESSAGE requires inline_message_id.")
+            ),
+        )
+
+    def FOR_INLINE_MESSAGE_FROM_USER(self, inline_message_id: str | None = None, user_id: int | None = None):
+        return CALLBACK_QUERY_FOR_INLINE_MESSAGE_FROM_USER(
+            (
+                inline_message_id
+                if inline_message_id is not None
+                else self.inline_message_id.expect(
+                    ValueError("CALLBACK_QUERY_FOR_INLINE_MESSAGE_FROM_USER requires inline_message_id.")
+                ),
+                user_id if user_id is not None else self.from_user.id,
+            ),
+        )
+
+    def FROM_CHAT_INSTANCE(self, chat_instance: str | None = None):
+        return CALLBACK_QUERY_FROM_CHAT_INSTANCE(
+            chat_instance if chat_instance is not None else self.chat_instance,
+        )
+
+    def FROM_USER_IN_CHAT_INSTANCE(self, chat_instance: str | None = None, user_id: int | None = None):
+        return CALLBACK_QUERY_FROM_USER_IN_CHAT_INSTANCE(
+            (
+                chat_instance if chat_instance is not None else self.chat_instance,
+                user_id if user_id is not None else self.from_user.id,
+            ),
+        )
+
+    def FOR_RECEIVER_USER(self, receiver_user_id: int | None = None):
+        return CALLBACK_QUERY_FOR_RECEIVER_USER(
+            receiver_user_id
+            if receiver_user_id is not None
+            else self.receiver_user_id.expect(
+                ValueError("CALLBACK_QUERY_FOR_RECEIVER_USER requires receiver_user_id.")
+            ),
+        )
+
+    def IN_CHAT_FOR_EPHEMERAL_MESSAGE(self, chat_id: int | None = None, ephemeral_message_id: int | None = None):
+        return CALLBACK_QUERY_IN_CHAT_FOR_EPHEMERAL_MESSAGE(
+            (
+                chat_id
+                if chat_id is not None
+                else self.chat_id.expect(ValueError("CALLBACK_QUERY_IN_CHAT_FOR_EPHEMERAL_MESSAGE requires chat_id.")),
+                ephemeral_message_id
+                if ephemeral_message_id is not None
+                else self.ephemeral_message_id.expect(
+                    ValueError("CALLBACK_QUERY_IN_CHAT_FOR_EPHEMERAL_MESSAGE requires ephemeral_message_id.")
+                ),
+            ),
+        )
+
+    def IN_CHAT_FOR_EPHEMERAL_MESSAGE_FROM_USER(
+        self, chat_id: int | None = None, ephemeral_message_id: int | None = None, user_id: int | None = None
+    ):
+        return CALLBACK_QUERY_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FROM_USER(
+            (
+                chat_id
+                if chat_id is not None
+                else self.chat_id.expect(
+                    ValueError("CALLBACK_QUERY_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FROM_USER requires chat_id.")
+                ),
+                ephemeral_message_id
+                if ephemeral_message_id is not None
+                else self.ephemeral_message_id.expect(
+                    ValueError("CALLBACK_QUERY_IN_CHAT_FOR_EPHEMERAL_MESSAGE_FROM_USER requires ephemeral_message_id.")
+                ),
+                user_id if user_id is not None else self.from_user.id,
+            ),
+        )
+
+    def FOR_DATA(self, data: str | None = None):
+        return CALLBACK_QUERY_FOR_DATA(
+            data if data is not None else self.data.expect(ValueError("CALLBACK_QUERY_FOR_DATA requires data.")),
+        )
+
+    def FOR_DATA_FROM_USER(self, data: str | None = None, user_id: int | None = None):
+        return CALLBACK_QUERY_FOR_DATA_FROM_USER(
+            (
+                data
+                if data is not None
+                else self.data.expect(ValueError("CALLBACK_QUERY_FOR_DATA_FROM_USER requires data.")),
+                user_id if user_id is not None else self.from_user.id,
             ),
         )
 

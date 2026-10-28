@@ -103,4 +103,4 @@ Copyright © 2024 [luwqz1](https://github.com/luwqz1)
  <img src="https://contributors-img.web.app/image?repo=timoniq/telegrinder"/>
 </a>
 
-We welcome your pull requests ([contrubution notes](https://github.com/timoniq/telegrinder/blob/dev/contributing.md)). Telegrinder is built by the community
+We welcome your pull requests ([contrubution notes](https://github.com/timoniq/telegrinder/blob/dev/contributing.md)). Telegrinder is built by the community!

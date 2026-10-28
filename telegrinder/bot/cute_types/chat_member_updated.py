@@ -2,6 +2,18 @@ import typing
 from datetime import datetime
 
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
+from telegrinder.tools.waiter_machine.hasher import (
+    CHAT_MEMBER_FOR_USER,
+    CHAT_MEMBER_FOR_USER_IN_CHAT,
+    CHAT_MEMBER_FROM_USER,
+    CHAT_MEMBER_FROM_USER_IN_CHAT,
+    CHAT_MEMBER_IN_CHAT,
+    MY_CHAT_MEMBER_FOR_USER,
+    MY_CHAT_MEMBER_FOR_USER_IN_CHAT,
+    MY_CHAT_MEMBER_FROM_USER,
+    MY_CHAT_MEMBER_FROM_USER_IN_CHAT,
+    MY_CHAT_MEMBER_IN_CHAT,
+)
 from telegrinder.types.methods import APIResult
 from telegrinder.types.objects import *
 from telegrinder.types.utils import get_params
@@ -229,6 +241,56 @@ class ChatMemberUpdatedCute(BaseCute[ChatMemberUpdated], ChatMemberUpdated, Chat
     @property
     def user_id(self) -> int:
         return self.from_user.id
+
+    def IN_CHAT(self, chat_id: int | None = None):
+        return CHAT_MEMBER_IN_CHAT(self.chat.id if chat_id is None else chat_id)
+
+    def FROM_USER(self, user_id: int | None = None):
+        return CHAT_MEMBER_FROM_USER(self.from_.id if user_id is None else user_id)
+
+    def FROM_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return CHAT_MEMBER_FROM_USER_IN_CHAT(
+            (
+                self.chat.id if chat_id is None else chat_id,
+                self.from_.id if user_id is None else user_id,
+            )
+        )
+
+    def FOR_USER(self, user_id: int | None = None):
+        return CHAT_MEMBER_FOR_USER(self.new_chat_member.v.user.id if user_id is None else user_id)
+
+    def FOR_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return CHAT_MEMBER_FOR_USER_IN_CHAT(
+            (
+                self.chat.id if chat_id is None else chat_id,
+                self.new_chat_member.v.user.id if user_id is None else user_id,
+            )
+        )
+
+    def MY_IN_CHAT(self, chat_id: int | None = None):
+        return MY_CHAT_MEMBER_IN_CHAT(self.chat.id if chat_id is None else chat_id)
+
+    def MY_FROM_USER(self, user_id: int | None = None):
+        return MY_CHAT_MEMBER_FROM_USER(self.from_.id if user_id is None else user_id)
+
+    def MY_FROM_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return MY_CHAT_MEMBER_FROM_USER_IN_CHAT(
+            (
+                self.chat.id if chat_id is None else chat_id,
+                self.from_.id if user_id is None else user_id,
+            )
+        )
+
+    def MY_FOR_USER(self, user_id: int | None = None):
+        return MY_CHAT_MEMBER_FOR_USER(self.new_chat_member.v.user.id if user_id is None else user_id)
+
+    def MY_FOR_USER_IN_CHAT(self, chat_id: int | None = None, user_id: int | None = None):
+        return MY_CHAT_MEMBER_FOR_USER_IN_CHAT(
+            (
+                self.chat.id if chat_id is None else chat_id,
+                self.new_chat_member.v.user.id if user_id is None else user_id,
+            )
+        )
 
 
 __all__ = (

@@ -3,6 +3,7 @@ from telegrinder.tools.waiter_machine.hasher import (
     CHOSEN_INLINE_RESULT,
     CHOSEN_INLINE_RESULT_FOR_MESSAGE,
     CHOSEN_INLINE_RESULT_FOR_MESSAGE_FROM_USER,
+    CHOSEN_INLINE_RESULT_FOR_RESULT_FROM_USER,
     CHOSEN_INLINE_RESULT_FROM_USER,
 )
 from telegrinder.types.objects import ChosenInlineResult, User
@@ -37,6 +38,14 @@ class ChosenInlineResultCute(BaseCute[ChosenInlineResult], ChosenInlineResult, k
                     ValueError("Chosen inline result message hasher requires inline_message_id."),
                 ),
                 self.from_user.id if user_id is None else user_id,
+            ),
+        )
+
+    def FOR_RESULT_FROM_USER(self, result_id: str | None = None, user_id: int | None = None):
+        return CHOSEN_INLINE_RESULT_FOR_RESULT_FROM_USER(
+            (
+                result_id if result_id is not None else self.result_id,
+                user_id if user_id is not None else self.from_user.id,
             ),
         )
 

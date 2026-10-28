@@ -2,6 +2,11 @@ import typing
 
 from telegrinder.bot.cute_types.base import BaseCute
 from telegrinder.tools.magic.shortcut import shortcut
+from telegrinder.tools.waiter_machine.hasher import (
+    MANAGED_BOT,
+    MANAGED_BOT_FROM_USER,
+    MANAGED_BOT_FROM_USER_FOR_BOT,
+)
 from telegrinder.types.methods import APIResult
 from telegrinder.types.objects import BotAccessSettings, ManagedBotUpdated, User
 from telegrinder.types.utils import get_params
@@ -22,6 +27,24 @@ class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_o
     @property
     def from_user(self) -> User:
         return self.user
+
+    def BOT(self, bot_id: int | None = None):
+        return MANAGED_BOT(
+            bot_id if bot_id is not None else self.bot.id,
+        )
+
+    def FROM_USER(self, user_id: int | None = None):
+        return MANAGED_BOT_FROM_USER(
+            user_id if user_id is not None else self.user.id,
+        )
+
+    def FROM_USER_FOR_BOT(self, bot_id: int | None = None, user_id: int | None = None):
+        return MANAGED_BOT_FROM_USER_FOR_BOT(
+            (
+                bot_id if bot_id is not None else self.bot.id,
+                user_id if user_id is not None else self.user.id,
+            ),
+        )
 
     @shortcut(
         "get_managed_bot_token",
