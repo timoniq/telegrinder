@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from functools import cache, cached_property
+from functools import cache
 
 from kungfu.library import Result, Some, Sum
 from kungfu.library.monad import option
@@ -11,7 +11,7 @@ from telegrinder.api.api import API, APIError
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
 from telegrinder.bot.cute_types.utils import MediaType, build_html, compose_reactions, input_media
 from telegrinder.tools.bound_cute import BoundCute, BoundCuteMixin
-from telegrinder.tools.magic.descriptors import additional_property
+from telegrinder.tools.magic.descriptors import additional_property, magic_cached_property, magic_property
 from telegrinder.tools.waiter_machine.hasher import (
     ANY_MESSAGE_FOR_RECEIVER_USER,
     ANY_MESSAGE_FROM_SENDER_CHAT,
@@ -5534,11 +5534,11 @@ class MessageCute(
     this field will not contain further reply_to_message fields even if it
     itself is a reply."""
 
-    @cached_property
+    @magic_cached_property
     def html_text(self) -> option.Option[str]:
         return self.build_html_text(self.text, self.entities)
 
-    @cached_property
+    @magic_cached_property
     def html_caption(self) -> option.Option[str]:
         return self.build_html_text(self.caption, self.caption_entities)
 
@@ -5546,37 +5546,37 @@ class MessageCute(
     def media_group_messages(self) -> option.Option[list[MessageCute]]:
         return option.NOTHING
 
-    @property
+    @magic_property
     def mentioned_user(self) -> option.Option[User]:
         """Mentioned user without username."""
         return get_entity_value("user", self.entities, self.caption_entities)
 
-    @property
+    @magic_property
     def url(self) -> option.Option[str]:
         """Clickable text URL."""
         return get_entity_value("url", self.entities, self.caption_entities)
 
-    @property
+    @magic_property
     def programming_language(self) -> option.Option[str]:
         """The programming language of the entity text."""
         return get_entity_value("language", self.entities, self.caption_entities)
 
-    @property
+    @magic_property
     def custom_emoji_id(self) -> option.Option[str]:
         """Unique identifier of the custom emoji."""
         return get_entity_value("custom_emoji_id", self.entities, self.caption_entities)
 
-    @property
+    @magic_property
     def unixtime(self) -> option.Option[datetime]:
         """The Unix time associated with the `date_time` entity."""
         return get_entity_value("unix_time", self.entities, self.caption_entities)
 
-    @property
+    @magic_property
     def date_time_format(self) -> option.Option[DateTimeFormatSeq]:
         """The sequence of the char that defines the formatting of the date and time."""
         return get_entity_value("date_time_format", self.entities, self.caption_entities)
 
-    @property
+    @magic_property
     def receiver_user_id(self) -> option.Option[int]:
         """User's ID who received the ephemeral message, when available."""
         return self.receiver_user.map(lambda user: user.id)

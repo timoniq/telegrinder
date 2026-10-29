@@ -38,10 +38,10 @@ class EventNode[Dataclass: DataclassType]:  # type: ignore[reportRedeclaration]
                 update_cute.incoming_update if issubclass(orig_dataclass, BaseCute) else raw_update.incoming_update
             )
 
-            if type(incoming_update) is not orig_dataclass:
-                raise NodeError(f"Incoming update is not `{fullname(orig_dataclass)}`.")
+            if issubclass(type(incoming_update), orig_dataclass):
+                return incoming_update
 
-            return incoming_update
+            raise NodeError(f"Incoming update is not `{fullname(orig_dataclass)}`.")
 
         try:
             if issubclass(orig_dataclass, msgspec.Struct) or dataclasses.is_dataclass(

@@ -3,16 +3,17 @@ from __future__ import annotations
 import secrets
 import typing
 from datetime import datetime
-from functools import cached_property
 
 from kungfu.library import Sum
 from msgspex.custom_types import Literal, Option, datetime, timedelta
-from msgspex.model import UNSET, DefaultFactory, From, Model, field
+from msgspex.model import UNSET, DefaultFactory, From, field
 from msgspex.tools import is_none
 
+from telegrinder.tools.magic.descriptors import magic_cached_property, magic_property
 from telegrinder.types.date_time_format import DateTimeFormatSeq
 from telegrinder.types.enums import *
 from telegrinder.types.input_file import InputFile
+from telegrinder.types.model import Model
 from telegrinder.types.utils import default_parameter_as_option_for_field
 
 
@@ -531,12 +532,12 @@ class Update(Model, kw_only=True):
             return NotImplemented
         return self.update_type == other.update_type
 
-    @cached_property
+    @magic_cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
         return UpdateType(next(iter(self.to_dict(exclude_fields={"update_id"}))))
 
-    @cached_property
+    @magic_cached_property
     def incoming_update(self) -> Model:
         """Incoming update."""
         return getattr(self, self.update_type.value).unwrap()
@@ -656,12 +657,12 @@ class User(Model, kw_only=True):
             return NotImplemented
         return self.id == other.id
 
-    @property
+    @magic_property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
         return DefaultAccentColor(self.id % len(DefaultAccentColor))
 
-    @property
+    @magic_property
     def full_name(self) -> str:
         """User's or bot's full name (`first_name` + `last_name`)."""
         return self.first_name + self.last_name.map(" ".__add__).unwrap_or("")
@@ -705,7 +706,7 @@ class Chat(Model, kw_only=True):
             return NotImplemented
         return self.id == other.id
 
-    @property
+    @magic_property
     def full_name(self) -> Option[str]:
         """Optional. Full name (`first_name` + `last_name`) of the
         other party in a `private` chat.
@@ -1421,7 +1422,7 @@ class Message(MaybeInaccessibleMessage, kw_only=True):
             return NotImplemented
         return self.message_id == other.message_id and self.chat_id == other.chat_id
 
-    @cached_property
+    @magic_cached_property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
         for content in ContentType:
@@ -1430,17 +1431,17 @@ class Message(MaybeInaccessibleMessage, kw_only=True):
 
         return ContentType.UNKNOWN
 
-    @property
+    @magic_property
     def from_user(self) -> "User":
         """`from_user` instead of `from_.unwrap()`."""
         return self.from_.unwrap()
 
-    @property
+    @magic_property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
         return self.chat.id
 
-    @property
+    @magic_property
     def chat_title(self) -> str:
         """Chat title, for `supergroups`, `channels` and `group` chats.
         Full name, for `private` chat.
@@ -2690,7 +2691,7 @@ class ManagedBotUpdated(Model, kw_only=True):
     """Information about the bot. Token of the bot can be fetched using the method
     getManagedBotToken."""
 
-    @property
+    @magic_property
     def user_id(self) -> int:
         """`user_id` instead of `user.id`."""
         return self.user.id
@@ -3614,7 +3615,7 @@ class ReplyKeyboardMarkup(Model, kw_only=True):
     """Optional. Pass True if the reply interface must be shown to the user, as if
     they had manually selected the bot's message and tapped 'Reply'."""
 
-    @property
+    @magic_property
     def empty_markup(self) -> ReplyKeyboardRemove:
         """Empty keyboard to remove the custom keyboard."""
         return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective.unwrap_or_none())
@@ -4245,7 +4246,7 @@ class ChatMemberUpdated(Model, kw_only=True):
     via_chat_folder_invite_link: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user joined the chat via a chat folder invite link."""
 
-    @property
+    @magic_property
     def chat_id(self) -> int:
         """Alias `.chat_id` instead of `.chat.id`"""
         return self.chat.id
@@ -4514,7 +4515,7 @@ class ChatJoinRequest(Model, kw_only=True):
     join requests only. If present, then the bot must call sendChatJoinRequestWebApp
     or directly call answerChatJoinRequestQuery within 10 seconds."""
 
-    @property
+    @magic_property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
         return self.chat.id
@@ -4597,13 +4598,13 @@ class Birthdate(Model, kw_only=True):
     year: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Year of the user's birth."""
 
-    @property
+    @magic_property
     def is_birthday(self) -> bool:
         """True, if today is a user's birthday."""
         now = datetime.now()
         return now.month == self.month and now.day == self.day
 
-    @property
+    @magic_property
     def age(self) -> Option[int]:
         """Optional. Contains the user's age, if the user has a birth year specified."""
         return self.year.map(lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days)

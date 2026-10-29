@@ -4,6 +4,7 @@ from kungfu.library.monad.result import Result
 
 from telegrinder.api.error import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.tools.magic.descriptors import magic_property
 from telegrinder.tools.waiter_machine.hasher import (
     PRE_CHECKOUT_QUERY,
     PRE_CHECKOUT_QUERY_FOR_OPTION_FROM_USER,
@@ -18,7 +19,7 @@ from telegrinder.types.utils import get_params
 
 
 class PreCheckoutQueryCute(BaseCute[PreCheckoutQuery], PreCheckoutQuery, kw_only=True):
-    @property
+    @magic_property
     def from_user(self) -> User:
         return self.from_
 

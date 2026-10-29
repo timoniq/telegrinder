@@ -1,4 +1,5 @@
 from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.tools.magic.descriptors import magic_property
 from telegrinder.tools.waiter_machine.hasher import (
     CHOSEN_INLINE_RESULT,
     CHOSEN_INLINE_RESULT_FOR_MESSAGE,
@@ -10,7 +11,7 @@ from telegrinder.types.objects import ChosenInlineResult, User
 
 
 class ChosenInlineResultCute(BaseCute[ChosenInlineResult], ChosenInlineResult, kw_only=True):
-    @property
+    @magic_property
     def from_user(self) -> User:
         return self.from_
 

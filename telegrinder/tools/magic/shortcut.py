@@ -7,10 +7,10 @@ from functools import cache, wraps
 from kungfu.library.monad.result import Result
 
 from telegrinder.tools.magic.function import get_func_parameters
-from telegrinder.types.methods import APIResult
 
 if typing.TYPE_CHECKING:
     from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts
+    from telegrinder.types.methods import APIResult
 
 type Executor[T] = typing.Callable[
     [T, str, dict[str, typing.Any], typing.Any],
@@ -36,6 +36,8 @@ class Shortcut[T]:
 
 @cache
 def resolve_shortcut_result_type(result_type: typing.Any, /) -> typing.Any:
+    from telegrinder.types.methods import APIResult
+
     if result_type is None:
         return typing.Any
 

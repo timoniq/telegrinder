@@ -1,6 +1,9 @@
 import typing
+from functools import cached_property
 
 _NOVALUE: typing.Any = object()
+
+_T = typing.TypeVar("_T")
 
 
 def private_func_name(func: typing.Callable[..., typing.Any], /) -> str:
@@ -30,7 +33,7 @@ class additional_property[T, R]:  # noqa: N801
         instance.__dict__.pop(self.func_name, None)
 
 
-class class_property[T]:  # noqa: N801
+class class_property[T = typing.Any]:  # noqa: N801
     def __init__(self, func: typing.Callable[..., T], /) -> None:
         self.func = func
         self.func_name = private_func_name(func)
@@ -54,4 +57,12 @@ class class_cached_property[T]:  # noqa: N801
         return value
 
 
-__all__ = ("additional_property", "class_cached_property", "class_property")
+if typing.TYPE_CHECKING:
+    from telegrinder.tools.magic.descriptors import class_cached_property as magic_cached_property
+    from telegrinder.tools.magic.descriptors import class_property as magic_property
+else:
+    magic_property = property
+    magic_cached_property = cached_property
+
+
+__all__ = ("additional_property", "class_cached_property", "class_property", "magic_cached_property", "magic_property")

@@ -4,13 +4,14 @@ from kungfu.library.monad.result import Result
 
 from telegrinder.api.api import APIError
 from telegrinder.bot.cute_types.base import BaseCute, compose_method_params, shortcut
+from telegrinder.tools.magic.descriptors import magic_property
 from telegrinder.tools.waiter_machine.hasher import INLINE_QUERY, INLINE_QUERY_FROM_USER
 from telegrinder.types.objects import *
 from telegrinder.types.utils import get_params
 
 
 class InlineQueryCute(BaseCute[InlineQuery], InlineQuery, kw_only=True):
-    @property
+    @magic_property
     def from_user(self) -> User:
         return self.from_
 

@@ -2,6 +2,7 @@ import typing
 from datetime import datetime
 
 from telegrinder.bot.cute_types.base import BaseCute, BaseShortcuts, compose_method_params, shortcut
+from telegrinder.tools.magic.descriptors import magic_property
 from telegrinder.tools.waiter_machine.hasher import (
     CHAT_MEMBER_FOR_USER,
     CHAT_MEMBER_FOR_USER_IN_CHAT,
@@ -234,11 +235,11 @@ class ChatMemberShortcuts(BaseShortcuts["ChatMemberUpdatedCute | ChatJoinRequest
 
 
 class ChatMemberUpdatedCute(BaseCute[ChatMemberUpdated], ChatMemberUpdated, ChatMemberShortcuts, kw_only=True):
-    @property
+    @magic_property
     def from_user(self) -> User:
         return self.from_
 
-    @property
+    @magic_property
     def user_id(self) -> int:
         return self.from_user.id
 

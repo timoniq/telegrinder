@@ -1,6 +1,7 @@
 import typing
 
 from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.tools.magic.descriptors import magic_property
 from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.tools.waiter_machine.hasher import (
     MANAGED_BOT,
@@ -24,7 +25,7 @@ async def managed_bot_interaction(
 
 
 class ManagedBotUpdatedCute(BaseCute[ManagedBotUpdated], ManagedBotUpdated, kw_only=True):
-    @property
+    @magic_property
     def from_user(self) -> User:
         return self.user
 

@@ -271,6 +271,8 @@ class BaseCute[T: Model = typing.Any](Model, kw_only=True):
         self._set_bound_in_namespace(BOUND_UPDATE_KEY, update)
         return self
 
+    def filter(self): ...
+
     def to_dict(
         self,
         *,

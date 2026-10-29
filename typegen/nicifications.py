@@ -11,29 +11,29 @@ Type aliases are used to eliminate boilerplate code in annotations.
 
 import typing
 from datetime import datetime
-from functools import cached_property
 
 from kungfu import Option, Sum
 from msgspex import Model, is_none
 
+from telegrinder.tools.magic.descriptors import magic_cached_property, magic_property
 from telegrinder.types import *
 
 USED_IMPORTS = {
     "import typing",
     "from datetime import datetime",
-    "from functools import cached_property",
+    "from telegrinder.tools.magic.descriptors import magic_cached_property, magic_property",
     "from msgspex.tools import is_none",
 }
 
 
 class _Birthdate(Birthdate):
-    @property
+    @magic_property
     def is_birthday(self) -> bool:
         """True, if today is a user's birthday."""
         now = datetime.now()
         return now.month == self.month and now.day == self.day
 
-    @property
+    @magic_property
     def age(self) -> Option[int]:
         """Optional. Contains the user's age, if the user has a birth year specified."""
         return self.year.map(lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days)
@@ -45,7 +45,7 @@ class _Chat(Chat):
             return NotImplemented
         return self.id == other.id
 
-    @property
+    @magic_property
     def full_name(self) -> Option[str]:
         """Optional. Full name (`first_name` + `last_name`) of the
         other party in a `private` chat.
@@ -54,14 +54,14 @@ class _Chat(Chat):
 
 
 class _ChatJoinRequest(ChatJoinRequest):
-    @property
+    @magic_property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
         return self.chat.id
 
 
 class _ChatMemberUpdated(ChatMemberUpdated):
-    @property
+    @magic_property
     def chat_id(self) -> int:
         """Alias `.chat_id` instead of `.chat.id`"""
         return self.chat.id
@@ -73,7 +73,7 @@ class _Message(Message):
             return NotImplemented
         return self.message_id == other.message_id and self.chat_id == other.chat_id
 
-    @cached_property
+    @magic_cached_property
     def content_type(self) -> ContentType:
         """Type of content that the message contains."""
         for content in ContentType:
@@ -82,17 +82,17 @@ class _Message(Message):
 
         return ContentType.UNKNOWN
 
-    @property
+    @magic_property
     def from_user(self) -> "User":
         """`from_user` instead of `from_.unwrap()`."""
         return self.from_.unwrap()
 
-    @property
+    @magic_property
     def chat_id(self) -> int:
         """`chat_id` instead of `chat.id`."""
         return self.chat.id
 
-    @property
+    @magic_property
     def chat_title(self) -> str:
         """Chat title, for `supergroups`, `channels` and `group` chats.
         Full name, for `private` chat.
@@ -106,12 +106,12 @@ class _User(User):
             return NotImplemented
         return self.id == other.id
 
-    @property
+    @magic_property
     def default_accent_color(self) -> DefaultAccentColor:
         """User's or bot's accent color (non-premium)."""
         return DefaultAccentColor(self.id % len(DefaultAccentColor))
 
-    @property
+    @magic_property
     def full_name(self) -> str:
         """User's or bot's full name (`first_name` + `last_name`)."""
         return self.first_name + self.last_name.map(" ".__add__).unwrap_or("")
@@ -123,26 +123,26 @@ class _Update(Update):
             return NotImplemented
         return self.update_type == other.update_type
 
-    @cached_property
+    @magic_cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
         return UpdateType(next(iter(self.to_dict(exclude_fields={"update_id"}))))
 
-    @cached_property
+    @magic_cached_property
     def incoming_update(self) -> Model:
         """Incoming update."""
         return getattr(self, self.update_type.value).unwrap()
 
 
 class _ReplyKeyboardMarkup(ReplyKeyboardMarkup):
-    @property
+    @magic_property
     def empty_markup(self) -> ReplyKeyboardRemove:
         """Empty keyboard to remove the custom keyboard."""
         return ReplyKeyboardRemove(remove_keyboard=True, selective=self.selective.unwrap_or_none())
 
 
 class _ManagedBotUpdated(ManagedBotUpdated):
-    @property
+    @magic_property
     def user_id(self) -> int:
         """`user_id` instead of `user.id`."""
         return self.user.id

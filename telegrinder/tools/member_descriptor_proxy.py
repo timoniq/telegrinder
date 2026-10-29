@@ -53,10 +53,17 @@ class MemberDescriptorProxy:
 
     __slots__ = ("_descriptor", "_operations", "_member_name", "_objclass")
 
-    def __init__(self, descriptor: types.MemberDescriptorType) -> None:
+    def __init__(
+        self, descriptor: types.MemberDescriptorType | property, property_objclass: type[typing.Any] | None = None
+    ) -> None:
+        is_property = isinstance(descriptor, property)
+
+        if is_property and property_objclass is None:
+            raise ValueError("`property_objclass` is required for property.")
+
         self._descriptor = descriptor
         self._member_name = descriptor.__name__
-        self._objclass = descriptor.__objclass__
+        self._objclass = typing.cast("type[typing.Any]", property_objclass) if is_property else descriptor.__objclass__
         self._operations = []
 
     def __getattr__(self, __name: str) -> typing.Any:

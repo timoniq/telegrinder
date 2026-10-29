@@ -1,4 +1,5 @@
 from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.tools.magic.descriptors import magic_property
 from telegrinder.tools.waiter_machine.hasher import (
     SHIPPING_QUERY,
     SHIPPING_QUERY_FOR_PAYLOAD,
@@ -9,7 +10,7 @@ from telegrinder.types.objects import ShippingQuery, User
 
 
 class ShippingQueryCute(BaseCute[ShippingQuery], ShippingQuery, kw_only=True):
-    @property
+    @magic_property
     def from_user(self) -> User:
         return self.from_
 

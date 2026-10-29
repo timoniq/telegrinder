@@ -6,7 +6,7 @@ import msgspex
 from msgspex.custom_types import Literal, Option, datetime
 from msgspex.model import From, Model, field
 
-type ChatType = Literal["sender", "private", "group", "supergroup", "channel"]
+from telegrinder.types.enums import ChatType
 
 
 class WebAppChat(Model):
@@ -22,7 +22,7 @@ class WebAppChat(Model):
     significant bits, so a signed 64-bit integer or double-precision float
     type are safe for storing this identifier."""
 
-    type: Literal["group", "supergroup", "channel"] = field()
+    type: Literal[ChatType.GROUP, ChatType.SUPERGROUP, ChatType.CHANNEL] = field()
     """Type of chat, can be either `group`, `supergroup` or `channel`."""
 
     title: str = field()

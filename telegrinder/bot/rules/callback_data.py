@@ -39,6 +39,7 @@ class CallbackDataMap(CallbackQueryDataRule):
         :param mapping: A callback data mapping with validators.
         :param allow_extra_fields: Allows extra fields in a callback query data.
         """
+
         self.mapping = self.transform_to_callbacks(mapping)
         self.allow_extra_fields = allow_extra_fields
 
@@ -56,6 +57,7 @@ class CallbackDataMap(CallbackQueryDataRule):
                 validator = (lambda val: lambda v: val == v)(value)
             else:
                 validator = value
+
             callback_map_result.append((key, validator))
 
         return dict(callback_map_result)

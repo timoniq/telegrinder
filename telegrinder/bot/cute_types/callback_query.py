@@ -19,6 +19,7 @@ from telegrinder.bot.cute_types.message import (
 )
 from telegrinder.bot.cute_types.utils import exclude_bound_parameters
 from telegrinder.tools.bound_cute import BoundCute
+from telegrinder.tools.magic.descriptors import magic_property
 from telegrinder.tools.waiter_machine.hasher import (
     CALLBACK_QUERY,
     CALLBACK_QUERY_FOR_DATA,
@@ -56,23 +57,23 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
     """Optional. Message sent by the bot with the callback button that originated
     the query."""
 
-    @property
+    @magic_property
     def from_user(self) -> User:
         return self.from_
 
-    @property
+    @magic_property
     @unwrapping
     def message_cute(self) -> Option[MessageCute]:
         return self.message.unwrap().only().cast(Some, Nothing)
 
-    @property
+    @magic_property
     def chat_id(self) -> Option[int]:
         """Optional. Message from chat ID. This will be present if the message is sent
         by the bot with the callback button that originated the query.
         """
         return self.message.map(lambda m: m.v.chat.id)
 
-    @property
+    @magic_property
     def is_topic_message(self) -> Option[bool]:
         """Optional. True, if the message is a topic message with a name,
         color and icon. This will be present if the message is sent
@@ -82,7 +83,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
             lambda m: m.only().map(lambda m: m.is_topic_message.unwrap_or(False)).unwrap_or(False),
         )
 
-    @property
+    @magic_property
     @unwrapping
     def message_thread_id(self) -> Option[int]:
         """Optional. Unique identifier of the target message thread (for forum supergroups only).
@@ -91,31 +92,31 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         """
         return self.message.unwrap().only().map(lambda m: m.message_thread_id.unwrap()).cast(Some, Nothing)
 
-    @property
+    @magic_property
     def message_id(self) -> Option[int]:
         """Optional. Unique message identifier inside this chat. This will be present
         if the message is sent by the bot with the callback button that originated the query.
         """
         return self.message.map(lambda m: m.v.message_id)
 
-    @property
+    @magic_property
     @unwrapping
     def ephemeral_message_id(self) -> Option[int]:
         """Identifier of the ephemeral message that originated the query, when available."""
         return self.message.unwrap().only().map(lambda m: m.ephemeral_message_id.unwrap()).cast(Some, Nothing)
 
-    @property
+    @magic_property
     @unwrapping
     def receiver_user(self) -> Option[User]:
         """User who received the ephemeral message that originated the query, when available."""
         return self.message.unwrap().only().map(lambda m: m.receiver_user.unwrap()).cast(Some, Nothing)
 
-    @property
+    @magic_property
     def receiver_user_id(self) -> Option[int]:
         """User's ID who received the ephemeral message that originated the query, when available."""
         return self.receiver_user.map(lambda user: user.id)
 
-    @property
+    @magic_property
     def chat(self) -> Option[Chat]:
         """Optional. Chat the callback query originated from. This will be present
         if the message is sent by the bot with the callback button that originated the query.

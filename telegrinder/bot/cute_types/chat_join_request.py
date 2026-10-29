@@ -3,6 +3,7 @@ import typing
 from telegrinder.bot.cute_types.base import BaseCute, shortcut
 from telegrinder.bot.cute_types.chat_member_updated import ChatMemberShortcuts, chat_member_interaction
 from telegrinder.bot.cute_types.message import execute_method_answer
+from telegrinder.tools.magic.descriptors import magic_property
 from telegrinder.tools.waiter_machine.hasher import (
     CHAT_JOIN_REQUEST,
     CHAT_JOIN_REQUEST_FROM_USER,
@@ -20,11 +21,11 @@ JOIN_REQUEST_QUERY: typing.Final = execute_method_answer(
 
 
 class ChatJoinRequestCute(BaseCute[ChatJoinRequest], ChatJoinRequest, ChatMemberShortcuts, kw_only=True):
-    @property
+    @magic_property
     def from_user(self) -> User:
         return self.from_
 
-    @property
+    @magic_property
     def user_id(self) -> int:
         return self.from_user.id
 

@@ -1,4 +1,5 @@
 from telegrinder.bot.cute_types.base import BaseCute
+from telegrinder.tools.magic.descriptors import magic_property
 from telegrinder.tools.waiter_machine.hasher import (
     PAID_MEDIA_PURCHASED,
     PAID_MEDIA_PURCHASED_FOR_PAYLOAD_FROM_USER,
@@ -8,7 +9,7 @@ from telegrinder.types.objects import PaidMediaPurchased, User
 
 
 class PaidMediaPurchasedCute(BaseCute[PaidMediaPurchased], PaidMediaPurchased, kw_only=True):
-    @property
+    @magic_property
     def from_user(self) -> User:
         return self.from_
 
