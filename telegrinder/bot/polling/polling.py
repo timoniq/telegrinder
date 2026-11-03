@@ -8,7 +8,7 @@ import msgspec
 from msgspex import decoder
 
 from telegrinder.api.api import API
-from telegrinder.api.error import APIServerError, InvalidTokenError
+from telegrinder.api.error import APIError, APIServerError, InvalidTokenError
 from telegrinder.bot.cute_types.update import BaseCute, UpdateCute
 from telegrinder.bot.polling.abc import ABCPolling
 from telegrinder.bot.polling.error_handler import ErrorHandler, StopPolling
@@ -133,35 +133,41 @@ class Polling(ABCPolling):
     def _reset_reconnects_counter(self) -> None:
         self._reconnects_counter = 0
 
-    async def get_updates(self) -> msgspec.Raw:
-        raw_updates = await self.api.request_raw(
-            method="getUpdates",
-            data=dict(
-                offset=self.offset,
-                limit=self.limit,
-                timeout=self._timeout_seconds,
-                allowed_updates=self.allowed_updates,
-            ),
-            timeout=self._request_timeout,
-        )
+    def _convert_polling_err_status_to_py_err(self, error: APIError, /) -> BaseException:
+        err = error
 
-        if raw_updates:
-            return raw_updates.value
-
-        match (error := raw_updates.error).status_code:
+        match error.status_code:
             case HTTPStatus.CONFLICT:
-                error = APIServerError("Cannot run polling, because another bot instance is already running.")
+                err = APIServerError("Cannot run polling, because another bot instance is already running.")
             case HTTPStatus.UNAUTHORIZED | HTTPStatus.NOT_FOUND as status:
-                error = InvalidTokenError(
+                err = InvalidTokenError(
                     "Token seems to be invalid" if status == HTTPStatus.NOT_FOUND else "Invalid token (unauthorized)",
                 )
             case HTTPStatus.BAD_GATEWAY | HTTPStatus.GATEWAY_TIMEOUT as status:
-                error = APIServerError(
-                    message="Telegram API server responded a {}".format(status.name.replace("_", " ")),
+                err = APIServerError(
+                    message="Telegram API server responded a {}".format(status.phrase),
                     retry_after=int(self.reconnect_after),
                 )
 
-        raise error from None
+        return err
+
+    async def get_updates(self) -> msgspec.Raw:
+        return (
+            (
+                await self.api.request_raw(
+                    method="getUpdates",
+                    data=dict(
+                        offset=self.offset,
+                        limit=self.limit,
+                        timeout=self._timeout_seconds,
+                        allowed_updates=self.allowed_updates,
+                    ),
+                    timeout=self._request_timeout,
+                )
+            )
+            .map_err(self._convert_polling_err_status_to_py_err)
+            .unwrap()
+        )
 
     def listen(self) -> typing.AsyncGenerator[list[Update], None]:
         async def inner() -> typing.AsyncGenerator[list[Update], None]:
@@ -192,14 +198,10 @@ class Polling(ABCPolling):
 
         async def wait_for_stop() -> None:
             await self._event_stop.wait()
-            # The generator may be suspended at an inner await (the long-poll request) and so be
-            # "already running", which makes athrow() raise RuntimeError. Either way the loop
-            # terminates: stop() also clears _running, rechecked once the in-flight request
-            # returns. Suppress so the task does not leak an unretrieved exception.
+
             with contextlib.suppress(StopPolling, StopAsyncIteration, RuntimeError):
                 await generator.athrow(StopPolling)
 
-        # Keep a strong reference so the task is not garbage-collected mid-flight.
         self._stop_task = asyncio.create_task(wait_for_stop())
         return generator
 
@@ -207,7 +209,7 @@ class Polling(ABCPolling):
         self._running = False
         self._reset_reconnects_counter()
 
-        if not self._event_stop.is_set():
+        if not self._event_stop.is_set() and self._stop_task is not None and not self._stop_task.done():
             asyncio.get_running_loop().call_soon_threadsafe(self._event_stop.set)
 
 

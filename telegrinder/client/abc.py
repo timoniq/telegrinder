@@ -25,10 +25,6 @@ class ABCClient(ABC):
     CONNECTION_TIMEOUT_ERRORS: tuple[type[BaseException], ...] = ()
     CLIENT_CONNECTION_ERRORS: tuple[type[BaseException], ...] = ()
 
-    @abstractmethod
-    def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-        pass
-
     @property
     @abstractmethod
     def timeout(self) -> datetime.timedelta:

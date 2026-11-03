@@ -7,6 +7,7 @@ from contextlib import suppress
 from http import HTTPStatus
 
 import certifi
+from nodnod.utils.aio import awaitable_noop
 from wreq import DnsOptions, exceptions, wreq
 
 from telegrinder.__meta__ import __version__
@@ -40,6 +41,7 @@ DEFAULT_READ_TIMEOUT: typing.Final = datetime.timedelta(seconds=60)
 DEFAULT_TIMEOUT: typing.Final = datetime.timedelta(seconds=60)
 DEFAULT_HTTP2_MAX_RETRIES: typing.Final = 10
 DEFAULT_ZSTD: typing.Final = True
+DEFAULT_GZIP: typing.Final = True
 DEFAULT_VERIFY: typing.Final = pathlib.Path(certifi.where())
 DEFAULT_ALLOW_REDIRECTS: typing.Final = True
 DEFAULT_HTTP2_ONLY: typing.Final = True
@@ -79,7 +81,6 @@ class WreqClient(ABCClient):
     CONNECTION_TIMEOUT_ERRORS: typing.ClassVar = (
         TimeoutError,
         exceptions.TimeoutError,
-        exceptions.RustPanic,
     )
     CLIENT_CONNECTION_ERRORS: typing.ClassVar = (
         exceptions.ConnectionError,
@@ -87,16 +88,26 @@ class WreqClient(ABCClient):
         exceptions.ConnectionResetError,
         exceptions.TlsError,
         exceptions.RequestError,
-        exceptions.RustPanic,
     )
 
-    def __init__(self, **params: typing.Unpack[ClientConfig]) -> None:
+    def __init__(
+        self,
+        *,
+        use_system_dns: bool = True,
+        **params: typing.Unpack[ClientConfig],
+    ) -> None:
+        """Default client built on `wreq`.
+
+        :param use_system_dns: Whether to use the system DNS resolver via `wreq.DnsOptions`. When False, \
+        the hickory DNS resolver is used. This parameter is used if `dns_options` parameter was not provided.
+        """
         params.setdefault("user_agent", USER_AGENT)
         params.setdefault("connect_timeout", DEFAULT_CONNECTION_TIMEOUT)
         params.setdefault("read_timeout", DEFAULT_READ_TIMEOUT)
         params.setdefault("tls_verify", DEFAULT_VERIFY)
         params.setdefault("http2_only", DEFAULT_HTTP2_ONLY)
         params.setdefault("zstd", DEFAULT_ZSTD)
+        params.setdefault("gzip", DEFAULT_GZIP)
         params.setdefault("tcp_keepalive", DEFAULT_TCP_KEEPALIVE_TIME)
         params.setdefault("tcp_keepalive_interval", DEFAULT_TCP_KEEPALIVE_INTERVAL)
         params.setdefault("tcp_keepalive_retries", DEFAULT_TCP_KEEPALIVE_RETRIES)
@@ -105,7 +116,7 @@ class WreqClient(ABCClient):
         params.setdefault("pool_idle_timeout", DEFAULT_CONNECTION_POOL_IDLE_TIMEOUT)
         params.setdefault("pool_max_idle_per_host", DEFAULT_CONNECTION_POOL_CONNECTIONS)
         params.setdefault("pool_max_size", CONNECTION_POOL_MAX_SIZE)
-        params.setdefault("dns_options", DnsOptions(system_dns=True))
+        params.setdefault("dns_options", DnsOptions(system_dns=use_system_dns))
 
         self._timeout = params.setdefault("timeout", DEFAULT_TIMEOUT)
         self._client = wreq.Client(**params)
@@ -119,7 +130,7 @@ class WreqClient(ABCClient):
 
     def __del__(self) -> None:
         with suppress(Exception):
-            self._client.close()
+            self.close()
 
     @property
     def timeout(self) -> datetime.timedelta:
@@ -138,25 +149,26 @@ class WreqClient(ABCClient):
     ) -> Response[wreq.Response]:
         kwargs.setdefault("version", wreq.Version.HTTP_2)
         kwargs.setdefault("zstd", DEFAULT_ZSTD)
+        kwargs.setdefault("gzip", DEFAULT_GZIP)
+
+        if isinstance(timeout := kwargs.get("timeout"), int | float):
+            kwargs["timeout"] = datetime.timedelta(seconds=timeout)
 
         if data is not None:
             if isinstance(data, wreq.Multipart):
                 kwargs["multipart"] = data
-            elif isinstance(data, dict):
+            else:
                 kwargs["json"] = data
 
         if (json_body := kwargs.pop("json", None)) is not None:
-            kwargs["body"] = json.dumps(json_body)
+            kwargs["body"] = json.dumpb(json_body)
 
-        if (timeout := kwargs.get("timeout")) is not None and isinstance(timeout, int | float):
-            kwargs["timeout"] = datetime.timedelta(seconds=timeout)
-
-        response = await self._client.request(_METHODS_MAP[method], url, **kwargs)
-        return Response(
-            response=response,
-            content=(await response.bytes()).tobytes(),
-            status=HTTPStatus(response.status.as_int()),
-        )
+        async with self._client.request(method=_METHODS_MAP[method], url=url, **kwargs) as response:
+            return Response(
+                response=response,
+                content=(await response.bytes()).tobytes(),
+                status=HTTPStatus(response.status.as_int()),
+            )
 
     async def request_text(
         self,
@@ -194,9 +206,9 @@ class WreqClient(ABCClient):
     ) -> dict[str, typing.Any]:
         return json.loads(await self.request_bytes(url=url, method=method, data=data, **kwargs))
 
-    async def close(self) -> None:
-        # wreq.Client owns a connection pool that must be released; the previous no-op leaked it.
+    def close(self) -> typing.Awaitable[None]:
         self._client.close()
+        return awaitable_noop()
 
 
 __all__ = ("WreqClient", "WreqMultipartBuilder")
