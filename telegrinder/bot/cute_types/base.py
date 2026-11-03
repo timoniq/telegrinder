@@ -19,6 +19,8 @@ from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.objects import Update
 
 if typing.TYPE_CHECKING:
+    from telegrinder.bot.rules.magic import Magic
+
     _FROM_CALL_SENTINEL: typing.Any = object()
 
 else:
@@ -53,9 +55,6 @@ def compose_method_params[Cute: BaseCute](
             if param_name in hooks:
                 param_name, field = hooks[param_name](field)
 
-            # A hook can rename the key (e.g. direct_messages_topic -> direct_messages_topic_id),
-            # so the outer `param_name not in params` guard checked the source key, not this one.
-            # setdefault avoids clobbering a value the caller passed under the renamed key.
             params.setdefault(param_name, field)
 
     return params
@@ -246,6 +245,17 @@ class BaseCute[T: Model = typing.Any](Model, kw_only=True):
 
     from_dict = from_mapping  # type: ignore
 
+    @classmethod
+    def filter(
+        cls,
+        f: typing.Callable[[typing.Self], bool],
+        error: typing.Callable[[typing.Self], BaseException] | BaseException | str | None = None,
+        /,
+    ) -> Magic[typing.Self]:
+        from telegrinder.bot.rules.magic import Magic
+
+        return Magic(cls).ensure(chk=f, error=error)
+
     @cached_property
     def api(self) -> API:
         return self.bound_api
@@ -270,8 +280,6 @@ class BaseCute[T: Model = typing.Any](Model, kw_only=True):
     def bind_update(self, update: Update, /) -> typing.Self:
         self._set_bound_in_namespace(BOUND_UPDATE_KEY, update)
         return self
-
-    def filter(self): ...
 
     def to_dict(
         self,

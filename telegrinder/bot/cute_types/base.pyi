@@ -5,6 +5,7 @@ from msgspex import Model
 
 from telegrinder.api.api import API
 from telegrinder.bot.dispatch.context import Context
+from telegrinder.bot.rules.magic import Magic
 from telegrinder.tools.magic.shortcut import shortcut
 from telegrinder.types.objects import Update
 
@@ -44,6 +45,13 @@ class BaseCute[T: Model = typing.Any](Model, kw_only=True):
     def from_dict(cls, data: dict[str, typing.Any], bound_api: API) -> typing.Self: ...
     @classmethod
     def from_raw(cls, raw: str | bytes, bound_api: API) -> typing.Self: ...
+    @classmethod
+    def filter(
+        cls,
+        f: typing.Callable[[typing.Self], bool],
+        error: typing.Callable[[typing.Self], BaseException] | BaseException | str | None = None,
+        /,
+    ) -> Magic[typing.Self]: ...
     def bind(self, update: Update, api: API) -> typing.Self: ...
     def bind_api(self, api: API, /) -> typing.Self: ...
     def bind_update(self, update: Update, /) -> typing.Self: ...
