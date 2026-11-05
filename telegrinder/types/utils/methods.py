@@ -12,9 +12,10 @@ from telegrinder.types.utils.lazy_result import lazy_result
 
 if typing.TYPE_CHECKING:
     from telegrinder.api.error import APIError
+    from telegrinder.types.methods import APIResult
 
 
-def full_result[T](res: Result[msgspec.Raw, APIError], full_t: TypeForm[T]) -> Result[T, APIError]:
+def full_result[T](res: Result[msgspec.Raw, APIError], full_t: TypeForm[T]) -> APIResult[T]:
     return lazy_result(res, lambda raw: decoder.decode(raw, type=full_t))
 
 

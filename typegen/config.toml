@@ -2222,7 +2222,7 @@ params = [
 [[generator.methods.annotations.literals]]
 name = "postStory"
 params = [
-    { name = "active_period", literals = [21600, 43200, 86400, 172800,] },
+    { name = "active_period", enum = "StoryActivePeriod", default = "SIX_HOURS" },
 ]
 
 [[generator.methods.annotations.literals]]
@@ -2234,14 +2234,14 @@ params = [
 [[generator.methods.annotations.literals]]
 name = "giftPremiumSubscription"
 params = [
-    { name = "month_count", literals = [3, 6, 12,] },
+    { name = "month_count", enum = "PremiumSubscriptionPeriod", default = "THREE_MONTHS" },
     { name = "star_count", literals = [1000, 1500, 2500,] },
 ]
 
 [[generator.methods.annotations.literals]]
 name = "repostStory"
 params = [
-    { name = "active_period", literals = [21600, 43200, 86400, 172800,] },
+    { name = "active_period", enum = "StoryActivePeriod", default = "SIX_HOURS" },
 ]
 
 [[generator.methods.annotations.literals]]

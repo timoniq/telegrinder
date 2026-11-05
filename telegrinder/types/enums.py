@@ -386,7 +386,7 @@ class Currency(StrEnum):
     XTR = "XTR"
     """Telegram stars."""
     TON = "TON"
-    """Toncoin."""
+    """Ton gram."""
 
 
 class InlineQueryResultType(StrEnum):
@@ -823,6 +823,30 @@ class VerticalAlignment(StrEnum):
     BOTTOM = "bottom"
 
 
+class PremiumSubscriptionPeriod(IntEnum):
+    """Number of months the Telegram Premium subscription will be active for the user."""
+
+    THREE_MONTHS = 3
+    HALF_YEAR = 6
+    YEAR = 12
+
+
+class StoryActivePeriod(IntEnum):
+    """Period after which the story is moved to the archive."""
+
+    SIX_HOURS = 21600
+    """6 hours = 21600 seconds."""
+
+    TWELVE_HOURS = 43200
+    """12 hours = 43200 seconds."""
+
+    ONE_DAY = 86400
+    """1 day = 86400 seconds."""
+
+    TWO_DAYS = 172800
+    """2 days = 172800 seconds."""
+
+
 __all__ = (
     "BotCommandScopeType",
     "ChatAction",
@@ -850,6 +874,7 @@ __all__ = (
     "MessageOriginType",
     "PassportElementErrorType",
     "PollType",
+    "PremiumSubscriptionPeriod",
     "ProgrammingLanguage",
     "ReactionEmoji",
     "ReactionTypeType",
@@ -857,6 +882,7 @@ __all__ = (
     "StickerFormat",
     "StickerSetStickerType",
     "StickerType",
+    "StoryActivePeriod",
     "TopicIconColor",
     "TransactionPartnerUserTransactionType",
     "UniqueGiftInfoOriginType",

@@ -1,6 +1,6 @@
 import typing
 
-from kungfu.library.monad.result import Error, Ok, Result
+from kungfu.library.monad.result import Ok, Result
 
 _UNSET: typing.Final = object()
 
@@ -31,10 +31,7 @@ def lazy_result[T, R, E](
     f: typing.Callable[[T], R],
     /,
 ) -> Result[R, E]:
-    if isinstance(result, Error):
-        return result
-
-    return LazyResult(lambda: f(result.unwrap()))
+    return result if not result else LazyResult(lambda: f(result._value))
 
 
 __all__ = ("LazyResult", "lazy_result")

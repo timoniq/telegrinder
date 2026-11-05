@@ -721,7 +721,8 @@ class MethodGenerator(ABCGenerator):
         if not params:
             return []
 
-        result = []
+        result: list[str] = []
+
         for p in (
             *filter(lambda x: x.required and not self.get_typed_default_param(x.name), params),
             *filter(lambda x: not x.required or self.get_typed_default_param(x.name), params),
@@ -729,16 +730,27 @@ class MethodGenerator(ABCGenerator):
             annotation = self.get_param_annotation(method_name, p.name)
             literal_types = self.get_param_literal_types(method_name, p.name)
             param_name = makesafe_name(p.name)
+            default_param_value: str | None = None
 
             if annotation is not None:
                 p.types = [annotation.type]
 
             elif literal_types is not None:
                 tp = literal_types.enum or "typing.Literal[%s]" % ", ".join(
-                    f'"{x}"' if isinstance(x, str) else str(x) for x in literal_types.literals
+                    f'"{x}"' if isinstance(x, str) and not literal_types.enum_literals else str(x)
+                    for x in (
+                        literal_types.literals
+                        if not literal_types.enum_literals
+                        else (
+                            literal_types.enum_literals.name + "." + x for x in literal_types.enum_literals.enumerations
+                        )
+                    )
                 )
                 tp = f"list[{tp}]" if any("Array of" in x for x in p.types) else tp
                 p.types = [tp]
+
+                if default_param_value is None:
+                    default_param_value = literal_types.enum_default or literal_types.enum_literals_default
 
             elif is_timestamp_type(param_name, types=p.types):
                 p.types.insert(p.types.index("Integer" if "Integer" in p.types else "Float"), "Timestamp")
@@ -746,9 +758,9 @@ class MethodGenerator(ABCGenerator):
             elif p.description and is_unixtime_type(param_name, p.types, p.description):
                 p.types.insert(p.types.index("Integer"), "Unixtime")
 
-            default_param_value = (
-                None if self.get_typed_default_param(param_name) is None else f'DEFAULT_PARAMETERS["{param_name}"]'
-            )
+            if default_param_value is None and self.get_typed_default_param(param_name) is not None:
+                default_param_value = f'DEFAULT_PARAMETERS["{param_name}"]'
+
             code = f"{TAB * 2}{param_name}: "
 
             if not p.required or default_param_value:
@@ -758,7 +770,7 @@ class MethodGenerator(ABCGenerator):
 
             result.append(code)
 
-        return result
+        return sorted(result, key=lambda code: "=" in code)
 
     def make_return_type(self, returns: list[str] | None = None) -> str:
         if not returns:
