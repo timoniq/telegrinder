@@ -8,6 +8,7 @@ from reprlib import recursive_repr
 
 from kungfu.library.misc import from_optional
 from kungfu.library.monad.option import NOTHING, Option, Some
+from nodnod.utils.type_args import get_type_args_values
 
 from telegrinder.tools.global_context.global_context import GlobalContext, ctx_var
 
@@ -157,8 +158,6 @@ def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, Ann
 
     for param_position, parameter in enumerate(parameters):
         if isinstance(parameter, typing.TypeVarTuple):
-            # A TypeVarTuple absorbs everything except the args claimed by the parameters that
-            # follow it; the count to leave depends on what comes after, not before.
             remaining_after = len(parameters) - param_position - 1
             stop_index = len(args) - remaining_after
             generic_alias_args[parameter] = args[index:stop_index]
@@ -170,6 +169,28 @@ def get_generic_parameters(obj: typing.Any, /) -> Option[dict[TypeParameter, Ann
         index += 1
 
     return Some(generic_alias_args)
+
+
+def get_type_args_from_orig_base_generic(
+    base_cls: type[typing.Any], cls: type[typing.Any], /
+) -> dict[TypeParameter, AnnotationForm]:
+    for base in types.get_original_bases(cls):
+        original_base = typing.get_origin(base) or base
+
+        if issubclass(original_base, base_cls):
+            return get_type_args_values(  # type: ignore
+                args=typing.get_args(base),
+                parameters=getattr(original_base, "__type_params__", ()),
+            )
+
+    return {}
+
+
+def unwrap_type_alias_value(annotation: AnnotationForm, /) -> AnnotationForm:
+    while isinstance(annotation, typing.TypeAliasType):
+        annotation = annotation.__value__
+
+    return annotation
 
 
 __all__ = ("Annotations", "get_generic_parameters")

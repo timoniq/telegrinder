@@ -1,17 +1,29 @@
 import dataclasses
 import datetime
+import enum
+from enum import Enum
 
 from telegrinder.tools.state_mutator import State, StateMutator, mutation
+
+# Kind of the life state
+
+
+class Life(Enum):
+    ALIVE = enum.auto()
+    DEAD = enum.auto()
+
 
 # State declaration
 
 
 @dataclasses.dataclass
 class AliveState(State):
+    __state_key__ = Life.ALIVE
     __description__ = "living"
 
     since: datetime.datetime = dataclasses.field(default_factory=datetime.datetime.now)
 
+    # mutating from alive into dead
     @mutation
     def die(self, reason: str) -> "DeadState":
         return DeadState(reason)
@@ -19,8 +31,11 @@ class AliveState(State):
 
 @dataclasses.dataclass
 class DeadState(State):
+    __state_key__ = Life.DEAD
+
     reason: str
 
+    # mutating from dead into alive
     @mutation
     def resurrect(self) -> "AliveState":
         return AliveState()
@@ -50,9 +65,10 @@ def login_as_ghost(silently: bool = False):
 from telegrinder import API, Bot, Token, configure_dotenv, setup_logger
 from telegrinder.rules import Text
 
-bot = Bot(API(Token.from_env()))
 configure_dotenv()
 setup_logger()
+
+bot = Bot(API(Token.from_env()))
 
 
 @bot.on.message(Text("/die"))
@@ -94,6 +110,7 @@ async def in_state_handler(state: AliveState | DeadState):
 
 @bot.on.message(Text("/be_born"))
 async def be_born_handler(mutator: StateMutator):
+    # Anyway be born from any state
     await be_born(mutator)
     return "You were born"
 

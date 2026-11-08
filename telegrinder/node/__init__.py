@@ -127,6 +127,7 @@ __all__ = (
     "Source",
     "State",
     "StateMutator",
+    "StateStorageNode",
     "SuccessfulPayment",
     "Text",
     "TextInteger",

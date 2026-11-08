@@ -44,6 +44,7 @@ from telegrinder.node.nodes.payload import Payload, PayloadData, PayloadSerializ
 from telegrinder.node.nodes.reply_message import ReplyMessage
 from telegrinder.node.nodes.source import ChatId, ChatSource, Locale, Source, UserId, UserSource
 from telegrinder.node.nodes.state_mutator import State, StateMutator
+from telegrinder.node.nodes.storage import StateStorageNode
 from telegrinder.node.nodes.text import Caption, HTMLCaption, HTMLText, Text, TextInteger, TextLiteral
 
 __all__ = (
@@ -96,6 +97,7 @@ __all__ = (
     "Source",
     "State",
     "StateMutator",
+    "StateStorageNode",
     "SuccessfulPayment",
     "Text",
     "TextInteger",

@@ -5,87 +5,87 @@ from telegrinder.tools.aio import maybe_awaitable
 if typing.TYPE_CHECKING:
     from telegrinder.node import State, StateMutator
 
-    class BoundMethod[**P, T, R](typing.Protocol):
+    class BoundMutation[**P, T, R](typing.Protocol):
         @staticmethod
         def __call__(self: T, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
 
-    @typing.runtime_checkable
-    class NotBoundFunction[**P, R](typing.Protocol):
+    class UnboundMutation[**P, R](typing.Protocol):
         def __call__(self, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
 
 
-class mutation[**P, IntoState: State, BoundState: State | None]:  # noqa: N801
-    from_state: State | None
+class Mutation[
+    ConstructMutation: typing.Callable[
+        ..., typing.Coroutine[typing.Any, typing.Any, State[typing.Any]] | State[typing.Any]
+    ],
+    Into: State[typing.Any],
+    From: State[typing.Any] | None,
+]:
+    construct_mutation: ConstructMutation
+    from_state: From | None
 
     @typing.overload
-    def __init__(
-        self: mutation[P, IntoState, BoundState],  # type: ignore
-        construct_mutation: BoundMethod[P, BoundState, IntoState],
-    ) -> None: ...
+    def __new__[**P, IntoState: State[typing.Any], FromState: State[typing.Any] | None](
+        self, construct_mutation: BoundMutation[P, FromState, IntoState], /
+    ) -> Mutation[BoundMutation[P, FromState, IntoState], IntoState, FromState]: ...
 
     @typing.overload
-    def __init__(
-        self: mutation[P, IntoState, None],  # type: ignore
-        construct_mutation: NotBoundFunction[P, IntoState],
-    ) -> None: ...
+    def __new__[**P, IntoState: State[typing.Any]](
+        self, construct_mutation: UnboundMutation[P, IntoState], /
+    ) -> Mutation[UnboundMutation[P, IntoState], IntoState, None]: ...
 
-    def __init__(
-        self,
-        construct_mutation: typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, IntoState] | IntoState],
-    ) -> None:
-        self.construct_mutation = construct_mutation
-        self.from_state = None
+    def __new__(cls, construct_mutation: typing.Any) -> Mutation[typing.Any, typing.Any, typing.Any]:
+        instance = super().__new__(cls)
+        instance.construct_mutation = construct_mutation
+        instance.from_state = None
+        return instance
 
     @typing.overload
-    async def __call__(
-        self: mutation[P, IntoState, None],
+    async def __call__[**P](
+        self: Mutation[UnboundMutation[P, Into], Into, None],
         mutator: StateMutator,
         /,
         *args: P.args,
         **kwargs: P.kwargs,
-    ) -> IntoState: ...
+    ) -> Into: ...
 
     @typing.overload
-    async def __call__(
-        self: mutation[P, IntoState, State],
+    async def __call__[**P](
+        self: Mutation[BoundMutation[P, From, Into], Into, From],
         *args: P.args,
         **kwargs: P.kwargs,
-    ) -> IntoState: ...
+    ) -> Into: ...
 
-    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> IntoState:
-        mutator: StateMutator
+    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        mutator: StateMutator[typing.Any]
+        _args: list[typing.Any]
+        from_state: State | None
 
         if self.from_state is not None:
             if self.from_state.__mutator__ is None:
-                raise RuntimeError("State is not bound. Bind state with .bind(mutator) before mutating")
+                raise RuntimeError("State is not bound. Bind state with .bind(mutator) before mutating.")
 
-            await self.from_state.exit()
-
-            new_state = await maybe_awaitable(self.construct_mutation(self.from_state, *args, **kwargs))
-            mutator = self.from_state.__mutator__
+            from_state, mutator, _args = self.from_state, self.from_state.__mutator__, [self.from_state, *args]
+        elif args:
+            mutator, *_args = args
+            from_state = await mutator.get()
         else:
-            mutator, args = args[0], args[1:]
+            raise RuntimeError("Mutator was not provided for mutating the state.")
 
-            if (state := await mutator.get()) is not None:
-                await state.exit()
+        if from_state is not None:
+            await from_state.exit()
 
-            new_state = await maybe_awaitable(self.construct_mutation(*args, **kwargs))
+        return await mutator.bind_state(await maybe_awaitable(self.construct_mutation(*_args, **kwargs))).enter()
 
-        new_state.bind(mutator)
-        await new_state.enter()
-
-        return new_state
-
-    def __get__(self, instance: State, owner: typing.Any) -> typing.Self:
+    def __get__(self, instance: From, owner: typing.Any) -> typing.Self:
         if instance is None:
             return self
-        # Return a fresh per-access bound copy instead of stashing `from_state` on the shared
-        # descriptor. The descriptor is a single class attribute, so writing the bound state onto
-        # it and reading it back across the `await` in __call__ lets concurrent mutations of
-        # different states clobber one another (one user's mutation persisted onto another's).
+
         bound = type(self)(self.construct_mutation)
         bound.from_state = instance
         return bound
+
+
+mutation = Mutation
 
 
 __all__ = ("mutation",)

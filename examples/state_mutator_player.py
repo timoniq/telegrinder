@@ -1,5 +1,7 @@
 import datetime
+import enum
 from dataclasses import dataclass
+from enum import Enum
 
 from telegrinder import API, Bot, Token, configure_dotenv, logger, setup_logger
 from telegrinder.rules import Argument, Command
@@ -7,10 +9,17 @@ from telegrinder.tools.state_mutator import State, StateMutator, mutation
 
 configure_dotenv()
 setup_logger()
+
 bot = Bot(API(Token.from_env()))
 
 
 type Plugged = Stopped
+
+
+class PlayerState(Enum):
+    PLAY = enum.auto()
+    PAUSE = enum.auto()
+    STOP = enum.auto()
 
 
 @mutation
@@ -21,6 +30,8 @@ async def plug_in() -> Plugged:
 
 @dataclass
 class Stopped(State):
+    __state_key__ = PlayerState.STOP
+
     @mutation
     def play(self, song: str, offset: datetime.timedelta = datetime.timedelta(0)) -> "Playing":
         return Playing(song, offset, datetime.datetime.now())
@@ -28,6 +39,8 @@ class Stopped(State):
 
 @dataclass
 class Playing(State):
+    __state_key__ = PlayerState.PLAY
+
     song: str
     offset: datetime.timedelta
     started_at: datetime.datetime
@@ -48,6 +61,8 @@ class Playing(State):
 
 @dataclass
 class Paused(State):
+    __state_key__ = PlayerState.PAUSE
+
     song: str
     offset: datetime.timedelta
     stopped_at: datetime.datetime

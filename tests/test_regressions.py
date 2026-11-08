@@ -659,7 +659,7 @@ async def test_memory_state_storage_delete_is_idempotent():
 
 def test_mutation_descriptor_binds_state_independently_per_access():
     class _MutState(State):
-        pass
+        __state_key__ = "mut_state"
 
     async def _construct(*args, **kwargs):
         return _MutState()
