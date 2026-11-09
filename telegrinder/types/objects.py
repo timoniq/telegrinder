@@ -17,6 +17,16 @@ from telegrinder.types.model import Model
 from telegrinder.types.utils import default_parameter_as_option_for_field
 
 
+class WidgetQueryType(Model, kw_only=True):
+    """Base object `WidgetQueryType`, see the [documentation](https://core.telegram.org/bots/api#widgetquerytype).
+
+    This object describes the type of a query from a widget. Currently, it can be one of
+    - WidgetQueryTypeData
+    - WidgetQueryTypeSignData
+    - WidgetQueryTypeSentTransaction
+    """
+
+
 class TransactionPartner(Model, kw_only=True):
     """Base object `TransactionPartner`, see the [documentation](https://core.telegram.org/bots/api#transactionpartner).
 
@@ -52,6 +62,7 @@ class RichText(Model, kw_only=True):
     - RichTextEmailAddress
     - RichTextPhoneNumber
     - RichTextBankCardNumber
+    - RichTextTonAddress
     - RichTextMention
     - RichTextHashtag
     - RichTextCashtag
@@ -204,6 +215,8 @@ class InputMessageContent(Model, kw_only=True):
     - InputVenueMessageContent
     - InputContactMessageContent
     - InputInvoiceMessageContent
+    - InputWidgetMessageContent
+    - InputSharedWidgetMessageContent
     """
 
 
@@ -334,6 +347,24 @@ class InlineQueryResult(Model, kw_only=True):
     - InlineQueryResultVideo
     - InlineQueryResultVoice
     Note: All URLs passed in inline query results will be available to end users and therefore must be assumed to be public.
+    """
+
+
+class EmojiType(Model, kw_only=True):
+    """Base object `EmojiType`, see the [documentation](https://core.telegram.org/bots/api#emojitype).
+
+    This object describes an emoji. Currently, it can be one of
+    - EmojiTypeEmoji
+    - EmojiTypeCustomEmoji
+    """
+
+
+class ChatShareTheme(Model, kw_only=True):
+    """Base object `ChatShareTheme`, see the [documentation](https://core.telegram.org/bots/api#chatsharetheme).
+
+    This object describes the theme of the screen for sharing a link to a user or a chat. Currently, it can be one of
+    - ChatShareThemeEmoji
+    - ChatShareThemeUniqueGift
     """
 
 
@@ -472,6 +503,13 @@ class Update(Model, kw_only=True):
 
     callback_query: Option[CallbackQuery] = field(default=..., converter=From["CallbackQuery | None"])
     """Optional. New incoming callback query."""
+
+    widget_query: Option[WidgetQuery] = field(default=..., converter=From["WidgetQuery | None"])
+    """Optional. New incoming query from a widget in a message sent by the bot or
+    via the bot."""
+
+    shared_widget_query: Option[SharedWidgetQuery] = field(default=..., converter=From["SharedWidgetQuery | None"])
+    """Optional. New incoming query from a forwarded message with a shared widget."""
 
     shipping_query: Option[ShippingQuery] = field(default=..., converter=From["ShippingQuery | None"])
     """Optional. New incoming shipping query. Only for invoices with flexible
@@ -919,6 +957,17 @@ class ChatFullInfo(Model, kw_only=True):
     community: Option[Community] = field(default=..., converter=From["Community | None"])
     """Optional. The Community to which the chat belongs."""
 
+    ton_wallet_card: Option[TonWalletCard] = field(default=..., converter=From["TonWalletCard | None"])
+    """Optional. For private chats, the TON wallet card of the user, which is shown
+    on their profile page."""
+
+    share_theme: Option[Sum[ChatShareThemeEmoji, ChatShareThemeUniqueGift]] = field(
+        default=..., converter=From["ChatShareThemeEmoji | ChatShareThemeUniqueGift | None"]
+    )
+    """Optional. For private chats, supergroups and channels, the theme of the
+    screen for sharing a link to the user or the chat; omitted if the default theme
+    is used."""
+
 
 class Message(MaybeInaccessibleMessage, kw_only=True):
     """Object `Message`, see the [documentation](https://core.telegram.org/bots/api#message).
@@ -1141,16 +1190,20 @@ class Message(MaybeInaccessibleMessage, kw_only=True):
     voice: Option[Voice] = field(default=..., converter=From["Voice | None"])
     """Optional. Message is a voice message, information about the file."""
 
+    widget: Option[Widget] = field(default=..., converter=From["Widget | None"])
+    """Optional. Message is an HTML widget, information about the widget."""
+
     caption: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Caption for the animation, audio, document, paid media, photo,
-    video or voice."""
+    """Optional. Caption for the animation, audio, document, live photo, paid
+    media, photo, video, voice, or widget."""
 
     caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. For messages with a caption, special entities like usernames,
     URLs, bot commands, etc. that appear in the caption."""
 
     show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the caption must be shown above the message media."""
+    """Optional. True, if the caption must be shown above the message media or the
+    widget."""
 
     has_media_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the message media is covered by a spoiler animation."""
@@ -1367,6 +1420,11 @@ class Message(MaybeInaccessibleMessage, kw_only=True):
     """Optional. Service message: the price for paid messages has changed in the
     chat."""
 
+    paid_messages_waived: Option[PaidMessagesWaived] = field(default=..., converter=From["PaidMessagesWaived | None"])
+    """Optional. Service message: the sender of the message used a link of the other
+    user, which allows sending messages to the user without paying Telegram
+    Stars."""
+
     poll_option_added: Option[PollOptionAdded] = field(default=..., converter=From["PollOptionAdded | None"])
     """Optional. Service message: answer option was added to a poll."""
 
@@ -1395,6 +1453,9 @@ class Message(MaybeInaccessibleMessage, kw_only=True):
         default=..., converter=From["SuggestedPostRefunded | None"]
     )
     """Optional. Service message: payment for a suggested post was refunded."""
+
+    ton_wallet_transfer: Option[TonWalletTransfer] = field(default=..., converter=From["TonWalletTransfer | None"])
+    """Optional. Service message: a transfer with a TON wallet."""
 
     video_chat_scheduled: Option[VideoChatScheduled] = field(default=..., converter=From["VideoChatScheduled | None"])
     """Optional. Service message: video chat scheduled."""
@@ -1490,13 +1551,14 @@ class MessageEntity(Model, kw_only=True):
     (#hashtag or #hashtag@chatusername), `cashtag` ($USD or $USD@chatusername),
     `bot_command` (/start@jobs_bot), `url` (https://telegram.org), `email`
     (do-not-reply@telegram.org), `phone_number` (+1-212-555-0123),
-    `bold` (bold text), `italic` (italic text), `underline` (underlined
-    text), `strikethrough` (strikethrough text), `spoiler` (spoiler message),
-    `blockquote` (block quotation), `expandable_blockquote` (collapsed-by-default
-    block quotation), `code` (monowidth string), `pre` (monowidth block),
-    `text_link` (for clickable text URLs), `text_mention` (for users without
-    usernames), `custom_emoji` (for inline custom emoji stickers), or `date_time`
-    (for formatted date and time)."""
+    `bank_card_number` (bank card number), `ton_address` (address in the
+    TON blockchain), `bold` (bold text), `italic` (italic text), `underline`
+    (underlined text), `strikethrough` (strikethrough text), `spoiler`
+    (spoiler message), `blockquote` (block quotation), `expandable_blockquote`
+    (collapsed-by-default block quotation), `code` (monowidth string),
+    `pre` (monowidth block), `text_link` (for clickable text URLs), `text_mention`
+    (for users without usernames), `custom_emoji` (for inline custom emoji
+    stickers), or `date_time` (for formatted date and time)."""
 
     offset: int = field()
     """Offset in UTF-16 code units to the start of the entity."""
@@ -1535,16 +1597,68 @@ class TextQuote(Model, kw_only=True):
     """
 
     text: str = field()
-    """Text of the quoted part of a message that is replied to by the given message."""
+    """Text of the quoted part of a message that is replied to by the given message;
+    may be empty if the quote was chosen from a rich message."""
 
     position: int = field()
     """Approximate quote position in the original message in UTF-16 code units
-    as specified by the sender."""
+    as specified by the sender. For quotes from rich messages, it is the position
+    in the text formed by joining plain texts of all quotable texts of the message,
+    separated by line feeds."""
 
     entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
     """Optional. Special entities that appear in the quote. Currently, only bold,
     italic, underline, strikethrough, spoiler, custom_emoji, and date_time
     entities are kept in quotes."""
+
+    rich_texts: Option[
+        list[
+            Sum[
+                str,
+                list[RichText],
+                RichTextBold,
+                RichTextItalic,
+                RichTextUnderline,
+                RichTextStrikethrough,
+                RichTextSpoiler,
+                RichTextDateTime,
+                RichTextTextMention,
+                RichTextSubscript,
+                RichTextSuperscript,
+                RichTextMarked,
+                RichTextCode,
+                RichTextCustomEmoji,
+                RichTextMathematicalExpression,
+                RichTextUrl,
+                RichTextEmailAddress,
+                RichTextPhoneNumber,
+                RichTextBankCardNumber,
+                RichTextTonAddress,
+                RichTextMention,
+                RichTextHashtag,
+                RichTextCashtag,
+                RichTextBotCommand,
+                RichTextButton,
+                RichTextAnchor,
+                RichTextAnchorLink,
+                RichTextReference,
+                RichTextReferenceLink,
+            ]
+        ]
+    ] = field(
+        default=...,
+        converter=From[
+            list[
+                "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            ]
+            | None
+        ],
+    )
+    """Optional. Rich text of the quote if it was chosen from a rich message. May
+    contain only plain text, RichTextBold, RichTextItalic, RichTextUnderline,
+    RichTextStrikethrough, RichTextSpoiler, RichTextSubscript, RichTextSuperscript,
+    RichTextDateTime, RichTextCustomEmoji, RichTextMathematicalExpression,
+    and arrays of them."""
 
     is_manual: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the quote was chosen manually by the message sender.
@@ -1613,6 +1727,9 @@ class ExternalReplyInfo(Model, kw_only=True):
     voice: Option[Voice] = field(default=..., converter=From["Voice | None"])
     """Optional. Message is a voice message, information about the file."""
 
+    widget: Option[Widget] = field(default=..., converter=From["Widget | None"])
+    """Optional. Message is an HTML widget, information about the widget."""
+
     has_media_spoiler: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the message media is covered by a spoiler animation."""
 
@@ -1662,7 +1779,7 @@ class ReplyParameters(Model, kw_only=True):
 
     chat_id: Option[TypeAliases.ChatId] = field(default=..., converter=From[int | str | None])
     """Optional. If the message to be replied to is from a different chat, unique
-    identifier for the chat or username of the bot, supergroup or channel in
+    identifier for the chat or username of the bot, supergroup, or channel in
     the format @username. Not supported for messages sent on behalf of a business
     account, messages from channel direct messages chats and ephemeral messages."""
 
@@ -1693,8 +1810,75 @@ class ReplyParameters(Model, kw_only=True):
     """Optional. A JSON-serialized list of special entities that appear in the
     quote. It can be specified instead of quote_parse_mode."""
 
+    quote_rich_texts: Option[
+        list[
+            Sum[
+                str,
+                list[RichText],
+                RichTextBold,
+                RichTextItalic,
+                RichTextUnderline,
+                RichTextStrikethrough,
+                RichTextSpoiler,
+                RichTextDateTime,
+                RichTextTextMention,
+                RichTextSubscript,
+                RichTextSuperscript,
+                RichTextMarked,
+                RichTextCode,
+                RichTextCustomEmoji,
+                RichTextMathematicalExpression,
+                RichTextUrl,
+                RichTextEmailAddress,
+                RichTextPhoneNumber,
+                RichTextBankCardNumber,
+                RichTextTonAddress,
+                RichTextMention,
+                RichTextHashtag,
+                RichTextCashtag,
+                RichTextBotCommand,
+                RichTextButton,
+                RichTextAnchor,
+                RichTextAnchorLink,
+                RichTextReference,
+                RichTextReferenceLink,
+            ]
+        ]
+    ] = field(
+        default=...,
+        converter=From[
+            list[
+                "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            ]
+            | None
+        ],
+    )
+    """Optional. A JSON-serialized list of quoted parts of the rich message to
+    be replied to. Must contain one element for each quoted text of the message
+    in the order of their appearance. Each of the following is a separate quoted
+    text: the text of a paragraph, a heading, a preformatted block, a footer,
+    or a mathematical expression; the text and the credit of a block quotation
+    or a pull quotation; the summary of a details block; the caption and each
+    cell of a table; the text and the credit of a caption of a media block, a collage,
+    a slideshow, or a map. Texts of blocks nested in lists, block quotations,
+    details, collages, and slideshows are separate quoted texts too. The first
+    and the last elements can contain only a part of the corresponding text;
+    all other elements must contain the whole text. Formatting of the quoted
+    parts must be kept, and rich texts must be nested in the same way as in the message
+    received from the server. Mathematical expressions must be quoted entirely.
+    Buttons in RichBlockButtons, anchors and dividers can't be quoted. Up
+    to 32 quoted texts with total length up to 1024 characters can be specified.
+    Only plain text, RichTextBold, RichTextItalic, RichTextUnderline,
+    RichTextStrikethrough, RichTextSpoiler, RichTextSubscript, RichTextSuperscript,
+    RichTextDateTime, RichTextCustomEmoji, RichTextMathematicalExpression,
+    and arrays of them are kept in the quote; other rich text types are replaced
+    with their text. If non-empty, then quote, quote_parse_mode and quote_entities
+    are ignored."""
+
     quote_position: Option[int] = field(default=..., converter=From[int | None])
-    """Optional. Position of the quote in the original message in UTF-16 code units."""
+    """Optional. Position of the quote in the original message in UTF-16 code units.
+    For quotes from rich messages, it is the position in the text formed by joining
+    plain texts of all quotable texts of the message, separated by line feeds."""
 
     checklist_task_id: Option[int] = field(default=..., converter=From[int | None])
     """Optional. Identifier of the specific checklist task to be replied to."""
@@ -1710,14 +1894,23 @@ class EphemeralMessageParameters(Model, kw_only=True):
     No description yet.
     """
 
-    receiver_user_id: int = field()
-    """Identifier of the user who will receive the message. It is not guaranteed
-    that the user will receive the message, especially if they are offline.
-    See here for more details."""
+    receiver_user_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Identifier of the user who will receive the message; required
+    unless the message is sent as an ephemeral reply to a callback query. If omitted,
+    then the parameter chat_id of the method is ignored. If specified together
+    with callback_query_id, then it must be the identifier of the user who pressed
+    the button. Must be omitted for messages sent in chats where the bot isn't
+    a member, unless the message is a reply to an ephemeral message. It is not
+    guaranteed that the user will receive the message, especially if they are
+    offline. See here for more details."""
 
     callback_query_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Identifier of the callback query which triggered the message,
-    if any."""
+    if any. If specified and receiver_user_id is omitted, then the message
+    is sent as an ephemeral reply to the callback query and will be shown only
+    to the user who pressed the button. Ephemeral replies can't be sent to callback
+    queries from messages in channel direct messages chats. The bot must still
+    answer the callback query using answerCallbackQuery."""
 
     replace_callback_query_message: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the ephemeral message must be shown in place of the
@@ -2103,6 +2296,36 @@ class Voice(Model, kw_only=True):
     languages may have difficulty/silent defects in interpreting it. But
     it has at most 52 significant bits, so a signed 64-bit integer or double-precision
     float type are safe for storing this value."""
+
+
+class Widget(Model, kw_only=True):
+    """Object `Widget`, see the [documentation](https://core.telegram.org/bots/api#widget).
+
+    This object describes an HTML widget.
+    """
+
+    html: str = field()
+    """HTML code of the widget."""
+
+    id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Unique identifier of the shared widget, which can be used to send
+    the widget again using the method sendSharedWidget; omitted if the widget
+    isn't shared."""
+
+    width: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Width of the widget in logical pixels; omitted if the widget must
+    occupy the whole width of the message bubble."""
+
+    height: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Height of the widget in logical pixels; omitted if the height
+    of the widget isn't fixed."""
+
+    public_data: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Public data of the widget, which is available wherever the widget
+    is shown. All messages with a shared widget have the same public data."""
+
+    chat_data: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Data of the widget, which is specific to the message."""
 
 
 class PaidMediaInfo(Model, kw_only=True):
@@ -3294,6 +3517,34 @@ class SuggestedPostRefunded(Model, kw_only=True):
     payment."""
 
 
+class PaidMessagesWaived(Model, kw_only=True):
+    """Object `PaidMessagesWaived`, see the [documentation](https://core.telegram.org/bots/api#paidmessageswaived).
+
+    Describes a service message about the sender of the message using a link of the other user, which allows sending messages to the user without paying Telegram Stars. Currently holds no information.
+    """
+
+
+class TonWalletTransfer(Model, kw_only=True):
+    """Object `TonWalletTransfer`, see the [documentation](https://core.telegram.org/bots/api#tonwallettransfer).
+
+    Describes a service message about a transfer with a TON wallet.
+    """
+
+    transaction_id: str = field()
+    """Unique identifier of the transaction; may be empty if the transfer hasn't
+    been sent yet."""
+
+    peer_address: str = field()
+    """Address of the transfer peer in the TON blockchain."""
+
+    amount: str = field()
+    """The amount of transferred cryptocurrency, in the smallest units of the
+    cryptocurrency, as a decimal number; negative for outgoing transfers."""
+
+    comment: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Comment added to the transfer; omitted if the comment is encrypted."""
+
+
 class GiveawayCreated(Model, kw_only=True):
     """Object `GiveawayCreated`, see the [documentation](https://core.telegram.org/bots/api#giveawaycreated).
 
@@ -3782,7 +4033,11 @@ class KeyboardButtonRequestManagedBot(Model, kw_only=True):
     """Optional. Suggested name for the bot."""
 
     suggested_username: Option[str] = field(default=..., converter=From[str | None])
-    """Optional. Suggested username for the bot."""
+    """Optional. Suggested username for the bot. The username must end with `bot`.
+    If the user creating the bot has a Telegram Premium subscription, then the
+    username can also end with `agent`, `ai`, `app`, `game`, or `gay`; in this
+    case, the username will be assigned to the bot as a secondary username, and
+    a regular username ending with `bot` will be assigned to the bot automatically."""
 
 
 class KeyboardButtonPollType(Model, kw_only=True):
@@ -3868,7 +4123,7 @@ class InlineKeyboardButton(Model, kw_only=True):
     presses the button. The Web App will be able to send an arbitrary message
     on behalf of the user using the method answerWebAppQuery. Available only
     in private chats between a user and the bot. Not supported for messages sent
-    on behalf of a business account."""
+    on behalf of a business account and ephemeral messages."""
 
     login_url: Option[LoginUrl] = field(default=..., converter=From["LoginUrl | None"])
     """Optional. An HTTPS URL used to automatically authorize the user. Can be
@@ -4020,6 +4275,142 @@ class CallbackQuery(Model, kw_only=True):
     game_short_name: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Short name of a Game to be returned, serves as the unique identifier
     for the game."""
+
+
+class WidgetQueryTypeData(WidgetQueryType, kw_only=True):
+    """Object `WidgetQueryTypeData`, see the [documentation](https://core.telegram.org/bots/api#widgetquerytypedata).
+
+    The query contains data for the bot.
+    """
+
+    type: str = field()
+    """Type of the query, always `data`."""
+
+    wallet_card: Option[TonWalletCard] = field(default=..., converter=From["TonWalletCard | None"])
+    """Optional. TON wallet card of the user who sent the query, if it was sent to
+    the bot along with the query."""
+
+
+class WidgetQueryTypeSignData(WidgetQueryType, kw_only=True):
+    """Object `WidgetQueryTypeSignData`, see the [documentation](https://core.telegram.org/bots/api#widgetquerytypesigndata).
+
+    The query contains data signed by a TON wallet of the user who sent the query. The data is signed for the domain bot<bot_id>, where <bot_id> is the identifier of the bot.
+    """
+
+    type: str = field()
+    """Type of the query, always `sign_data`."""
+
+    wallet: WidgetQueryWallet = field()
+    """The wallet that signed the data."""
+
+    sign_data: str = field()
+    """JSON-serialized signed data."""
+
+
+class WidgetQueryTypeSentTransaction(WidgetQueryType, kw_only=True):
+    """Object `WidgetQueryTypeSentTransaction`, see the [documentation](https://core.telegram.org/bots/api#widgetquerytypesenttransaction).
+
+    The query notifies the bot about a transaction sent from a TON wallet of the user who sent the query.
+    """
+
+    type: str = field()
+    """Type of the query, always `sent_transaction`."""
+
+    wallet: WidgetQueryWallet = field()
+    """The wallet from which the transaction was sent."""
+
+    msg_hash: str = field()
+    """Value of msg_hash of the transaction."""
+
+
+class WidgetQueryWallet(Model, kw_only=True):
+    """Object `WidgetQueryWallet`, see the [documentation](https://core.telegram.org/bots/api#widgetquerywallet).
+
+    This object describes a TON wallet of the user, which is used in a query from a widget.
+    """
+
+    address: str = field()
+    """Address of the wallet."""
+
+    amount: str = field()
+    """Balance of the wallet, in the smallest units of the cryptocurrency, as a
+    decimal number."""
+
+    public_key: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Hex-encoded public key of the wallet; omitted if unknown."""
+
+    state_init: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Base64-encoded serialized StateInit of the wallet contract;
+    omitted if and only if public_key is omitted."""
+
+
+class WidgetQuery(Model, kw_only=True):
+    """Object `WidgetQuery`, see the [documentation](https://core.telegram.org/bots/api#widgetquery).
+
+    This object represents an incoming query from a widget in a message sent by the bot or via the bot. Use answerWidgetQuery to answer the query. Each user can send at most 5 queries per 5 seconds to the bot from all its widgets.
+    """
+
+    id: str = field()
+    """Unique identifier for this query."""
+
+    from_: User = field()
+    """Sender."""
+
+    chat_instance: str = field()
+    """Global identifier, uniquely corresponding to the chat to which the message
+    with the widget was sent."""
+
+    type: Sum[WidgetQueryTypeData, WidgetQueryTypeSignData, WidgetQueryTypeSentTransaction] = field(
+        converter=From["WidgetQueryTypeData | WidgetQueryTypeSignData | WidgetQueryTypeSentTransaction"]
+    )
+    """Type of the query."""
+
+    data: str = field()
+    """Data of the query, 1-64 bytes."""
+
+    chat: Option[Chat] = field(default=..., converter=From["Chat | None"])
+    """Optional. Chat with the message containing the widget; omitted if the widget
+    is in an inline message."""
+
+    message_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Identifier of the message containing the widget; omitted if
+    the widget is in an inline message."""
+
+    inline_message_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Identifier of the inline message containing the widget."""
+
+    chat_type: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. For widgets in inline messages, type of the chat to which the message
+    was sent. Can be either `sender` for a private chat with the inline query
+    sender, `private`, `group`, `supergroup`, or `channel`."""
+
+    widget_id: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Unique identifier of the shared widget, which sent the query;
+    omitted if the widget isn't shared."""
+
+
+class SharedWidgetQuery(Model, kw_only=True):
+    """Object `SharedWidgetQuery`, see the [documentation](https://core.telegram.org/bots/api#sharedwidgetquery).
+
+    This object represents an incoming query from a forwarded message with a shared widget created by the bot. Use answerWidgetQuery to answer the query. Each user can send at most 5 queries per 5 seconds to the bot from all its widgets.
+    """
+
+    id: str = field()
+    """Unique identifier for this query."""
+
+    from_: User = field()
+    """Sender."""
+
+    type: Sum[WidgetQueryTypeData, WidgetQueryTypeSignData, WidgetQueryTypeSentTransaction] = field(
+        converter=From["WidgetQueryTypeData | WidgetQueryTypeSignData | WidgetQueryTypeSentTransaction"]
+    )
+    """Type of the query."""
+
+    data: str = field()
+    """Data of the query, 1-64 bytes."""
+
+    widget_id: str = field()
+    """Unique identifier of the shared widget, which sent the query."""
 
 
 class ForceReply(Model, kw_only=True):
@@ -4415,8 +4806,8 @@ class ChatMemberRestricted(ChatMember, kw_only=True):
     """True, if the user is allowed to send polls and checklists."""
 
     can_send_other_messages: bool = field()
-    """True, if the user is allowed to send animations, games, stickers and use
-    inline bots."""
+    """True, if the user is allowed to send animations, games, stickers, widgets
+    and use inline bots."""
 
     can_add_web_page_previews: bool = field()
     """True, if the user is allowed to add web page previews to their messages."""
@@ -4553,8 +4944,8 @@ class ChatPermissions(Model, kw_only=True):
     """Optional. True, if the user is allowed to send polls and checklists."""
 
     can_send_other_messages: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the user is allowed to send animations, games, stickers
-    and use inline bots."""
+    """Optional. True, if the user is allowed to send animations, games, stickers,
+    widgets and use inline bots."""
 
     can_add_web_page_previews: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the user is allowed to add web page previews to their messages."""
@@ -4689,30 +5080,197 @@ class UserRating(Model, kw_only=True):
     the maximum level was reached."""
 
 
-class StoryAreaPosition(Model, kw_only=True):
-    """Object `StoryAreaPosition`, see the [documentation](https://core.telegram.org/bots/api#storyareaposition).
+class AreaPosition(Model, kw_only=True):
+    """Object `AreaPosition`, see the [documentation](https://core.telegram.org/bots/api#areaposition).
 
-    Describes the position of a clickable area within a story.
+    Describes the position of a rectangle area on a story media or a TON wallet card.
     """
 
     x_percentage: float = field()
-    """The abscissa of the area's center, as a percentage of the media width."""
+    """The abscissa of the area's center, as a percentage of the media or the card
+    width."""
 
     y_percentage: float = field()
-    """The ordinate of the area's center, as a percentage of the media height."""
+    """The ordinate of the area's center, as a percentage of the media or the card
+    height."""
 
     width_percentage: float = field()
-    """The width of the area's rectangle, as a percentage of the media width."""
+    """The width of the area's rectangle, as a percentage of the media or the card
+    width."""
 
     height_percentage: float = field()
-    """The height of the area's rectangle, as a percentage of the media height."""
+    """The height of the area's rectangle, as a percentage of the media or the card
+    height."""
 
     rotation_angle: float = field()
     """The clockwise rotation angle of the rectangle, in degrees; 0-360."""
 
     corner_radius_percentage: float = field()
     """The radius of the rectangle corner rounding, as a percentage of the media
-    width."""
+    or the card width."""
+
+
+class TonNft(Model, kw_only=True):
+    """Object `TonNft`, see the [documentation](https://core.telegram.org/bots/api#tonnft).
+
+    This object represents an NFT in the TON blockchain.
+    """
+
+    address: str = field()
+    """Address of the NFT."""
+
+    index: str = field()
+    """Index of the NFT among all NFTs from the collection as a decimal number."""
+
+    name: str = field()
+    """Name of the NFT."""
+
+    description: str = field()
+    """Description of the NFT."""
+
+    collection_address: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Address of the collection to which the NFT belongs; omitted if
+    unknown."""
+
+    attributes: Option[list[TonNftAttribute]] = field(default=..., converter=From[list["TonNftAttribute"] | None])
+    """Optional. Attributes of the NFT."""
+
+    gift: Option[UniqueGift] = field(default=..., converter=From["UniqueGift | None"])
+    """Optional. The unique gift corresponding to the NFT."""
+
+
+class TonNftAttribute(Model, kw_only=True):
+    """Object `TonNftAttribute`, see the [documentation](https://core.telegram.org/bots/api#tonnftattribute).
+
+    This object represents an attribute of an NFT in the TON blockchain.
+    """
+
+    trait_type: str = field()
+    """Trait type of the attribute."""
+
+    value: str = field()
+    """Value of the attribute."""
+
+
+class TonWalletCardSticker(Model, kw_only=True):
+    """Object `TonWalletCardSticker`, see the [documentation](https://core.telegram.org/bots/api#tonwalletcardsticker).
+
+    This object describes a sticker on a TON wallet card.
+    """
+
+    position: AreaPosition = field()
+    """Position of the sticker on the card."""
+
+    nft: TonNft = field()
+    """The NFT shown as the sticker."""
+
+
+class TonWalletCard(Model, kw_only=True):
+    """Object `TonWalletCard`, see the [documentation](https://core.telegram.org/bots/api#tonwalletcard).
+
+    This object describes a TON wallet card, which is shown on the profile page of a user to everyone.
+    """
+
+    address: str = field()
+    """Address of the wallet."""
+
+    amount: str = field()
+    """Balance of the wallet, in the smallest units of the cryptocurrency, as a
+    decimal number."""
+
+    stickers: list[TonWalletCardSticker] = field()
+    """Stickers placed on the card."""
+
+    background_nft_address: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Address of the NFT of one of the stickers, whose colors must be
+    used for the card background; omitted if the default background must be
+    used."""
+
+
+class EmojiTypeEmoji(EmojiType, kw_only=True):
+    """Object `EmojiTypeEmoji`, see the [documentation](https://core.telegram.org/bots/api#emojitypeemoji).
+
+    A regular emoji.
+    """
+
+    type: str = field()
+    """Type of the emoji, always `emoji`."""
+
+    emoji: str = field()
+    """The emoji."""
+
+
+class EmojiTypeCustomEmoji(EmojiType, kw_only=True):
+    """Object `EmojiTypeCustomEmoji`, see the [documentation](https://core.telegram.org/bots/api#emojitypecustomemoji).
+
+    A custom emoji.
+    """
+
+    type: str = field()
+    """Type of the emoji, always `custom_emoji`."""
+
+    custom_emoji_id: str = field()
+    """Identifier of the custom emoji. Use getCustomEmojiStickers to get full
+    information about the sticker."""
+
+
+class ChatShareThemeEmoji(ChatShareTheme, kw_only=True):
+    """Object `ChatShareThemeEmoji`, see the [documentation](https://core.telegram.org/bots/api#chatsharethemeemoji).
+
+    The theme with emoji placed on a background.
+    """
+
+    type: str = field()
+    """Type of the theme, always `emoji`."""
+
+    emojis: list[Sum[EmojiTypeEmoji, EmojiTypeCustomEmoji]] = field(
+        converter=From[list["EmojiTypeEmoji | EmojiTypeCustomEmoji"]]
+    )
+    """The emoji; 0-6 regular or custom emoji."""
+
+    background_backdrop_id: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Identifier of the backdrop used as the background; omitted if
+    the default background is used. Use getChatShareThemeBackdrops to get
+    details about the backdrop."""
+
+
+class ChatShareThemeUniqueGift(ChatShareTheme, kw_only=True):
+    """Object `ChatShareThemeUniqueGift`, see the [documentation](https://core.telegram.org/bots/api#chatsharethemeuniquegift).
+
+    The theme based on a unique gift owned by the user or the chat.
+    """
+
+    type: str = field()
+    """Type of the theme, always `unique_gift`."""
+
+    gift: UniqueGift = field()
+    """The gift."""
+
+
+class ChatShareThemeBackdrops(Model, kw_only=True):
+    """Object `ChatShareThemeBackdrops`, see the [documentation](https://core.telegram.org/bots/api#chatsharethemebackdrops).
+
+    This object contains a list of backdrops, which can be used as the background of a theme of the screen for sharing a link to a user or a chat.
+    """
+
+    backdrops: list[ChatShareThemeBackdrop] = field()
+    """The list of backdrops."""
+
+
+class ChatShareThemeBackdrop(Model, kw_only=True):
+    """Object `ChatShareThemeBackdrop`, see the [documentation](https://core.telegram.org/bots/api#chatsharethemebackdrop).
+
+    This object describes a backdrop, which can be used as the background of a theme of the screen for sharing a link to a user or a chat.
+    """
+
+    id: int = field()
+    """Unique identifier of the backdrop."""
+
+    name: str = field()
+    """Name of the backdrop."""
+
+    colors: UniqueGiftBackdropColors = field()
+    """Colors of the backdrop."""
 
 
 class LocationAddress(Model, kw_only=True):
@@ -4826,7 +5384,7 @@ class StoryArea(Model, kw_only=True):
     Describes a clickable area on a story media.
     """
 
-    position: StoryAreaPosition = field()
+    position: AreaPosition = field()
     """Position of the area."""
 
     type: Sum[
@@ -6793,7 +7351,7 @@ class RichMessageButton(Model, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the button. May contain only plain text, RichTextCustomEmoji and
@@ -6864,7 +7422,7 @@ class RichTextBold(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -6881,7 +7439,7 @@ class RichTextItalic(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -6898,7 +7456,7 @@ class RichTextUnderline(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -6915,7 +7473,7 @@ class RichTextStrikethrough(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -6932,7 +7490,7 @@ class RichTextSpoiler(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -6949,7 +7507,7 @@ class RichTextDateTime(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -6973,7 +7531,7 @@ class RichTextTextMention(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -6993,7 +7551,7 @@ class RichTextSubscript(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7010,7 +7568,7 @@ class RichTextSuperscript(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7027,7 +7585,7 @@ class RichTextMarked(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7044,7 +7602,7 @@ class RichTextCode(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7091,7 +7649,7 @@ class RichTextUrl(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7111,7 +7669,7 @@ class RichTextEmailAddress(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7131,7 +7689,7 @@ class RichTextPhoneNumber(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7151,7 +7709,7 @@ class RichTextBankCardNumber(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7163,6 +7721,56 @@ class RichTextBankCardNumber(RichText, kw_only=True):
     """Type of the rich text, always `bank_card_number`."""
 
 
+class RichTextTonAddress(RichText, kw_only=True):
+    """Object `RichTextTonAddress`, see the [documentation](https://core.telegram.org/bots/api#richtexttonaddress).
+
+    An address in the TON blockchain.
+    """
+
+    type: str = field()
+    """Type of the rich text, always `ton_address`."""
+
+    text: Sum[
+        str,
+        list[RichText],
+        RichTextBold,
+        RichTextItalic,
+        RichTextUnderline,
+        RichTextStrikethrough,
+        RichTextSpoiler,
+        RichTextDateTime,
+        RichTextTextMention,
+        RichTextSubscript,
+        RichTextSuperscript,
+        RichTextMarked,
+        RichTextCode,
+        RichTextCustomEmoji,
+        RichTextMathematicalExpression,
+        RichTextUrl,
+        RichTextEmailAddress,
+        RichTextPhoneNumber,
+        RichTextBankCardNumber,
+        RichTextTonAddress,
+        RichTextMention,
+        RichTextHashtag,
+        RichTextCashtag,
+        RichTextBotCommand,
+        RichTextButton,
+        RichTextAnchor,
+        RichTextAnchorLink,
+        RichTextReference,
+        RichTextReferenceLink,
+    ] = field(
+        converter=From[
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+        ]
+    )
+    """Text of the address."""
+
+    address: str = field()
+    """The address."""
+
+
 class RichTextMention(RichText, kw_only=True):
     """Object `RichTextMention`, see the [documentation](https://core.telegram.org/bots/api#richtextmention).
 
@@ -7171,7 +7779,7 @@ class RichTextMention(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7191,7 +7799,7 @@ class RichTextHashtag(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7211,7 +7819,7 @@ class RichTextCashtag(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7231,7 +7839,7 @@ class RichTextBotCommand(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The text."""
@@ -7277,7 +7885,7 @@ class RichTextAnchorLink(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The link text."""
@@ -7298,7 +7906,7 @@ class RichTextReference(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the reference."""
@@ -7318,7 +7926,7 @@ class RichTextReferenceLink(RichText, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """The link text."""
@@ -7338,7 +7946,7 @@ class RichBlockCaption(Model, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Block caption."""
@@ -7346,7 +7954,7 @@ class RichBlockCaption(Model, kw_only=True):
     credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Block credit which corresponds to the HTML tag <cite>."""
@@ -7369,7 +7977,7 @@ class RichBlockTableCell(Model, kw_only=True):
     text: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Text in the cell. If omitted, then the cell is invisible."""
@@ -7425,7 +8033,7 @@ class RichBlockParagraph(RichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -7442,7 +8050,7 @@ class RichBlockSectionHeading(RichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -7462,7 +8070,7 @@ class RichBlockPreformatted(RichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -7482,7 +8090,7 @@ class RichBlockFooter(RichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -7561,7 +8169,7 @@ class RichBlockBlockQuotation(RichBlock, kw_only=True):
     credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Credit of the block."""
@@ -7575,7 +8183,7 @@ class RichBlockExpandableBlockQuotation(RichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Content of the block."""
@@ -7586,7 +8194,7 @@ class RichBlockExpandableBlockQuotation(RichBlock, kw_only=True):
     credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Credit of the block."""
@@ -7600,7 +8208,7 @@ class RichBlockPullQuotation(RichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -7611,7 +8219,7 @@ class RichBlockPullQuotation(RichBlock, kw_only=True):
     credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Credit of the block."""
@@ -7685,7 +8293,7 @@ class RichBlockTable(RichBlock, kw_only=True):
     caption: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Caption of the table."""
@@ -7699,7 +8307,7 @@ class RichBlockDetails(RichBlock, kw_only=True):
 
     summary: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Always shown summary of the block."""
@@ -7875,7 +8483,7 @@ class RichBlockThinking(RichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block. See https://t.me/addemoji/AIActions for examples
@@ -7923,7 +8531,7 @@ class InputRichBlockParagraph(InputRichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -7940,7 +8548,7 @@ class InputRichBlockSectionHeading(InputRichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -7960,7 +8568,7 @@ class InputRichBlockPreformatted(InputRichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -7980,7 +8588,7 @@ class InputRichBlockFooter(InputRichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -8059,7 +8667,7 @@ class InputRichBlockBlockQuotation(InputRichBlock, kw_only=True):
     credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Credit of the block."""
@@ -8073,7 +8681,7 @@ class InputRichBlockExpandableBlockQuotation(InputRichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Content of the block."""
@@ -8084,7 +8692,7 @@ class InputRichBlockExpandableBlockQuotation(InputRichBlock, kw_only=True):
     credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Credit of the block."""
@@ -8098,7 +8706,7 @@ class InputRichBlockPullQuotation(InputRichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""
@@ -8109,7 +8717,7 @@ class InputRichBlockPullQuotation(InputRichBlock, kw_only=True):
     credit: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Credit of the block."""
@@ -8183,7 +8791,7 @@ class InputRichBlockTable(InputRichBlock, kw_only=True):
     caption: Option[TypeAliases.RichText] = field(
         default=...,
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink | None"
         ],
     )
     """Optional. Caption of the table."""
@@ -8197,7 +8805,7 @@ class InputRichBlockDetails(InputRichBlock, kw_only=True):
 
     summary: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Always shown summary of the block."""
@@ -8364,7 +8972,7 @@ class InputRichBlockThinking(InputRichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block. See https://t.me/addemoji/AIActions for examples
@@ -8441,7 +9049,7 @@ class InlineQueryResultArticle(InlineQueryResult, kw_only=True):
 
     input_message_content: TypeAliases.InlineInputMessageContent = field(
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent"
         ]
     )
     """Content of the message to be sent."""
@@ -8529,7 +9137,7 @@ class InlineQueryResultPhoto(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the photo."""
@@ -8598,7 +9206,7 @@ class InlineQueryResultGif(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the GIF animation."""
@@ -8667,7 +9275,7 @@ class InlineQueryResultMpeg4Gif(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the video animation."""
@@ -8736,7 +9344,7 @@ class InlineQueryResultVideo(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the video. This field
@@ -8791,7 +9399,7 @@ class InlineQueryResultAudio(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the audio."""
@@ -8841,7 +9449,7 @@ class InlineQueryResultVoice(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the voice recording."""
@@ -8895,7 +9503,7 @@ class InlineQueryResultDocument(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the file."""
@@ -8955,7 +9563,7 @@ class InlineQueryResultLocation(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the location."""
@@ -9013,7 +9621,7 @@ class InlineQueryResultVenue(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the venue."""
@@ -9059,7 +9667,7 @@ class InlineQueryResultContact(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the contact."""
@@ -9141,7 +9749,7 @@ class InlineQueryResultCachedPhoto(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the photo."""
@@ -9192,7 +9800,7 @@ class InlineQueryResultCachedGif(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the GIF animation."""
@@ -9243,7 +9851,7 @@ class InlineQueryResultCachedMpeg4Gif(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the video animation."""
@@ -9270,7 +9878,7 @@ class InlineQueryResultCachedSticker(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the sticker."""
@@ -9321,7 +9929,7 @@ class InlineQueryResultCachedDocument(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the file."""
@@ -9375,7 +9983,7 @@ class InlineQueryResultCachedVideo(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the video."""
@@ -9422,7 +10030,7 @@ class InlineQueryResultCachedVoice(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the voice message."""
@@ -9466,7 +10074,7 @@ class InlineQueryResultCachedAudio(InlineQueryResult, kw_only=True):
     input_message_content: Option[TypeAliases.InlineInputMessageContent] = field(
         default=...,
         converter=From[
-            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | None"
+            "InputTextMessageContent | InputRichMessageContent | InputLocationMessageContent | InputVenueMessageContent | InputContactMessageContent | InputInvoiceMessageContent | InputWidgetMessageContent | InputSharedWidgetMessageContent | None"
         ],
     )
     """Optional. Content of the message to be sent instead of the audio."""
@@ -9687,6 +10295,97 @@ class InputInvoiceMessageContent(InputMessageContent, kw_only=True):
     is_flexible: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. Pass True if the final price depends on the shipping method. Ignored
     for payments in Telegram Stars."""
+
+
+class InputWidgetMessageContent(InputMessageContent, kw_only=True):
+    """Object `InputWidgetMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputwidgetmessagecontent).
+
+    Represents the content of a message with an HTML widget to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment.
+    """
+
+    html: str = field()
+    """HTML code of the widget, 1-32768 bytes. The code must not exceed 4096 bytes
+    when compressed by zlib with the maximum compression level."""
+
+    width: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Width of the widget in logical pixels; omit if the widget must
+    occupy the whole width of the message bubble. The width is clamped by the
+    app to the range from 200 to the maximum width of the message bubble."""
+
+    height: Option[int] = field(default=..., converter=From[int | None])
+    """Optional. Height of the widget in logical pixels; omit if the height of the
+    widget isn't fixed. The height is clamped by the app to the range 50-600."""
+
+    public_data: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Public data of the widget, 0-1024 bytes, which will be available
+    wherever the widget is shown. If the widget is shared, then all messages
+    with it will have the same public data."""
+
+    chat_data: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Data of the widget, which is specific to the message, 0-1024 bytes."""
+
+    caption: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Widget caption, 0-1024 characters after entities parsing."""
+
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
+    """Optional. Mode for parsing entities in the widget caption. See formatting
+    options for more details."""
+
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
+    """Optional. List of special entities that appear in the caption, which can
+    be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the caption must be shown above the widget."""
+
+    allow_queries: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True to allow the widget to send queries to the bot."""
+
+    is_shared: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True to create a shared widget. Each message sent from the
+    result creates a separate shared widget, whose identifier is received
+    by the bot only in the field widget_id of queries from the widget. To send
+    an existing shared widget in response to an inline query, use InputSharedWidgetMessageContent
+    instead."""
+
+
+class InputSharedWidgetMessageContent(InputMessageContent, kw_only=True):
+    """Object `InputSharedWidgetMessageContent`, see the [documentation](https://core.telegram.org/bots/api#inputsharedwidgetmessagecontent).
+
+    Represents the content of a message with a shared widget to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment.
+    """
+
+    widget_id: str = field()
+    """Unique identifier of the shared widget created by the bot."""
+
+    chat_data: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Data of the widget, which is specific to the message, 0-1024 bytes."""
+
+    caption: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Widget caption, 0-1024 characters after entities parsing."""
+
+    parse_mode: Option[str] = field(
+        default_factory=DefaultFactory(
+            on_init=default_parameter_as_option_for_field("parse_mode"),
+            default=UNSET,
+        ),
+        converter=From[str | None],
+    )
+    """Optional. Mode for parsing entities in the widget caption. See formatting
+    options for more details."""
+
+    caption_entities: Option[list[MessageEntity]] = field(default=..., converter=From[list["MessageEntity"] | None])
+    """Optional. List of special entities that appear in the caption, which can
+    be specified instead of parse_mode."""
+
+    show_caption_above_media: Option[bool] = field(default=..., converter=From[bool | None])
+    """Optional. Pass True if the caption must be shown above the widget."""
 
 
 class ChosenInlineResult(Model, kw_only=True):
@@ -10739,6 +11438,7 @@ __all__ = (
     "AcceptedGiftTypes",
     "AffiliateInfo",
     "Animation",
+    "AreaPosition",
     "Audio",
     "BackgroundFill",
     "BackgroundFillFreeformGradient",
@@ -10800,6 +11500,11 @@ __all__ = (
     "ChatOwnerLeft",
     "ChatPermissions",
     "ChatPhoto",
+    "ChatShareTheme",
+    "ChatShareThemeBackdrop",
+    "ChatShareThemeBackdrops",
+    "ChatShareThemeEmoji",
+    "ChatShareThemeUniqueGift",
     "ChatShared",
     "Checklist",
     "ChecklistTask",
@@ -10818,6 +11523,9 @@ __all__ = (
     "DirectMessagesTopic",
     "DisabledButton",
     "Document",
+    "EmojiType",
+    "EmojiTypeCustomEmoji",
+    "EmojiTypeEmoji",
     "EncryptedCredentials",
     "EncryptedPassportElement",
     "EphemeralMessageParameters",
@@ -10925,12 +11633,14 @@ __all__ = (
     "InputRichMessage",
     "InputRichMessageContent",
     "InputRichMessageMedia",
+    "InputSharedWidgetMessageContent",
     "InputSticker",
     "InputStoryContent",
     "InputStoryContentPhoto",
     "InputStoryContentVideo",
     "InputTextMessageContent",
     "InputVenueMessageContent",
+    "InputWidgetMessageContent",
     "Invoice",
     "KeyboardButton",
     "KeyboardButtonPollType",
@@ -10978,6 +11688,7 @@ __all__ = (
     "PaidMediaPurchased",
     "PaidMediaVideo",
     "PaidMessagePriceChanged",
+    "PaidMessagesWaived",
     "PassportData",
     "PassportElementError",
     "PassportElementErrorDataField",
@@ -11070,11 +11781,13 @@ __all__ = (
     "RichTextSubscript",
     "RichTextSuperscript",
     "RichTextTextMention",
+    "RichTextTonAddress",
     "RichTextUnderline",
     "RichTextUrl",
     "SentGuestMessage",
     "SentWebAppMessage",
     "SharedUser",
+    "SharedWidgetQuery",
     "ShippingAddress",
     "ShippingOption",
     "ShippingQuery",
@@ -11085,7 +11798,6 @@ __all__ = (
     "StickerSet",
     "Story",
     "StoryArea",
-    "StoryAreaPosition",
     "StoryAreaType",
     "StoryAreaTypeLink",
     "StoryAreaTypeLocation",
@@ -11103,6 +11815,11 @@ __all__ = (
     "SuggestedPostRefunded",
     "SwitchInlineQueryChosenChat",
     "TextQuote",
+    "TonNft",
+    "TonNftAttribute",
+    "TonWalletCard",
+    "TonWalletCardSticker",
+    "TonWalletTransfer",
     "TransactionPartner",
     "TransactionPartnerAffiliateProgram",
     "TransactionPartnerChat",
@@ -11137,5 +11854,12 @@ __all__ = (
     "WebAppData",
     "WebAppInfo",
     "WebhookInfo",
+    "Widget",
+    "WidgetQuery",
+    "WidgetQueryType",
+    "WidgetQueryTypeData",
+    "WidgetQueryTypeSentTransaction",
+    "WidgetQueryTypeSignData",
+    "WidgetQueryWallet",
     "WriteAccessAllowed",
 )
