@@ -377,7 +377,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent. Bot can send rich messages on behalf of a business account onlyif the corresponding user can send rich messages.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -440,7 +440,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         voice messages, use the sendVoice method instead.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -515,7 +515,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         animation files of up to 50 MB in size, this limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -590,7 +590,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -655,7 +655,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send photos. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -718,7 +718,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -787,7 +787,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -864,7 +864,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -930,7 +930,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1012,7 +1012,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send a native poll. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username. Polls can't be sent to channel directmessages chats.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username. Polls can't be sent to channel directmessages chats.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1114,7 +1114,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1180,7 +1180,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1290,7 +1290,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
         Use this method to send invoices. On success, the sent Message is returned.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1409,7 +1409,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         that were sent is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1462,7 +1462,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send point on the map. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1525,7 +1525,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send phone contacts. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1589,7 +1589,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send live photos. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1657,7 +1657,7 @@ class MessageAnswerShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send paid media. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username. If the chat is a channel, all TelegramStar proceeds from this media will be credited to the chat's balance. Otherwise,they will be credited to the bot's balance.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username. If the chat is a channel, all TelegramStar proceeds from this media will be credited to the chat's balance. Otherwise,they will be credited to the bot's balance.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1768,7 +1768,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send text messages. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1828,7 +1828,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent. Bot can send rich messages on behalf of a business account onlyif the corresponding user can send rich messages.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1892,7 +1892,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         voice messages, use the sendVoice method instead.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -1968,7 +1968,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         animation files of up to 50 MB in size, this limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2044,7 +2044,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2110,7 +2110,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send photos. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2174,7 +2174,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2245,7 +2245,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2323,7 +2323,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2390,7 +2390,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2458,7 +2458,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2530,7 +2530,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send point on the map. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2594,7 +2594,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send phone contacts. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2659,7 +2659,7 @@ class MessageWhisperShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send live photos. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2727,7 +2727,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent. Bot can send rich messages on behalf of a business account onlyif the corresponding user can send rich messages.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2790,7 +2790,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         voice messages, use the sendVoice method instead.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2865,7 +2865,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         animation files of up to 50 MB in size, this limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -2940,7 +2940,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3005,7 +3005,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send photos. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3068,7 +3068,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3137,7 +3137,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3214,7 +3214,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3280,7 +3280,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3362,7 +3362,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send a native poll. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username. Polls can't be sent to channel directmessages chats.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username. Polls can't be sent to channel directmessages chats.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3464,7 +3464,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3530,7 +3530,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3640,7 +3640,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         """Shortcut `API.send_invoice()`, see the [documentation](https://core.telegram.org/bots/api#sendinvoice)
 
         Use this method to send invoices. On success, the sent Message is returned.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3732,7 +3732,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         that were sent is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3785,7 +3785,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send point on the map. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3848,7 +3848,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send phone contacts. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3912,7 +3912,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send live photos. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -3980,7 +3980,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send paid media. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username. If the chat is a channel, all TelegramStar proceeds from this media will be credited to the chat's balance. Otherwise,they will be credited to the bot's balance.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username. If the chat is a channel, all TelegramStar proceeds from this media will be credited to the chat's balance. Otherwise,they will be credited to the bot's balance.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4091,7 +4091,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send text messages. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4152,7 +4152,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent. Bot can send rich messages on behalf of a business account onlyif the corresponding user can send rich messages.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4217,7 +4217,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         voice messages, use the sendVoice method instead.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4294,7 +4294,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         animation files of up to 50 MB in size, this limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4371,7 +4371,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4438,7 +4438,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send photos. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4503,7 +4503,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4575,7 +4575,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4654,7 +4654,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4722,7 +4722,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         limit may be changed in the future.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4791,7 +4791,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4864,7 +4864,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send point on the map. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4929,7 +4929,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send phone contacts. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -4995,7 +4995,7 @@ class MessageReplyShortcuts(BaseShortcuts["MessageCute"]):
         Use this method to send live photos. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target channel(in the format @channelusername).
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -5295,7 +5295,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         inline message, the edited Message is returned, otherwise True is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup or channel in theformat @username.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup, or channel inthe format @username.
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
 
@@ -5345,7 +5345,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         the time they were sent.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup or channel in theformat @username.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup, or channel inthe format @username.
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
 
@@ -5452,7 +5452,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         be edited within 48 hours from the time they were sent.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup or channel in theformat @username.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup, or channel inthe format @username.
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
 
@@ -5499,7 +5499,7 @@ class MessageEditShortcuts(BaseShortcuts["MessageCute | CallbackQueryCute"]):
         48 hours from the time they were sent.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup or channel in theformat @username.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup, or channel inthe format @username.
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
 
@@ -6252,7 +6252,7 @@ class MessageCute(
         Use this method to send text messages. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -6336,7 +6336,7 @@ class MessageCute(
         Use this method to send text messages. On success, the sent Message is returned.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messagewill be sent.
 
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username; required unless the message is sentas an ephemeral reply to a callback query.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
@@ -6466,7 +6466,7 @@ class MessageCute(
         there. - If the bot has can_manage_direct_messages administrator right
         in a channel, it can delete any message in the corresponding direct messages
         chat. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_id: Identifier of the message to delete."""
         params = compose_method_params(
@@ -6571,7 +6571,7 @@ class MessageCute(
         the time they were sent.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup or channel in theformat @username.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup, or channel inthe format @username.
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
 
@@ -6619,18 +6619,19 @@ class MessageCute(
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
         Use this method to copy messages of any kind. Service messages, paid media
-        messages, giveaway messages, giveaway winners messages, and invoice
-        messages can't be copied. A quiz poll can be copied only if the value of the
-        field correct_option_ids is known to the bot. The method is analogous to
-        the method forwardMessage, but the copied message doesn't have a link to
-        the original message. Returns the MessageId of the sent message on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        messages, giveaway messages, giveaway winners messages, invoice messages,
+        and widget messages can't be copied. A quiz poll can be copied only if the
+        value of the field correct_option_ids is known to the bot. The method is
+        analogous to the method forwardMessage, but the copied message doesn't
+        have a link to the original message. Returns the MessageId of the sent message
+        on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param from_chat_id: Unique identifier for the chat where the original message was sent (or usernameof the target bot, supergroup or channel in the format @username).
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or usernameof the target bot, supergroup, or channel in the format @username).
 
         :param message_id: Message identifier in the chat specified in from_chat_id.
 
@@ -6694,7 +6695,7 @@ class MessageCute(
         of some types can't be reacted to. Automatically forwarded messages from
         a channel to its discussion group have the same available reactions as messages
         in the channel. Bots can't use paid reactions. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_id: Identifier of the target message. If the message belongs to a media group,the reaction is set to the first non-deleted message in the group instead.
         :param reaction: A JSON-serialized list of reaction types to set on the message. Currently,as non-premium users, bots can set up to one reaction per message. A customemoji reaction can be used if it is either already present on the messageor explicitly allowed by chat administrators. Paid reactions can't beused by bots.
@@ -6733,13 +6734,13 @@ class MessageCute(
         Use this method to forward messages of any kind. Service messages and messages
         with protected content can't be forwarded. On success, the sent Message
         is returned.
-        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be forwarded;required if the message is forwarded to a direct messages chat.
 
-        :param from_chat_id: Unique identifier for the chat where the original message was sent (or usernameof the target bot, supergroup or channel in the format @username).
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or usernameof the target bot, supergroup, or channel in the format @username).
 
         :param video_start_timestamp: New start timestamp for the forwarded video in the message.
 
@@ -6844,8 +6845,7 @@ class MessageCute(
         to Telegram Stars by the receiver. Returns True on success.
         :param user_id: Required if chat_id is not specified. Unique identifier of the target userwho will receive the gift.
 
-        :param chat_id: Required if user_id is not specified. Unique identifier for the chat orusername of the channel (in the format @username) that will receive thegift.
-
+        :param chat_id: Required if user_id is not specified. Unique identifier for the chat thatwill receive the gift or username of the channel in the format @username.
         :param gift_id: Identifier of the gift; limited gifts can't be sent to channel chats.
 
         :param pay_for_upgrade: Pass True to pay for the gift upgrade from the bot's balance, thereby makingthe upgrade free for the receiver.

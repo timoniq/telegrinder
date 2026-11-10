@@ -453,18 +453,19 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         """Shortcut `API.copy_message()`, see the [documentation](https://core.telegram.org/bots/api#copymessage)
 
         Use this method to copy messages of any kind. Service messages, paid media
-        messages, giveaway messages, giveaway winners messages, and invoice
-        messages can't be copied. A quiz poll can be copied only if the value of the
-        field correct_option_ids is known to the bot. The method is analogous to
-        the method forwardMessage, but the copied message doesn't have a link to
-        the original message. Returns the MessageId of the sent message on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        messages, giveaway messages, giveaway winners messages, invoice messages,
+        and widget messages can't be copied. A quiz poll can be copied only if the
+        value of the field correct_option_ids is known to the bot. The method is
+        analogous to the method forwardMessage, but the copied message doesn't
+        have a link to the original message. Returns the MessageId of the sent message
+        on success.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_thread_id: Unique identifier for the target message thread (topic) of a forum; forforum supergroups and private chats of bots with forum topic mode enabledonly.
 
         :param direct_messages_topic_id: Identifier of the direct messages topic to which the message will be sent;required if the message is sent to a direct messages chat.
 
-        :param from_chat_id: Unique identifier for the chat where the original message was sent (or usernameof the target bot, supergroup or channel in the format @username).
+        :param from_chat_id: Unique identifier for the chat where the original message was sent (or usernameof the target bot, supergroup, or channel in the format @username).
 
         :param message_id: Message identifier in the chat specified in from_chat_id.
 
@@ -515,7 +516,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         there. - If the bot has can_manage_direct_messages administrator right
         in a channel, it can delete any message in the corresponding direct messages
         chat. Returns True on success.
-        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroupor channel in the format @username.
+        :param chat_id: [`CUSTOM PARAMETER`] Unique identifier for the target chat or username of the target bot, supergroup,or channel in the format @username.
 
         :param message_id: Identifier of the message to delete."""
         return await MessageCute.delete(self, **exclude_bound_parameters(locals()))  # type: ignore
@@ -551,7 +552,7 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
         the time they were sent.
         :param business_connection_id: Unique identifier of the business connection on behalf of which the messageto be edited was sent.
 
-        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup or channel in theformat @username.
+        :param chat_id: Required if inline_message_id is not specified. Unique identifier forthe target chat or username of the target bot, supergroup, or channel inthe format @username.
 
         :param message_id: Required if inline_message_id is not specified. Identifier of the messageto edit.
 
