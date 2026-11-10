@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import secrets
 import typing
-from datetime import datetime
+from datetime import date
 
 from kungfu.library import Sum
 from msgspex.custom_types import Literal, Option, datetime, timedelta
@@ -571,14 +571,20 @@ class Update(Model, kw_only=True):
         return self.update_type == other.update_type
 
     @magic_cached_property
+    def pair_incoming_update(self) -> tuple[UpdateType, Model]:
+        """Pair of incoming update type and object."""
+        key, value = next(iter(self.to_dict(exclude_fields={"update_id"}).items()))
+        return UpdateType(key), value.unwrap()
+
+    @magic_cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
-        return UpdateType(next(iter(self.to_dict(exclude_fields={"update_id"}))))
+        return self.pair_incoming_update[0]
 
     @magic_cached_property
     def incoming_update(self) -> Model:
         """Incoming update."""
-        return getattr(self, self.update_type.value).unwrap()
+        return self.pair_incoming_update[1]
 
 
 class WebhookInfo(Model, kw_only=True):
@@ -4992,13 +4998,15 @@ class Birthdate(Model, kw_only=True):
     @magic_property
     def is_birthday(self) -> bool:
         """True, if today is a user's birthday."""
-        now = datetime.now()
-        return now.month == self.month and now.day == self.day
+        today = date.today()
+        return today.month == self.month and today.day == self.day
 
     @magic_property
     def age(self) -> Option[int]:
         """Optional. Contains the user's age, if the user has a birth year specified."""
-        return self.year.map(lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days)
+        return self.year.map(lambda year: date(year, self.month, self.day)).map(
+            lambda bday: (today := date.today()).year - bday.year - ((today.month, today.day) < (bday.month, bday.day))
+        )
 
 
 class BusinessIntro(Model, kw_only=True):
@@ -8531,7 +8539,7 @@ class InputRichBlockParagraph(InputRichBlock, kw_only=True):
 
     text: TypeAliases.RichText = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            "str | list[str | RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
         ]
     )
     """Text of the block."""

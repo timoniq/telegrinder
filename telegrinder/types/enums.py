@@ -455,6 +455,8 @@ class UpdateType(StrEnum):
     CHOSEN_INLINE_RESULT = "chosen_inline_result"
     CALLBACK_QUERY = "callback_query"
     SHIPPING_QUERY = "shipping_query"
+    WIDGET_QUERY = "widget_query"
+    SHARED_WIDGET_QUERY = "shared_widget_query"
     PRE_CHECKOUT_QUERY = "pre_checkout_query"
     PURCHASED_PAID_MEDIA = "purchased_paid_media"
     POLL = "poll"

@@ -10,7 +10,7 @@ Type aliases are used to eliminate boilerplate code in annotations.
 """
 
 import typing
-from datetime import datetime
+from datetime import date
 
 from kungfu import Option, Sum
 from msgspex import Model, is_none
@@ -20,7 +20,7 @@ from telegrinder.types import *
 
 USED_IMPORTS = {
     "import typing",
-    "from datetime import datetime",
+    "from datetime import date",
     "from telegrinder.tools.magic.descriptors import magic_cached_property, magic_property",
     "from msgspex.tools import is_none",
 }
@@ -30,13 +30,15 @@ class _Birthdate(Birthdate):
     @magic_property
     def is_birthday(self) -> bool:
         """True, if today is a user's birthday."""
-        now = datetime.now()
-        return now.month == self.month and now.day == self.day
+        today = date.today()
+        return today.month == self.month and today.day == self.day
 
     @magic_property
     def age(self) -> Option[int]:
         """Optional. Contains the user's age, if the user has a birth year specified."""
-        return self.year.map(lambda year: ((datetime.now() - datetime(year, self.month, self.day)) // 365).days)
+        return self.year.map(lambda year: date(year, self.month, self.day)).map(
+            lambda bday: (today := date.today()).year - bday.year - ((today.month, today.day) < (bday.month, bday.day))
+        )
 
 
 class _Chat(Chat):
@@ -124,14 +126,20 @@ class _Update(Update):
         return self.update_type == other.update_type
 
     @magic_cached_property
+    def pair_incoming_update(self) -> tuple[UpdateType, Model]:
+        """Pair of incoming update type and object."""
+        key, value = next(iter(self.to_dict(exclude_fields={"update_id"}).items()))
+        return UpdateType(key), value.unwrap()
+
+    @magic_cached_property
     def update_type(self) -> UpdateType:
         """Incoming update type."""
-        return UpdateType(next(iter(self.to_dict(exclude_fields={"update_id"}))))
+        return self.pair_incoming_update[0]
 
     @magic_cached_property
     def incoming_update(self) -> Model:
         """Incoming update."""
-        return getattr(self, self.update_type.value).unwrap()
+        return self.pair_incoming_update[1]
 
 
 class _ReplyKeyboardMarkup(ReplyKeyboardMarkup):
