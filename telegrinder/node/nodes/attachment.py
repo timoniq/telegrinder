@@ -19,6 +19,7 @@ type AttachmentType = typing.Literal[
     "video_note",
     "voice",
     "successful_payment",
+    "refunded_payment",
 ]
 
 ATTACHMENT_TYPES: typing.Final[tuple[AttachmentType, ...]] = typing.get_args(AttachmentType.__value__)
@@ -61,6 +62,10 @@ class Attachment(Node):
         kw_only=True,
     )
     successful_payment: Option[telegrinder.types.SuccessfulPayment] = dataclasses.field(
+        default_factory=Nothing,
+        kw_only=True,
+    )
+    refunded_payment: Option[telegrinder.types.RefundedPayment] = dataclasses.field(
         default_factory=Nothing,
         kw_only=True,
     )
@@ -141,6 +146,13 @@ class SuccessfulPayment:
         return attachment.successful_payment.expect(NodeError("Attachment is not a successful payment."))
 
 
+@scalar_node
+class RefundedPayment:
+    @classmethod
+    def __compose__(cls, attachment: Attachment) -> telegrinder.types.RefundedPayment:
+        return attachment.refunded_payment.expect(NodeError("Attachment is not a refunded payment."))
+
+
 @dataclasses.dataclass
 class MediaGroup(Node):
     id: str
@@ -162,6 +174,7 @@ __all__ = (
     "MediaGroup",
     "Photo",
     "Poll",
+    "RefundedPayment",
     "SuccessfulPayment",
     "Video",
     "VideoNote",

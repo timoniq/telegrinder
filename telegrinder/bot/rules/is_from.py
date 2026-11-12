@@ -3,11 +3,19 @@ import typing
 from telegrinder.bot.cute_types.message import MessageCute
 from telegrinder.bot.rules.abc import ABCRule, Always
 from telegrinder.node.nodes.source import ChatSource, UserSource
-from telegrinder.types.enums import ChatType, DiceEmoji
+from telegrinder.types.enums import ChatType, ContentType, DiceEmoji
 
 type ForwardType = typing.Literal["user", "hidden_user", "chat", "channel"]
 
 TELEGRAM_ID: typing.Final = 777000
+
+
+class IsMessageContent(ABCRule):
+    def __init__(self, content_type: ContentType, /) -> None:
+        self.content_type = content_type
+
+    def check(self, message: MessageCute) -> bool:
+        return message.content_type == self.content_type
 
 
 class IsBot(ABCRule):
@@ -159,24 +167,22 @@ class IsVenue(ABCRule):
         return bool(message.venue)
 
 
-class IsNewChatMembers(ABCRule):
-    def check(self, message: MessageCute) -> bool:
-        return bool(message.new_chat_members)
+class IsNewChatMembers(Always, requires=[IsMessageContent(ContentType.NEW_CHAT_MEMBERS)]): ...
 
 
-class IsLeftChatMember(ABCRule):
-    def check(self, message: MessageCute) -> bool:
-        return bool(message.left_chat_member)
+class IsLeftChatMember(Always, requires=[IsMessageContent(ContentType.LEFT_CHAT_MEMBER)]): ...
 
 
-class IsNewChatTitle(ABCRule):
-    def check(self, message: MessageCute) -> bool:
-        return bool(message.new_chat_title)
+class IsNewChatTitle(Always, requires=[IsMessageContent(ContentType.NEW_CHAT_TITLE)]): ...
 
 
-class IsNewChatPhoto(ABCRule):
-    def check(self, message: MessageCute) -> bool:
-        return bool(message.new_chat_photo)
+class IsNewChatPhoto(Always, requires=[IsMessageContent(ContentType.NEW_CHAT_PHOTO)]): ...
+
+
+class IsRefundedPayment(Always, requires=[IsMessageContent(ContentType.REFUNDED_PAYMENT)]): ...
+
+
+class IsSuccessfulPayment(Always, requires=[IsMessageContent(ContentType.SUCCESSFUL_PAYMENT)]): ...
 
 
 __all__ = (
@@ -194,6 +200,7 @@ __all__ = (
     "IsGroup",
     "IsLanguageCode",
     "IsLeftChatMember",
+    "IsMessageContent",
     "IsNewChatMembers",
     "IsNewChatPhoto",
     "IsNewChatTitle",
@@ -201,8 +208,10 @@ __all__ = (
     "IsPoll",
     "IsPremium",
     "IsPrivate",
+    "IsRefundedPayment",
     "IsReply",
     "IsSticker",
+    "IsSuccessfulPayment",
     "IsSuperGroup",
     "IsTelegram",
     "IsUser",

@@ -1,7 +1,7 @@
 import typing
 
 from nodnod.error import NodeError
-from nodnod.node import Node
+from nodnod.node import InjectionHook, Node
 from nodnod.value import Value
 
 from telegrinder.node.scope import TELEGRINDER_CONTEXT, global_node
@@ -12,8 +12,16 @@ NODEFAULT: typing.Final = object()
 _Unspecialized = typing.NewType("_Unspecialized", type)
 
 
-@global_node
 class GlobalNode[T = _Unspecialized](Node, abstract=True):
+    def __init_subclass__(
+        cls,
+        *,
+        abstract: bool = False,
+        injection_hooks: tuple[InjectionHook, ...] = (),
+    ) -> None:
+        global_node(cls)
+        return super().__init_subclass__(abstract=abstract, injection_hooks=injection_hooks)
+
     @typing.overload
     @classmethod
     def set(cls: type[GlobalNode[_Unspecialized]], value: typing.Self, /) -> None: ...  # type: ignore

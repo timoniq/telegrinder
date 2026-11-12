@@ -48,13 +48,11 @@ class JSONSerializer[JsonT: Json](ABCDataSerializer[JsonT]):
         except msgspec.ValidationError, msgspec.DecodeError:
             return Error("Cannot decode json.")
 
-        # model_t may be a parameterized generic alias (e.g. the default dict[str, Any]); those
-        # are not classes, so issubclass() would raise TypeError. Resolve the origin first.
         model_origin = typing.get_origin(self.model_t) or self.model_t
         if isinstance(model_origin, type) and not issubclass(model_origin, dict):
             try:
                 return Ok(decoder.convert(data_obj, type=self.model_t))
-            except msgspec.ValidationError, msgspec.DecodeError:
+            except msgspec.ValidationError, msgspec.DecodeError, TypeError:
                 return Error("Incorrect data.")
 
         return Ok(data_obj)
