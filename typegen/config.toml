@@ -529,6 +529,7 @@ fields = [
 object_name = "ReplyParameters"
 fields = [
     { name = "chat_id", annotation = "TypeAliases.ChatId" },
+    { name = "quote_rich_texts", annotation = "TypeAliases.RichTexts" },
 ]
 
 [[generator.objects.fields.annotations.annotations]]
@@ -835,6 +836,12 @@ object_name = "StarTransaction"
 fields = [
     { name = "source", annotation = "TypeAliases.TransactionPartner" },
     { name = "receiver", annotation = "TypeAliases.TransactionPartner" },
+]
+
+[[generator.objects.fields.annotations.annotations]]
+object_name = "TextQuote"
+fields = [
+    { name = "rich_texts", annotation = "TypeAliases.RichTexts" },
 ]
 
 # Generator :: Objects :: Fields :: Annotations :: Literals (typing.Literal, enum.Enum)

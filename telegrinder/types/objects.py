@@ -1617,41 +1617,7 @@ class TextQuote(Model, kw_only=True):
     italic, underline, strikethrough, spoiler, custom_emoji, and date_time
     entities are kept in quotes."""
 
-    rich_texts: Option[
-        list[
-            Sum[
-                str,
-                list[RichText],
-                RichTextBold,
-                RichTextItalic,
-                RichTextUnderline,
-                RichTextStrikethrough,
-                RichTextSpoiler,
-                RichTextDateTime,
-                RichTextTextMention,
-                RichTextSubscript,
-                RichTextSuperscript,
-                RichTextMarked,
-                RichTextCode,
-                RichTextCustomEmoji,
-                RichTextMathematicalExpression,
-                RichTextUrl,
-                RichTextEmailAddress,
-                RichTextPhoneNumber,
-                RichTextBankCardNumber,
-                RichTextTonAddress,
-                RichTextMention,
-                RichTextHashtag,
-                RichTextCashtag,
-                RichTextBotCommand,
-                RichTextButton,
-                RichTextAnchor,
-                RichTextAnchorLink,
-                RichTextReference,
-                RichTextReferenceLink,
-            ]
-        ]
-    ] = field(
+    rich_texts: Option[TypeAliases.RichTexts] = field(
         default=...,
         converter=From[
             list[
@@ -1816,41 +1782,7 @@ class ReplyParameters(Model, kw_only=True):
     """Optional. A JSON-serialized list of special entities that appear in the
     quote. It can be specified instead of quote_parse_mode."""
 
-    quote_rich_texts: Option[
-        list[
-            Sum[
-                str,
-                list[RichText],
-                RichTextBold,
-                RichTextItalic,
-                RichTextUnderline,
-                RichTextStrikethrough,
-                RichTextSpoiler,
-                RichTextDateTime,
-                RichTextTextMention,
-                RichTextSubscript,
-                RichTextSuperscript,
-                RichTextMarked,
-                RichTextCode,
-                RichTextCustomEmoji,
-                RichTextMathematicalExpression,
-                RichTextUrl,
-                RichTextEmailAddress,
-                RichTextPhoneNumber,
-                RichTextBankCardNumber,
-                RichTextTonAddress,
-                RichTextMention,
-                RichTextHashtag,
-                RichTextCashtag,
-                RichTextBotCommand,
-                RichTextButton,
-                RichTextAnchor,
-                RichTextAnchorLink,
-                RichTextReference,
-                RichTextReferenceLink,
-            ]
-        ]
-    ] = field(
+    quote_rich_texts: Option[TypeAliases.RichTexts] = field(
         default=...,
         converter=From[
             list[
