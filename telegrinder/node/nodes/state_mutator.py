@@ -87,7 +87,6 @@ class StateMutator[Storage: ABCStateStorage[str] = DefaultMemoryStateStorage](No
         await self.storage.delete(user_id=self.user_id)
 
 
-@per_call
 class State[Mutator: StateMutator[AnyStorage] = StateMutator](Node, abstract=True):
     __state_key__: typing.ClassVar[Key]
     __mutator__: Mutator | None = None
@@ -116,7 +115,8 @@ class State[Mutator: StateMutator[AnyStorage] = StateMutator](Node, abstract=Tru
             raise LookupError(f"Could not get a mutator from generic types of `{cls!r}`.")
 
         cls.__map__ = {Mutator: unwrap_type_alias_value(mutator_node)}
-        return super().__init_subclass__(*args, **kwargs)
+        per_call(cls)
+        super().__init_subclass__(*args, **kwargs)
 
     @property
     def __user_id__(self) -> int | None:

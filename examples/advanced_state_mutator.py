@@ -138,8 +138,12 @@ class PizzaOrder(StrEnum):
 # The key can be a str, int, or float.
 
 
+# Convenient alias for inheritance.
+PizzaState = State[Mutator]
+
+
 @dataclass
-class ChoosingPizza(State[Mutator]):  # Specify the StateMutator that works with PizzaStateStorage.
+class ChoosingPizza(PizzaState):  # Specify the StateMutator that works with PizzaStateStorage.
     # Define a state key.
     __state_key__ = PizzaOrder.CHOOSING_PIZZA
 
@@ -167,7 +171,7 @@ class ChoosingPizza(State[Mutator]):  # Specify the StateMutator that works with
 
 
 @dataclass
-class ChoosingSize(State[Mutator]):
+class ChoosingSize(PizzaState):
     __state_key__ = PizzaOrder.CHOOSING_SIZE
 
     pizza: Pizza
@@ -181,7 +185,7 @@ class ChoosingSize(State[Mutator]):
 
 
 @dataclass
-class ChoosingDelivery(State[Mutator]):
+class ChoosingDelivery(PizzaState):
     __state_key__ = PizzaOrder.CHOOSING_DELIVERY
 
     pizza: Pizza
@@ -207,7 +211,7 @@ class ChoosingDelivery(State[Mutator]):
 
 
 @dataclass
-class WaitingForAddress(State[Mutator]):
+class WaitingForAddress(PizzaState):
     __state_key__ = PizzaOrder.WAITING_FOR_ADDRESS
 
     pizza: Pizza
@@ -224,7 +228,7 @@ class WaitingForAddress(State[Mutator]):
 
 
 @dataclass
-class Confirming(State[Mutator]):
+class Confirming(PizzaState):
     __state_key__ = PizzaOrder.CONFIRMING
 
     pizza: Pizza
