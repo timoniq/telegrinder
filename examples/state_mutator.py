@@ -1,14 +1,14 @@
 import dataclasses
 import datetime
 import enum
-from enum import Enum
+from enum import StrEnum
 
 from telegrinder.tools.state_mutator import State, StateMutator, mutation
 
 # Kind of the life state
 
 
-class Life(Enum):
+class Life(StrEnum):
     ALIVE = enum.auto()
     DEAD = enum.auto()
 

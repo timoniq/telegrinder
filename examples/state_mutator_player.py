@@ -1,7 +1,7 @@
 import datetime
 import enum
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 from telegrinder import API, Bot, Token, configure_dotenv, logger, setup_logger
 from telegrinder.rules import Argument, Command
@@ -16,7 +16,7 @@ bot = Bot(API(Token.from_env()))
 type Plugged = Stopped
 
 
-class PlayerState(Enum):
+class PlayerState(StrEnum):
     PLAY = enum.auto()
     PAUSE = enum.auto()
     STOP = enum.auto()
