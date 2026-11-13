@@ -5,6 +5,8 @@ from telegrinder.tools.aio import maybe_awaitable
 if typing.TYPE_CHECKING:
     from telegrinder.node import State, StateMutator
 
+    type AnyStorage = typing.Any
+
     class BoundMutation[**P, T, R](typing.Protocol):
         @staticmethod
         def __call__(self: T, *args: P.args, **kwargs: P.kwargs) -> typing.Coroutine[typing.Any, typing.Any, R] | R: ...
@@ -15,7 +17,8 @@ if typing.TYPE_CHECKING:
 
 class Mutation[
     ConstructMutation: typing.Callable[
-        ..., typing.Coroutine[typing.Any, typing.Any, State[typing.Any]] | State[typing.Any]
+        ...,
+        typing.Coroutine[typing.Any, typing.Any, State[typing.Any]] | State[typing.Any],
     ],
     Into: State[typing.Any],
     From: State[typing.Any] | None,
@@ -42,7 +45,7 @@ class Mutation[
     @typing.overload
     async def __call__[**P](
         self: Mutation[UnboundMutation[P, Into], Into, None],
-        mutator: StateMutator,
+        mutator: StateMutator[AnyStorage],
         /,
         *args: P.args,
         **kwargs: P.kwargs,
@@ -56,7 +59,7 @@ class Mutation[
     ) -> Into: ...
 
     async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        mutator: StateMutator[typing.Any]
+        mutator: StateMutator[AnyStorage]
         _args: list[typing.Any]
         from_state: State | None
 

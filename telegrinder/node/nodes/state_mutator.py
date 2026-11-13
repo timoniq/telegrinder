@@ -1,11 +1,11 @@
 import dataclasses
-import enum
+from annotationlib import type_repr
 from functools import cache
 
 import typing_extensions as typing
 from kungfu.library.monad.option import Some
 from nodnod.error import NodeError
-from nodnod.node import Node
+from nodnod.node import Node, Scalar
 
 from telegrinder.node.nodes.payload import PayloadSerializer
 from telegrinder.node.nodes.source import UserId
@@ -15,7 +15,7 @@ from telegrinder.node.utils import create_node_from_scratch
 from telegrinder.tools.fullname import fullname
 from telegrinder.tools.magic.annotations import get_type_args_from_orig_base_generic, unwrap_type_alias_value
 from telegrinder.tools.serialization import ABCDataSerializer
-from telegrinder.tools.state_storage.memory import ABCStateStorage
+from telegrinder.tools.state_storage.abc import ABCStateStorage, Key
 
 type AnyStorage = typing.Any
 type AnyMutator = typing.Any
@@ -23,10 +23,9 @@ type AnyMutator = typing.Any
 
 @dataclasses.dataclass
 class StateMutator[Storage: ABCStateStorage[str] = DefaultMemoryStateStorage](Node):
-    KEY_MAP: typing.ClassVar[dict[str | enum.Enum, type[State[AnyMutator]]]] = {}
+    type StateStorage = Scalar[Storage, StateStorageNode[DefaultMemoryStateStorage]]
 
-    if not typing.TYPE_CHECKING:
-        Storage = StateStorageNode[DefaultMemoryStateStorage]
+    KEY_MAP: typing.ClassVar[dict[Key, type[State[AnyMutator]]]] = {}
 
     storage: Storage
     user_id: int
@@ -39,7 +38,7 @@ class StateMutator[Storage: ABCStateStorage[str] = DefaultMemoryStateStorage](No
             cls.__name__,
             (cls,),
             {
-                "__map__": {getattr(__class__, "Storage", Storage): StateStorageNode[unwrap_type_alias_value(item)]},
+                "__map__": {cls.StateStorage: StateStorageNode[unwrap_type_alias_value(item)]},
                 "__module__": cls.__module__,
             },
         )
@@ -47,7 +46,7 @@ class StateMutator[Storage: ABCStateStorage[str] = DefaultMemoryStateStorage](No
     @classmethod
     def __compose__(
         cls,
-        storage: Storage,
+        storage: StateStorage,
         user_id: UserId,
         serializer: PayloadSerializer,
     ) -> typing.Self:
@@ -76,7 +75,7 @@ class StateMutator[Storage: ABCStateStorage[str] = DefaultMemoryStateStorage](No
 
         return None
 
-    async def set(self, state: State[AnyMutator]) -> None:
+    async def set(self, state: State[AnyMutator], /) -> None:
         state_class = type(state)
         await self.storage.set(
             user_id=self.user_id,
@@ -90,16 +89,18 @@ class StateMutator[Storage: ABCStateStorage[str] = DefaultMemoryStateStorage](No
 
 @per_call
 class State[Mutator: StateMutator[AnyStorage] = StateMutator](Node, abstract=True):
-    __state_key__: typing.ClassVar[str | enum.Enum]
+    __state_key__: typing.ClassVar[Key]
     __mutator__: Mutator | None = None
 
     def __init_subclass__(cls, *args: typing.Any, **kwargs: typing.Any) -> None:
         if not hasattr(cls, "__state_key__"):
             raise LookupError("State must have a state key defined using the class variable `__state_key__`.")
 
-        if not isinstance(cls.__state_key__, str | enum.Enum):
+        if not isinstance(cls.__state_key__, Key.__value__):
             raise LookupError(
-                f"Type of the state key must be `str` or `Enum`, not `{type(cls.__state_key__).__name__}`."
+                "Type of the state key must be "
+                f"{' or '.join(map(lambda x: f'`{type_repr(x)}`', Key.__value__.__args__))}"
+                f", not `{type(cls.__state_key__).__name__}`.",
             )
 
         if cls.__state_key__ in StateMutator.KEY_MAP:
@@ -117,13 +118,20 @@ class State[Mutator: StateMutator[AnyStorage] = StateMutator](Node, abstract=Tru
         cls.__map__ = {Mutator: unwrap_type_alias_value(mutator_node)}
         return super().__init_subclass__(*args, **kwargs)
 
+    @property
+    def __user_id__(self) -> int | None:
+        if self.__mutator__ is not None:
+            return self.__mutator__.user_id
+
+        return None
+
     def bind(self, mutator: Mutator) -> typing.Self:
         self.__mutator__ = mutator
         return self
 
     async def enter(self) -> typing.Self:
         if self.__mutator__ is not None:
-            await self.__mutator__.set(state=self)
+            await self.__mutator__.set(self)
 
         return self
 

@@ -7,7 +7,7 @@ from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.node.nodes.source import Source
 
 if typing.TYPE_CHECKING:
-    from telegrinder.tools.state_storage.abc import ABCStateStorage
+    from telegrinder.tools.state_storage.abc import ABCStateStorage, Key
 
 
 class StateMeta(enum.Enum):
@@ -17,8 +17,8 @@ class StateMeta(enum.Enum):
 
 @dataclasses.dataclass(frozen=True, slots=True, repr=False)
 class State[Payload](ABCRule):
-    storage: "ABCStateStorage[Payload]"
-    key: str | StateMeta | enum.Enum
+    storage: ABCStateStorage[Payload]
+    key: Key | StateMeta | enum.Enum
 
     async def check(self, source: Source, ctx: Context) -> bool:
         state = await self.storage.get(source.from_user.id)

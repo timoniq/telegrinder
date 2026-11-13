@@ -183,8 +183,12 @@ class InlineButton(BaseButton[InlineKeyboard]):
 
         if self.callback_data_serializer is not None:
             self.callback_data = self.callback_data_serializer.serialize(self.callback_data)
-        elif self.callback_data is not None and not isinstance(self.callback_data, str):
-            self.callback_data = encoder.encode(self.callback_data)
+        elif self.callback_data is not None:
+            self.callback_data = (
+                encoder.encode(self.callback_data)
+                if not isinstance(self.callback_data, str)
+                else str(self.callback_data)
+            )
 
         if isinstance(self.copy_text, str):
             self.copy_text = CopyTextButton(text=self.copy_text)

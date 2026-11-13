@@ -8,10 +8,12 @@ from kungfu.library.monad.option import Option
 if typing.TYPE_CHECKING:
     from telegrinder.bot.rules.state import State, StateMeta
 
+type Key = str | int | float
+
 
 @dataclasses.dataclass
 class StateData[Payload]:
-    key: str | enum.Enum
+    key: Key
     payload: Payload
 
     async def save(self, user_id: int, storage: ABCStateStorage[Payload]) -> None:
@@ -26,9 +28,9 @@ class ABCStateStorage[Payload](abc.ABC):
     async def delete(self, user_id: int) -> None: ...
 
     @abc.abstractmethod
-    async def set(self, user_id: int, key: str | enum.Enum, payload: Payload) -> None: ...
+    async def set(self, user_id: int, key: Key, payload: Payload) -> None: ...
 
-    def State(self, key: str | StateMeta | enum.Enum | None = None, /) -> State[Payload]:  # noqa: N802
+    def State(self, key: Key | StateMeta | enum.Enum | None = None, /) -> State[Payload]:  # noqa: N802
         """Can be used as a shortcut to get a state rule dependant on current storage."""
         from telegrinder.bot.rules.state import State, StateMeta
 

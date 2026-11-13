@@ -149,8 +149,6 @@ class LoopWrapper(Singleton, Final):
                 await self._run()
 
     async def _run(self) -> None:
-        logger.info("Running loop wrapper")
-
         while self._future_tasks:
             self._create_task(self._future_tasks.pop(0))
 
@@ -225,7 +223,6 @@ class LoopWrapper(Singleton, Final):
 
         self._state = LoopWrapperState.SHUTDOWN
 
-        logger.debug("Shutting down loop wrapper")
         await self.lifespan._shutdown()
         await self._cancel_tasks()
 
