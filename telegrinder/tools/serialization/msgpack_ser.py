@@ -4,12 +4,12 @@ import dataclasses
 import typing
 from collections import deque
 from contextlib import suppress
-from functools import cached_property
+from functools import cache, cached_property
 
 import msgspec
 from kungfu.library.monad.result import Error, Ok, Result
-from msgspec._utils import get_class_annotations
 from msgspex import decoder, encoder
+from msgspex.tools.model import get_class_annotations
 
 from telegrinder.tools.serialization.abc import ABCDataSerializer, ModelType
 from telegrinder.tools.serialization.utils import get_model_ident_key
@@ -20,6 +20,12 @@ try:
 except ImportError:
     brotli = None
 
+INGORE_TYPE_ANNOTATIONS: typing.Final[frozenset[typing.Any]] = frozenset(
+    (
+        typing.ClassVar,
+        typing.Final,
+    ),
+)
 DESERIALIZE_EXCEPTIONS: typing.Final[frozenset[type[BaseException]]] = frozenset(
     filter(
         None,
@@ -40,58 +46,75 @@ DESERIALIZE_EXCEPTIONS: typing.Final[frozenset[type[BaseException]]] = frozenset
 class ModelParser[Model: ModelType]:
     model_type: type[Model]
 
-    def _is_model(self, obj: typing.Any, /) -> typing.TypeGuard[ModelType]:
+    @staticmethod
+    def _is_model(obj: typing.Any, /) -> typing.TypeGuard[ModelType]:
         return dataclasses.is_dataclass(obj) or isinstance(obj, msgspec.Struct)
 
-    def _model_to_dict(self, model: ModelType) -> dict[str, typing.Any]:
+    @staticmethod
+    def _model_to_dict(model: ModelType) -> dict[str, typing.Any]:
         if dataclasses.is_dataclass(model):
             return dataclasses.asdict(model)
         return msgspec.structs.asdict(model)  # type: ignore
 
-    def _is_union(self, inspected_type: msgspec.inspect.Type, /) -> typing.TypeGuard[msgspec.inspect.UnionType]:
+    @staticmethod
+    def _is_union(inspected_type: msgspec.inspect.Type, /) -> typing.TypeGuard[msgspec.inspect.UnionType]:
         return isinstance(inspected_type, msgspec.inspect.UnionType)
 
+    @staticmethod
     def _is_model_type(
-        self,
         inspected_type: msgspec.inspect.Type,
         /,
     ) -> typing.TypeGuard[msgspec.inspect.DataclassType | msgspec.inspect.StructType]:
         return isinstance(inspected_type, msgspec.inspect.DataclassType | msgspec.inspect.StructType)
 
+    @staticmethod
     def _is_iter_of_model(
-        self,
         inspected_type: msgspec.inspect.Type,
         /,
     ) -> typing.TypeGuard[msgspec.inspect.ListType]:
         return isinstance(
             inspected_type,
             msgspec.inspect.ListType | msgspec.inspect.SetType | msgspec.inspect.FrozenSetType,
-        ) and self._is_model_type(inspected_type.item_type)
+        ) and ModelParser._is_model_type(inspected_type.item_type)
 
-    def _inspect_annotation(self, annotation: typing.Any, /) -> tuple[type[ModelType], bool] | None:
+    @staticmethod
+    @cache
+    def _inspect_annotation(annotation: typing.Any, /) -> tuple[type[ModelType], bool] | None:
         is_iter_of_model = False
         type_args: tuple[msgspec.inspect.Type, ...] = tuple()
         inspected_type = msgspec.inspect.type_info(annotation)
 
-        if self._is_union(inspected_type):
+        if ModelParser._is_union(inspected_type):
             type_args = inspected_type.types
-        elif self._is_iter_of_model(inspected_type):
+        elif ModelParser._is_iter_of_model(inspected_type):
             type_args = (inspected_type.item_type,)
             is_iter_of_model = True
-        elif self._is_model_type(inspected_type):
+        elif ModelParser._is_model_type(inspected_type):
             type_args = (inspected_type,)
 
         for arg in type_args:
-            if self._is_union(arg):
+            if ModelParser._is_union(arg):
                 type_args += arg.types
 
-            if self._is_model_type(arg):
+            if ModelParser._is_model_type(arg):
                 return (arg.cls, is_iter_of_model)
 
-            if self._is_iter_of_model(arg):
+            if ModelParser._is_iter_of_model(arg):
                 return (arg.item_type.cls, True)  # type: ignore
 
         return None
+
+    @staticmethod
+    @cache
+    def _get_model_annotations(model: type[typing.Any], /) -> tuple[tuple[str, typing.Any], ...]:
+        return tuple(
+            (f, ann)
+            for f, ann in get_class_annotations(model).items()
+            if not f.startswith("__")
+            and not f.endswith("__")
+            and not isinstance(orig_annotation := typing.get_origin(ann) or ann, dataclasses.InitVar)
+            and orig_annotation not in INGORE_TYPE_ANNOTATIONS
+        )
 
     def parse(self, model: Model) -> list[typing.Any]:
         """Returns a parsed model as linked list."""
@@ -125,7 +148,7 @@ class ModelParser[Model: ModelType]:
         while stack:
             current_data, current_model, converted_data = stack.pop()
 
-            for index, (field, annotation) in enumerate(get_class_annotations(current_model).items()):
+            for index, (field, annotation) in enumerate(self._get_model_annotations(current_model)):
                 obj, model_type, is_iter_of_model = current_data[index], None, False
 
                 if isinstance(obj, list) and (inspected := self._inspect_annotation(annotation)):
@@ -134,6 +157,7 @@ class ModelParser[Model: ModelType]:
                 if model_type is not None:
                     if is_iter_of_model:
                         converted_data[field] = []
+
                         for item in obj:
                             new_converted_data = {}
                             converted_data[field].append(new_converted_data)
@@ -162,7 +186,7 @@ class MsgPackSerializer[Model: ModelType](ABCDataSerializer[Model]):
 
     @classmethod
     def serialize_from_model(cls, model: Model, *, ident_key: str | None = None) -> str:
-        return cls(model.__class__, ident_key=ident_key).serialize(model)
+        return cls(type(model), ident_key=ident_key).serialize(model)
 
     @classmethod
     def deserialize_to_json(cls, serialized_data: str, model_t: type[Model]) -> Result[Model, str]:
