@@ -99,6 +99,7 @@ from .bot import (
 from .client import ABCClient, WreqClient
 from .modules import configure_dotenv, logger, setup_logger
 from .scenario import ABCScenario, Checkbox, Choice, Option
+from .tools.backoff import ABCBackoff, Backoff, EqualJitterBackoff, ExponentialBackoff, FullJitterBackoff
 from .tools.global_context import ABCGlobalContext, GlobalContext, TelegrinderContext
 from .tools.input_file_directory import InputFileDirectory
 from .tools.keyboard import (
@@ -466,6 +467,7 @@ __all__ = (
     "SHIPPING_QUERY_FOR_PAYLOAD",
     "SHIPPING_QUERY_FOR_PAYLOAD_FROM_USER",
     "SHIPPING_QUERY_FROM_USER",
+    "ABCBackoff",
     "ABCClient",
     "ABCDispatch",
     "ABCGlobalContext",
@@ -483,6 +485,7 @@ __all__ = (
     "APIResponse",
     "APIServerError",
     "AudioReplyHandler",
+    "Backoff",
     "BaseCute",
     "BaseReturnManager",
     "Bot",
@@ -508,10 +511,13 @@ __all__ = (
     "DelayedTask",
     "Dispatch",
     "DocumentReplyHandler",
+    "EqualJitterBackoff",
     "ErrorView",
     "EventModelView",
     "EventView",
+    "ExponentialBackoff",
     "FilterMiddleware",
+    "FullJitterBackoff",
     "FuncHandler",
     "GlobalContext",
     "Hasher",
