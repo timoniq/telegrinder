@@ -14,10 +14,18 @@ class APIResponse(Model):
     description: str = "Something went wrong"
     parameters: dict[str, typing.Any] = msgspec.field(default_factory=dict[str, typing.Any])
 
-    def to_result(self) -> Result[msgspec.Raw, APIError]:
+    def to_result(self, method: str | None = None) -> Result[msgspec.Raw, APIError]:
         if self.ok:
             return Ok(self.result)
-        return Error(APIError(code=self.error_code, error=self.description, data=self.parameters))
+
+        return Error(
+            APIError(
+                code=self.error_code,
+                error=self.description,
+                data=self.parameters,
+                method=method,
+            ),
+        )
 
 
 __all__ = ("APIResponse",)

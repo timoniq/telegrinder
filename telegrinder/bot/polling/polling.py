@@ -138,14 +138,16 @@ class Polling(ABCPolling):
 
         match error.status_code:
             case HTTPStatus.CONFLICT:
-                err = APIServerError("Cannot run polling, because another bot instance is already running.")
-            case HTTPStatus.UNAUTHORIZED | HTTPStatus.NOT_FOUND as status:
+                err = APIServerError("Cannot run polling, because another bot instance is already running")
+            case HTTPStatus.UNAUTHORIZED | HTTPStatus.NOT_FOUND | HTTPStatus.MISDIRECTED_REQUEST as status:
                 err = InvalidTokenError(
-                    "Token seems to be invalid" if status == HTTPStatus.NOT_FOUND else "Invalid token (unauthorized)",
+                    "Invalid token (unauthorized)"
+                    if status == HTTPStatus.UNAUTHORIZED
+                    else "Token seems to be invalid",
                 )
             case HTTPStatus.BAD_GATEWAY | HTTPStatus.GATEWAY_TIMEOUT as status:
                 err = APIServerError(
-                    message="Telegram API server responded a {}".format(status.phrase),
+                    message="Telegram API server responded a {}: {}".format(status.phrase, err.error),
                     retry_after=int(self.reconnect_after),
                 )
 

@@ -12,7 +12,6 @@ class Token(str):
         return super().__new__(cls, token)
 
     def __repr__(self) -> str:
-        # Never expose any part of the secret: repr() is the form used for logging/tracebacks.
         return f"<Token: bot_id={self.bot_id}>"
 
     @classmethod

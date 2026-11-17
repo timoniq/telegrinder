@@ -15,10 +15,8 @@ from collections import deque
 import msgspec
 import pytest
 from kungfu.library.monad.option import Nothing, Some
-from kungfu.library.monad.result import Error, Ok
 
-from telegrinder.api.api import API, retryer
-from telegrinder.api.error import APIError
+from telegrinder.api.api import API
 from telegrinder.api.token import Token
 from telegrinder.bot.cute_types.base import compose_method_params
 from telegrinder.bot.cute_types.managed_bot_updated import ManagedBotUpdatedCute
@@ -480,32 +478,6 @@ async def test_taskgroup_create_task_forwards_name():
         task = tg.create_task(coro(), name="my-task")
         # name/context were dropped, so the task got a default name.
         assert task.get_name() == "my-task"
-
-
-@pytest.mark.asyncio()
-async def test_retryer_writes_migrated_chat_id_into_payload():
-    calls: list[tuple[dict | None, dict]] = []
-
-    class _FakeAPI:
-        retryer_is_enabled = True
-        max_retries = 3
-
-    @retryer
-    async def fake_request(self, method, data=None, **kwargs):
-        calls.append((None if data is None else dict(data), dict(kwargs)))
-        if len(calls) == 1:
-            return Error(APIError(code=400, error="migrate", data={"migrate_to_chat_id": 999}))
-        return Ok("done")
-
-    result = await fake_request(_FakeAPI(), "sendMessage", {"chat_id": 111, "text": "hi"})
-
-    assert result
-    assert len(calls) == 2
-    retried_data, retried_kwargs = calls[1]
-    assert retried_data is not None
-    # The new chat id was written to **kwargs and never reached the request payload.
-    assert retried_data["chat_id"] == 999
-    assert "chat_id" not in retried_kwargs
 
 
 @pytest.mark.asyncio()

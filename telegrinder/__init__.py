@@ -31,7 +31,7 @@ bot.run_forever()
 
 import typing
 
-from .api import API, APIError, APIResponse, APIServerError, Token
+from .api import API, APIError, APIResponse, APIRetryer, APIServerError, Token
 from .bot import (
     ABCDispatch,
     ABCHandler,
@@ -483,6 +483,7 @@ __all__ = (
     "ABCView",
     "APIError",
     "APIResponse",
+    "APIRetryer",
     "APIServerError",
     "AudioReplyHandler",
     "Backoff",

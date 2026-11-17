@@ -8,7 +8,7 @@ from kungfu.library.monad.option import Option
 
 class ReprErrorMixin:
     def __repr__(self) -> str:
-        return f"{type(self).__name__}: {self}"
+        return f"{type(self).__name__}: {self!s}"
 
 
 class APIError(ReprErrorMixin, Exception):
@@ -17,8 +17,16 @@ class APIError(ReprErrorMixin, Exception):
         code: int,
         error: str,
         data: dict[str, typing.Any],
+        method: str | None = None,
+        is_download_file: bool = False,
     ) -> None:
-        self.code, self.error, self.parameters = code, error, data
+        self.code, self.error, self.parameters, self.method, self.is_download_file = (
+            code,
+            error,
+            data,
+            method,
+            is_download_file,
+        )
 
     @cached_property
     def status_code(self) -> HTTPStatus:
@@ -33,13 +41,14 @@ class APIError(ReprErrorMixin, Exception):
         return from_optional(self.parameters.get("migrate_to_chat_id"))
 
     def __str__(self) -> str:
-        return f"[{self.code}] ({self.status_code.name}) {self.error}"
+        return f"[{self.code}] ({self.status_code.phrase}) {self.error}"
 
 
 class APIServerError(ReprErrorMixin, Exception):
     def __init__(self, message: str, retry_after: int | None = None) -> None:
         self.message = message
         self.retry_after = retry_after
+
         super().__init__(message)
 
 

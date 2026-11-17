@@ -1,23 +1,21 @@
-import asyncio
 import pathlib
 import typing
 from datetime import timedelta
-from functools import cached_property, wraps
-from http import HTTPStatus
+from functools import cached_property
 
 import msgspec
-from kungfu.library.misc import is_ok
 from kungfu.library.monad.result import Error, Ok, Result
 from msgspex import decoder
 
 from telegrinder.api.error import APIError
 from telegrinder.api.response import APIResponse
+from telegrinder.api.retryer import APIRetryer, retryer
 from telegrinder.api.token import Token
 from telegrinder.client import ABCClient, WreqClient
 from telegrinder.tools.fullname import fullname
-from telegrinder.types.methods import APIMethods
+from telegrinder.types.methods import APIMethods, APIResult
 
-type Json = str | int | float | bool | list[Json] | dict[str, Json] | None
+type JSON = str | int | float | bool | list[JSON] | dict[str, JSON] | None
 type Data = dict[str, typing.Any]
 type Files = dict[str, tuple[str, bytes]]
 type APIRequestMethod[T: API, **P, R] = typing.Callable[
@@ -25,83 +23,70 @@ type APIRequestMethod[T: API, **P, R] = typing.Callable[
     typing.Coroutine[typing.Any, typing.Any, Result[R, APIError]],
 ]
 
-
 DEFAULT_MAX_RETRIES: typing.Final = 5
 DEFAULT_TIMEOUT: typing.Final = timedelta(seconds=30)
 
 
-def retryer[T: API, **P, R](func: APIRequestMethod[T, P, R], /) -> APIRequestMethod[T, P, R]:
-    @wraps(func)
-    async def wrapper(
-        self: T,
-        *args: P.args,
-        **kwargs: P.kwargs,
-    ) -> Result[typing.Any, APIError]:
-        retries_counter = 0
-
-        while True:
-            result = await func(self, *args, **kwargs)
-
-            if is_ok(result) or not self.retryer_is_enabled or retries_counter >= self.max_retries:
-                return result
-
-            if result.error.status_code == HTTPStatus.TOO_MANY_REQUESTS:
-                await asyncio.sleep(result.error.retry_after.unwrap_or(5.0))
-
-            elif result.error.status_code == HTTPStatus.INTERNAL_SERVER_ERROR and "restart" in result.error.error:
-                await asyncio.sleep(10.0)
-
-            elif result.error.migrate_to_chat_id:
-                # `chat_id` lives in the request payload (the `data` dict), which methods
-                # pass as the second positional argument, not in `**kwargs`.
-                if "data" in kwargs:
-                    data = kwargs["data"]
-                elif len(args) > 1:
-                    data = args[1]
-                else:
-                    data = None
-
-                if not isinstance(data, dict):
-                    return result
-
-                data["chat_id"] = result.error.migrate_to_chat_id.value
-
-            else:
-                return result
-
-            retries_counter += 1
-
-    return wrapper  # type: ignore
-
-
 class API(APIMethods):
-    """Bot API with available API methods and http client."""
-
-    http: ABCClient
-
     API_URL = "https://api.telegram.org/"
     API_FILE_URL = "https://api.telegram.org/file/"
+
+    @typing.overload
+    def __init__(self, token: Token) -> None: ...
+
+    @typing.overload
+    def __init__(self, token: Token, *, http: ABCClient) -> None: ...
+
+    @typing.overload
+    def __init__(
+        self,
+        token: Token,
+        *,
+        retryer: typing.Literal[True] = True,
+        http: ABCClient = ...,
+        max_retries: int = ...,
+    ) -> None: ...
+
+    @typing.overload
+    def __init__(
+        self,
+        token: Token,
+        *,
+        retryer: typing.Literal[False],
+        http: ABCClient = ...,
+    ) -> None: ...
+
+    @typing.overload
+    def __init__(
+        self,
+        token: Token,
+        *,
+        retryer: APIRetryer,
+        http: ABCClient = ...,
+    ) -> None: ...
 
     def __init__(
         self,
         token: Token,
         *,
         http: ABCClient | None = None,
-        retryer: bool = True,
+        retryer: bool | APIRetryer = True,
         max_retries: int = DEFAULT_MAX_RETRIES,
     ) -> None:
         self.token = token
-        self.http = http or WreqClient()
-        self._retryer_is_enabled = retryer
-        self._max_retries = max_retries
+        self.http: ABCClient = http or WreqClient()
+        self.retryer = APIRetryer(retries=max_retries) if retryer is True else None if retryer is False else retryer
+        self._retryer_is_enabled = True if isinstance(retryer, APIRetryer) else retryer
+        self._max_retries = self.retryer.retries if self.retryer is not None else max_retries
+
         super().__init__(api=self)
 
     def __repr__(self) -> str:
-        return "<{}: id={}, http={!r}, max_retries={}>".format(
+        return "<{}: id={}, http={!r}, retryer={!r}>".format(
             fullname(self),
             self.id,
             self.http,
-            self._max_retries,
+            self.retryer,
         )
 
     @cached_property
@@ -124,11 +109,12 @@ class API(APIMethods):
     def max_retries(self) -> int:
         return self._max_retries
 
+    @retryer
     async def download_file(
         self,
         file_path: str | pathlib.Path,
         timeout: int | float | timedelta = DEFAULT_TIMEOUT,
-    ) -> Result[bytes, APIError]:
+    ) -> APIResult[bytes]:
         response = await self.http.request(
             url=f"{self.request_file_url}/{file_path}",
             timeout=timeout,
@@ -138,7 +124,14 @@ class API(APIMethods):
             return Ok(response.content)
 
         error = decoder.decode(response.content, type=APIResponse)
-        return Error(APIError(code=error.error_code, error=error.description, data=error.parameters))
+        return Error(
+            APIError(
+                code=error.error_code,
+                error=error.description,
+                data=error.parameters,
+                is_download_file=True,
+            ),
+        )
 
     @retryer
     async def request(
@@ -147,7 +140,7 @@ class API(APIMethods):
         data: Data | None = None,
         files: Files | None = None,
         **kwargs: typing.Any,
-    ) -> Result[Json, APIError]:
+    ) -> APIResult[JSON]:
         """Request a `JSON` response using http method `POST` and passing data & files as `multipart`."""
         response = await self.http.request_json(
             url=self.request_url + method,
@@ -164,6 +157,7 @@ class API(APIMethods):
                 code=response.get("error_code", 400),
                 error=response.get("description", "Something went wrong"),
                 data=response.get("parameters", {}),
+                method=method,
             ),
         )
 
@@ -174,7 +168,7 @@ class API(APIMethods):
         data: Data | None = None,
         files: Files | None = None,
         **kwargs: typing.Any,
-    ) -> Result[msgspec.Raw, APIError]:
+    ) -> APIResult[msgspec.Raw]:
         """Request a `raw` response using http method `POST` and passing data & files as `multipart`."""
         response_bytes = await self.http.request_bytes(
             url=self.request_url + method,
@@ -182,7 +176,7 @@ class API(APIMethods):
             data=self.http.get_form(data=data, files=files),
             **kwargs,
         )
-        return decoder.decode(response_bytes, type=APIResponse).to_result()
+        return decoder.decode(response_bytes, type=APIResponse).to_result(method)
 
 
 __all__ = ("API",)
