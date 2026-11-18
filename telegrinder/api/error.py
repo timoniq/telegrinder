@@ -45,7 +45,7 @@ class APIError(ReprErrorMixin, Exception):
 
 
 class APIServerError(ReprErrorMixin, Exception):
-    def __init__(self, message: str, retry_after: int | None = None) -> None:
+    def __init__(self, message: str, retry_after: float | None = None) -> None:
         self.message = message
         self.retry_after = retry_after
 

@@ -24,6 +24,7 @@ DEFAULT_OFFSET: typing.Final = 0
 DEFAULT_RECONNECT_AFTER: typing.Final = 5.0
 DEFAULT_MAX_RECONNECTS: typing.Final = 15
 MAX_LIMIT: typing.Final = 100
+GET_UPDATES_METHOD: typing.Final = "getUpdates"
 
 
 class Polling(ABCPolling):
@@ -134,30 +135,31 @@ class Polling(ABCPolling):
         self._reconnects_counter = 0
 
     def _convert_polling_err_status_to_py_err(self, error: APIError, /) -> BaseException:
-        err = error
+        if error.method != GET_UPDATES_METHOD:
+            return error
 
         match error.status_code:
             case HTTPStatus.CONFLICT:
-                err = APIServerError("Cannot run polling, because another bot instance is already running")
+                return APIServerError("Cannot run polling, because another bot instance is already running")
             case HTTPStatus.UNAUTHORIZED | HTTPStatus.NOT_FOUND | HTTPStatus.MISDIRECTED_REQUEST as status:
-                err = InvalidTokenError(
+                return InvalidTokenError(
                     "Invalid token (unauthorized)"
                     if status == HTTPStatus.UNAUTHORIZED
                     else "Token seems to be invalid",
                 )
             case HTTPStatus.BAD_GATEWAY | HTTPStatus.GATEWAY_TIMEOUT as status:
-                err = APIServerError(
-                    message="Telegram API server responded a {}: {}".format(status.phrase, err.error),
+                return APIServerError(
+                    message="Telegram API server responded a {}: {}".format(status.phrase, error.error),
                     retry_after=int(self.reconnect_after),
                 )
-
-        return err
+            case _:
+                return error
 
     async def get_updates(self) -> msgspec.Raw:
         return (
             (
                 await self.api.request_raw(
-                    method="getUpdates",
+                    method=GET_UPDATES_METHOD,
                     data=dict(
                         offset=self.offset,
                         limit=self.limit,

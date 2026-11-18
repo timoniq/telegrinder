@@ -2,6 +2,8 @@ import asyncio
 import sys
 import typing
 
+from kungfu import UnwrapError
+
 from telegrinder.api.error import APIServerError, InvalidTokenError
 from telegrinder.modules import logger
 from telegrinder.tools.aio import maybe_awaitable
@@ -11,7 +13,8 @@ if typing.TYPE_CHECKING:
 
 
 class StopPolling(Exception):
-    pass
+    def __init__(self) -> None:
+        super().__init__("Polling was stopped")
 
 
 class ErrorHandler:
@@ -25,12 +28,13 @@ class ErrorHandler:
             InvalidTokenError: self._handle_invalid_token_error,
             asyncio.CancelledError: self._handle_cancelled_error,
             APIServerError: self._handle_api_server_error,
-            StopPolling: lambda _: logger.debug("Polling was stopped"),
-            **{e: self._handle_connection_timeout_error for e in polling.api.http.CONNECTION_TIMEOUT_ERRORS},
-            **{e: self._handle_client_connection_error for e in polling.api.http.CLIENT_CONNECTION_ERRORS},
+            StopPolling: lambda error: logger.debug("{}", error),
         }
 
     async def handle(self, error: BaseException) -> bool:
+        if isinstance(error, UnwrapError):
+            error = error.__error__.unwrap_or(error)
+
         error_class = type(error)
 
         if isinstance(error, SystemExit):
@@ -62,8 +66,6 @@ class ErrorHandler:
         self._polling.stop()
 
     async def _handle_connection_timeout_error(self, _: BaseException) -> None:
-        # `>=`: the counter is incremented only after this handler runs, so `>` would allow one
-        # reconnect beyond max_reconnects before giving up.
         if self._polling.reconnects_counter >= self._polling.max_reconnects:
             logger.error(
                 "Failed to reconnect to Telegram API server after {} attempts, stopping polling",
