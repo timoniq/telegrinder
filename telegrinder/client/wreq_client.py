@@ -93,6 +93,9 @@ class WreqClient(ABCClient):
     def __init__(
         self,
         *,
+        request_version: wreq.Version = wreq.Version.HTTP_2,
+        request_zstd: bool = DEFAULT_ZSTD,
+        request_gzip: bool = DEFAULT_GZIP,
         use_system_dns: bool = True,
         **params: typing.Unpack[ClientConfig],
     ) -> None:
@@ -118,6 +121,9 @@ class WreqClient(ABCClient):
         params.setdefault("pool_max_size", CONNECTION_POOL_MAX_SIZE)
         params.setdefault("dns_options", DnsOptions(system_dns=use_system_dns))
 
+        self._request_version = request_version
+        self._request_zstd = request_zstd
+        self._request_gzip = request_gzip
         self._timeout = params.setdefault("timeout", DEFAULT_TIMEOUT)
         self._client = wreq.Client(**params)
 
@@ -147,9 +153,9 @@ class WreqClient(ABCClient):
         data: Data | None = None,
         **kwargs: typing.Unpack[Request],
     ) -> Response[wreq.Response]:
-        kwargs.setdefault("version", wreq.Version.HTTP_2)
-        kwargs.setdefault("zstd", DEFAULT_ZSTD)
-        kwargs.setdefault("gzip", DEFAULT_GZIP)
+        kwargs.setdefault("version", self._request_version)
+        kwargs.setdefault("zstd", self._request_zstd)
+        kwargs.setdefault("gzip", self._request_gzip)
 
         if isinstance(timeout := kwargs.get("timeout"), int | float):
             kwargs["timeout"] = datetime.timedelta(seconds=timeout)
