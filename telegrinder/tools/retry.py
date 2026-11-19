@@ -19,7 +19,8 @@ def _run_retryer(
     backoff: ABCBackoff,
     retries: int,
     fail: typing.Callable[[BaseException], typing.Any] | None,
-    check: typing.Callable[[BaseException], bool],
+    sleep: typing.Callable[[float], typing.Any] | None,
+    check: typing.Callable[[BaseException], bool] | None,
 ) -> typing.Any:
     failures = 0
 
@@ -27,7 +28,7 @@ def _run_retryer(
         try:
             return func(*args, **kwargs)
         except exceptions as exception:
-            if not check(exception):
+            if check is not None and not check(exception):
                 raise
 
             failures += 1
@@ -41,7 +42,7 @@ def _run_retryer(
             delay = backoff.compute(failures)
 
             if delay > 0:
-                time.sleep(delay)
+                time.sleep(delay) if sleep is None else sleep(delay)
 
 
 async def _run_async_retryer(
@@ -53,7 +54,8 @@ async def _run_async_retryer(
     backoff: ABCBackoff,
     retries: int,
     fail: typing.Callable[[BaseException], typing.Any] | None,
-    check: typing.Callable[[BaseException], bool],
+    sleep: typing.Callable[[float], typing.Coroutine[typing.Any, typing.Any, typing.Any]] | None,
+    check: typing.Callable[[BaseException], bool] | None,
 ) -> typing.Any:
     failures = 0
 
@@ -61,7 +63,7 @@ async def _run_async_retryer(
         try:
             return await func(*args, **kwargs)
         except exceptions as exception:
-            if not check(exception):
+            if check is not None and not check(exception):
                 raise
 
             failures += 1
@@ -75,7 +77,7 @@ async def _run_async_retryer(
             delay = backoff.compute(failures)
 
             if delay > 0:
-                await asyncio.sleep(delay)
+                await (asyncio.sleep(delay) if sleep is None else sleep(delay))
 
 
 def retry[**P, R](
@@ -83,7 +85,8 @@ def retry[**P, R](
     retries: int,
     backoff: ABCBackoff,
     fail: typing.Callable[[BaseException], typing.Any] | None = None,
-    check: typing.Callable[[BaseException], bool] = lambda e: isinstance(e, RetryableError),
+    check: typing.Callable[[BaseException], bool] | None = lambda e: isinstance(e, RetryableError),
+    sleep: typing.Callable[[float], typing.Any] | None = None,
 ) -> typing.Callable[[typing.Callable[P, R]], typing.Callable[P, R]]:
     def decorator(f: typing.Callable[P, R], /) -> typing.Callable[P, R]:
         retryer = _run_async_retryer if inspect.iscoroutinefunction(f) else _run_retryer
@@ -99,6 +102,7 @@ def retry[**P, R](
                 retries=retries,
                 fail=fail,
                 check=check,
+                sleep=sleep,
             )
             return typing.cast("R", result)
 
