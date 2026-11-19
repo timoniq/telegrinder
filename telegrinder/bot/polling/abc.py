@@ -1,16 +1,17 @@
 import typing
 from abc import ABC, abstractmethod
 
-import msgspec
+if typing.TYPE_CHECKING:
+    import msgspec
 
-from telegrinder.types.objects import Update
+    from telegrinder.types.objects import Update
 
 
 class ABCPolling(ABC):
     offset: int
 
     @abstractmethod
-    async def get_updates(self) -> list[msgspec.Raw]:
+    async def get_updates(self) -> msgspec.Raw:
         pass
 
     @abstractmethod

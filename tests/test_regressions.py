@@ -27,7 +27,6 @@ from telegrinder.bot.dispatch.middleware.filter import FilterMiddleware
 from telegrinder.bot.dispatch.middleware.media_group import MediaGroupMiddleware
 from telegrinder.bot.dispatch.middleware.waiter import WaiterMiddleware
 from telegrinder.bot.dispatch.return_manager.utils import _get_types
-from telegrinder.bot.polling.error_handler import ErrorHandler
 from telegrinder.bot.polling.polling import Polling
 from telegrinder.bot.rules.abc import ABCRule
 from telegrinder.bot.rules.start import StartCommand
@@ -481,15 +480,6 @@ async def test_taskgroup_create_task_forwards_name():
 
 
 @pytest.mark.asyncio()
-async def test_error_handler_reraises_system_exit():
-    api = API(Token("123:ABCdef"), http=MockedHttpClient())
-    handler = ErrorHandler(Polling(api))
-    # _handle_system_exit was created as a coroutine but never awaited, so it never raised.
-    with pytest.raises(SystemExit):
-        await handler.handle(SystemExit(5))
-
-
-@pytest.mark.asyncio()
 async def test_polling_listen_keeps_a_reference_to_the_stop_task():
     api = API(Token("123:ABCdef"), http=MockedHttpClient())
     polling = Polling(api)
@@ -501,12 +491,6 @@ async def test_polling_listen_keeps_a_reference_to_the_stop_task():
         await asyncio.gather(polling._stop_task, return_exceptions=True)
     finally:
         await generator.aclose()
-
-
-def test_reconnect_limit_comparison_is_inclusive():
-    src = (REPO_ROOT / "telegrinder/bot/polling/error_handler.py").read_text()
-    # The comparison used `>` and so allowed one reconnect past the configured limit.
-    assert "self._polling.reconnects_counter >= self._polling.max_reconnects" in src
 
 
 @pytest.mark.asyncio()

@@ -71,22 +71,20 @@ class Telegrinder[Dispatch: ABCDispatch = dp.Dispatch, Polling: ABCPolling = pg.
     async def run_polling(
         self,
         *,
-        offset: int = 0,
+        offset: int | None = None,
         skip_updates: bool = False,
     ) -> None:
-        self.polling.offset = offset
+        if offset is not None:
+            self.polling.offset = offset
 
-        async def listen_polling() -> None:
-            if skip_updates:
-                await self.drop_pending_updates()
+        if skip_updates:
+            await self.drop_pending_updates()
 
-            async for updates in self.polling.listen():
-                for update in updates:
-                    self.loop_wrapper.add_task(self.dispatch.feed(self.api, update))
+        async for updates in self.polling.listen():
+            for update in updates:
+                self.loop_wrapper.add_task(self.dispatch.feed(self.api, update))
 
-        self.loop_wrapper.add_task(listen_polling())
-
-    def run_forever(self, *, offset: int = 0, skip_updates: bool = False) -> None:
+    def run_forever(self, *, offset: int | None = None, skip_updates: bool = False) -> None:
         logger.info("Running blocking polling (id={})", self.api.id)
         self.loop_wrapper.add_task(self.run_polling(offset=offset, skip_updates=skip_updates))
         self.loop_wrapper.run()

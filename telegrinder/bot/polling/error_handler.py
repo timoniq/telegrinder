@@ -1,5 +1,4 @@
 import asyncio
-import sys
 import typing
 
 from kungfu import UnwrapError
@@ -18,18 +17,29 @@ class StopPolling(Exception):
 
 
 class ErrorHandler:
-    _handlers: dict[type[BaseException], typing.Callable[[BaseException], typing.Any]]
+    type Handlers = dict[type[BaseException], typing.Callable[[BaseException], typing.Any]]
+
+    _handlers: Handlers
 
     __slots__ = ("_polling", "_handlers")
 
     def __init__(self, polling: Polling, /) -> None:
         self._polling = polling
-        self._handlers = {  # type: ignore
-            InvalidTokenError: self._handle_invalid_token_error,
-            asyncio.CancelledError: self._handle_cancelled_error,
-            APIServerError: self._handle_api_server_error,
-            StopPolling: lambda error: logger.debug("{}", error),
-        }
+        self._handlers = typing.cast(
+            "ErrorHandler.Handlers",
+            {
+                InvalidTokenError: self._handle_invalid_token_error,
+                asyncio.CancelledError: self._handle_cancelled_error,
+                StopPolling: lambda error: logger.debug("{!s}", error),
+            },
+        )
+
+        for error in (
+            APIServerError,
+            *self._polling.api.http.CONNECTION_TIMEOUT_ERRORS,
+            *self._polling.api.http.CLIENT_CONNECTION_ERRORS,
+        ):
+            self._handlers[error] = self._handle_fail_reconnections
 
     async def handle(self, error: BaseException) -> bool:
         if isinstance(error, UnwrapError):
@@ -37,66 +47,27 @@ class ErrorHandler:
 
         error_class = type(error)
 
-        if isinstance(error, SystemExit):
-            await self._handle_system_exit(error)
-
         if error_class not in self._handlers:
             return False
 
-        try:
-            await maybe_awaitable(self._handlers[error_class](error))
-            return True
-        except SystemExit as sys_exit_err:
-            await self._handle_system_exit(sys_exit_err)
+        await maybe_awaitable(self._handlers[error_class](error))
+        return True
 
-    async def _handle_system_exit(self, error: SystemExit) -> typing.NoReturn:
-        logger.error("Forced exit from the program with code {}.", error.code)
-        raise error from None
-
-    async def _handle_invalid_token_error(
-        self,
-        error: InvalidTokenError,
-    ) -> typing.NoReturn:
-        logger.error("{}", error)
+    def _handle_invalid_token_error(self, error: InvalidTokenError) -> typing.NoReturn:
+        logger.error("{!s}", error)
         self._polling.stop()
-        sys.exit(3)
+        raise SystemExit(3) from None
 
-    async def _handle_cancelled_error(self, _: asyncio.CancelledError) -> None:
+    def _handle_cancelled_error(self, _: BaseException) -> None:
         logger.info("Caught cancel, stopping polling")
         self._polling.stop()
 
-    async def _handle_connection_timeout_error(self, _: BaseException) -> None:
-        if self._polling.reconnects_counter >= self._polling.max_reconnects:
-            logger.error(
-                "Failed to reconnect to Telegram API server after {} attempts, stopping polling",
-                self._polling.max_reconnects,
-            )
-            self._polling.stop()
-            sys.exit(6)
-
-        logger.warning(
-            "Server disconnected, waiting {} seconds to reconnect...",
-            self._polling.reconnect_after,
-        )
-        await asyncio.sleep(self._polling.reconnect_after)
-
-    async def _handle_client_connection_error(self, _: BaseException) -> None:
+    def _handle_fail_reconnections(self, error: BaseException) -> None:
         logger.error(
-            "Client connection failed, attempt to reconnect after {} seconds...",
-            self._polling.reconnect_after,
+            "Exit the program after failed tries to reconnect; last reconnection error type: `{}`",
+            error.__class__.__name__,
         )
-        await asyncio.sleep(self._polling.reconnect_after)
-
-    async def _handle_api_server_error(
-        self,
-        error: APIServerError,
-    ) -> None:
-        if error.retry_after is None:
-            logger.error("{}", error)
-            sys.exit(9)
-
-        logger.error("{}, waiting {} seconds to the next request...", error, error.retry_after)
-        await asyncio.sleep(error.retry_after)
+        raise SystemExit(9) from None
 
 
 __all__ = ("ErrorHandler",)
