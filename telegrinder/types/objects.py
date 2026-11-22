@@ -499,7 +499,9 @@ class Update(Model, kw_only=True):
     chosen_inline_result: Option[ChosenInlineResult] = field(default=..., converter=From["ChosenInlineResult | None"])
     """Optional. The result of an inline query that was chosen by a user and sent
     to their chat partner. Please see our documentation on the feedback collecting
-    for details on how to enable these updates for your bot."""
+    for details on how to enable these updates for your bot. The updates can also
+    be enabled using the parameter inline_feedback_share_denominator of
+    the method setMySettings."""
 
     callback_query: Option[CallbackQuery] = field(default=..., converter=From["CallbackQuery | None"])
     """Optional. New incoming callback query."""
@@ -626,6 +628,72 @@ class WebhookInfo(Model, kw_only=True):
     update types except chat_member, message_reaction, and message_reaction_count."""
 
 
+class BotFullInfo(Model, kw_only=True):
+    """Object `BotFullInfo`, see the [documentation](https://core.telegram.org/bots/api#botfullinfo).
+
+    This object contains full information about the bot itself.
+    """
+
+    id: int = field()
+    """Unique identifier for this bot. This number may have more than 32 significant
+    bits and some programming languages may have difficulty/silent defects
+    in interpreting it. But it has at most 52 significant bits, so a 64-bit integer
+    or double-precision float type are safe for storing this identifier."""
+
+    is_bot: bool = field()
+    """Always True."""
+
+    first_name: str = field()
+    """Bot's first name."""
+
+    can_join_groups: bool = field()
+    """True, if the bot can be added to groups."""
+
+    can_read_all_group_messages: bool = field()
+    """True, if privacy mode is disabled for the bot."""
+
+    supports_guest_queries: bool = field()
+    """True, if the bot supports guest queries from chats it is not a member of."""
+
+    supports_inline_queries: bool = field()
+    """True, if the bot supports inline queries."""
+
+    needs_inline_query_location: bool = field()
+    """True, if the bot requests the location of the user with every inline query."""
+
+    can_connect_to_business: bool = field()
+    """True, if the bot can be connected to a user account to manage it."""
+
+    has_main_web_app: bool = field()
+    """True, if the bot has a main Web App."""
+
+    has_topics_enabled: bool = field()
+    """True, if the bot has forum topic mode enabled in private chats."""
+
+    allows_users_to_create_topics: bool = field()
+    """True, if the bot allows users to create and delete topics in private chats."""
+
+    has_topic_sidebar: bool = field()
+    """True, if topics in private chats with the bot are shown in a sidebar."""
+
+    can_manage_bots: bool = field()
+    """True, if other bots can be created to be controlled by the bot."""
+
+    supports_join_request_queries: bool = field()
+    """True, if the bot supports join request queries and can be assigned to process
+    them."""
+
+    username: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Bot's username."""
+
+    active_usernames: Option[list[str]] = field(default=..., converter=From[list[str] | None])
+    """Optional. If non-empty, the list of all active usernames of the bot."""
+
+    inline_query_placeholder: Option[str] = field(default=..., converter=From[str | None])
+    """Optional. Placeholder for inline queries, which is shown in the input field
+    after the bot's username; omitted if the default placeholder is used."""
+
+
 class User(Model, kw_only=True):
     """Object `User`, see the [documentation](https://core.telegram.org/bots/api#user).
 
@@ -658,43 +726,6 @@ class User(Model, kw_only=True):
 
     added_to_attachment_menu: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if this user added the bot to the attachment menu."""
-
-    can_join_groups: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the bot can be invited to groups. Returned only in getMe."""
-
-    can_read_all_group_messages: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if privacy mode is disabled for the bot. Returned only in
-    getMe."""
-
-    supports_guest_queries: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the bot supports guest queries from chats it is not a member
-    of. Returned only in getMe."""
-
-    supports_inline_queries: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the bot supports inline queries. Returned only in getMe."""
-
-    can_connect_to_business: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the bot can be connected to a user account to manage it.
-    Returned only in getMe."""
-
-    has_main_web_app: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the bot has a main Web App. Returned only in getMe."""
-
-    has_topics_enabled: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the bot has forum topic mode enabled in private chats.
-    Returned only in getMe."""
-
-    allows_users_to_create_topics: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the bot allows users to create and delete topics in private
-    chats. Returned only in getMe."""
-
-    can_manage_bots: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if other bots can be created to be controlled by the bot.
-    Returned only in getMe."""
-
-    supports_join_request_queries: Option[bool] = field(default=..., converter=From[bool | None])
-    """Optional. True, if the bot supports join request queries and can be assigned
-    to process them. Returned only in getMe."""
 
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, self.__class__):
@@ -1337,7 +1368,9 @@ class Message(MaybeInaccessibleMessage, kw_only=True):
     write_access_allowed: Option[WriteAccessAllowed] = field(default=..., converter=From["WriteAccessAllowed | None"])
     """Optional. Service message: the user allowed the bot to write messages after
     adding it to the attachment or side menu, launching a Web App from a link,
-    or accepting an explicit request from a Web App sent by the method requestWriteAccess."""
+    or accepting an explicit request from a Web App sent by the method requestWriteAccess,
+    or the user was invited to the private chat with the bot by the owner of the
+    bot."""
 
     passport_data: Option[PassportData] = field(default=..., converter=From["PassportData | None"])
     """Optional. Telegram Passport data."""
@@ -3285,7 +3318,7 @@ class ChatShared(Model, kw_only=True):
 class WriteAccessAllowed(Model, kw_only=True):
     """Object `WriteAccessAllowed`, see the [documentation](https://core.telegram.org/bots/api#writeaccessallowed).
 
-    This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess.
+    This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess, or about a user being invited to the private chat with the bot by the owner of the bot.
     """
 
     from_request: Option[bool] = field(default=..., converter=From[bool | None])
@@ -3299,6 +3332,11 @@ class WriteAccessAllowed(Model, kw_only=True):
     from_attachment_menu: Option[bool] = field(default=..., converter=From[bool | None])
     """Optional. True, if the access was granted when the bot was added to the attachment
     or side menu."""
+
+    inviter: Option[User] = field(default=..., converter=From["User | None"])
+    """Optional. The owner of the bot, if the access was granted when the owner invited
+    the user to the private chat with the bot. Bot owners can invite up to 10 users
+    at once by pressing the link https://t.me/botinvite/<bot_username>."""
 
 
 class VideoChatScheduled(Model, kw_only=True):
@@ -3850,7 +3888,8 @@ class KeyboardButton(Model, kw_only=True):
     )
     """Optional. If specified, pressing the button will ask the user to create
     and share a bot that will be managed by the current bot. Available for bots
-    that enabled management of other bots in the @BotFather Mini App. Available
+    that enabled management of other bots in the @BotFather Mini App or using
+    the parameter can_manage_bots of the method setMySettings. Available
     in private chats only."""
 
     request_contact: Option[bool] = field(default=..., converter=From[bool | None])
@@ -4183,7 +4222,7 @@ class DisabledButton(Model, kw_only=True):
 class CallbackQuery(Model, kw_only=True):
     """Object `CallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#callbackquery).
 
-    This object represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
+    This object represents an incoming callback query from a callback button in an inline keyboard or in a rich message. If the button that originated the query belongs to a message sent by the bot, the field message will be present, unless the field inline_message_id is used instead as specified by the parameter callback_query_mode of the method setMySettings. If the button belongs to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
     """
 
     id: str = field()
@@ -4204,7 +4243,8 @@ class CallbackQuery(Model, kw_only=True):
 
     inline_message_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Identifier of the message sent via the bot in inline mode, that
-    originated the query."""
+    originated the query. Can also be present for messages sent by the bot, depending
+    on the parameter callback_query_mode of the method setMySettings."""
 
     data: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Data associated with the callback button. Be aware that the message
@@ -8121,9 +8161,38 @@ class RichBlockExpandableBlockQuotation(RichBlock, kw_only=True):
     A block quotation, corresponding to the HTML tag <blockquote> with custom attribute "expandable".
     """
 
-    text: TypeAliases.RichText = field(
+    blocks: list[
+        Sum[
+            RichBlockParagraph,
+            RichBlockSectionHeading,
+            RichBlockPreformatted,
+            RichBlockFooter,
+            RichBlockDivider,
+            RichBlockMathematicalExpression,
+            RichBlockAnchor,
+            RichBlockList,
+            RichBlockBlockQuotation,
+            RichBlockExpandableBlockQuotation,
+            RichBlockPullQuotation,
+            RichBlockCollage,
+            RichBlockSlideshow,
+            RichBlockTable,
+            RichBlockDetails,
+            RichBlockMap,
+            RichBlockButtons,
+            RichBlockAnimation,
+            RichBlockAudio,
+            RichBlockDocument,
+            RichBlockPhoto,
+            RichBlockVideo,
+            RichBlockVoiceNote,
+            RichBlockThinking,
+        ]
+    ] = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            list[
+                "RichBlockParagraph | RichBlockSectionHeading | RichBlockPreformatted | RichBlockFooter | RichBlockDivider | RichBlockMathematicalExpression | RichBlockAnchor | RichBlockList | RichBlockBlockQuotation | RichBlockExpandableBlockQuotation | RichBlockPullQuotation | RichBlockCollage | RichBlockSlideshow | RichBlockTable | RichBlockDetails | RichBlockMap | RichBlockButtons | RichBlockAnimation | RichBlockAudio | RichBlockDocument | RichBlockPhoto | RichBlockVideo | RichBlockVoiceNote | RichBlockThinking"
+            ]
         ]
     )
     """Content of the block."""
@@ -8619,9 +8688,38 @@ class InputRichBlockExpandableBlockQuotation(InputRichBlock, kw_only=True):
     A block quotation, corresponding to the HTML tag <blockquote> with custom attribute "expandable".
     """
 
-    text: TypeAliases.RichText = field(
+    blocks: list[
+        Sum[
+            InputRichBlockParagraph,
+            InputRichBlockSectionHeading,
+            InputRichBlockPreformatted,
+            InputRichBlockFooter,
+            InputRichBlockDivider,
+            InputRichBlockMathematicalExpression,
+            InputRichBlockAnchor,
+            InputRichBlockList,
+            InputRichBlockBlockQuotation,
+            InputRichBlockExpandableBlockQuotation,
+            InputRichBlockPullQuotation,
+            InputRichBlockCollage,
+            InputRichBlockSlideshow,
+            InputRichBlockTable,
+            InputRichBlockDetails,
+            InputRichBlockMap,
+            InputRichBlockButtons,
+            InputRichBlockAnimation,
+            InputRichBlockAudio,
+            InputRichBlockDocument,
+            InputRichBlockPhoto,
+            InputRichBlockVideo,
+            InputRichBlockVoiceNote,
+            InputRichBlockThinking,
+        ]
+    ] = field(
         converter=From[
-            "str | list[RichText] | RichTextBold | RichTextItalic | RichTextUnderline | RichTextStrikethrough | RichTextSpoiler | RichTextDateTime | RichTextTextMention | RichTextSubscript | RichTextSuperscript | RichTextMarked | RichTextCode | RichTextCustomEmoji | RichTextMathematicalExpression | RichTextUrl | RichTextEmailAddress | RichTextPhoneNumber | RichTextBankCardNumber | RichTextTonAddress | RichTextMention | RichTextHashtag | RichTextCashtag | RichTextBotCommand | RichTextButton | RichTextAnchor | RichTextAnchorLink | RichTextReference | RichTextReferenceLink"
+            list[
+                "InputRichBlockParagraph | InputRichBlockSectionHeading | InputRichBlockPreformatted | InputRichBlockFooter | InputRichBlockDivider | InputRichBlockMathematicalExpression | InputRichBlockAnchor | InputRichBlockList | InputRichBlockBlockQuotation | InputRichBlockExpandableBlockQuotation | InputRichBlockPullQuotation | InputRichBlockCollage | InputRichBlockSlideshow | InputRichBlockTable | InputRichBlockDetails | InputRichBlockMap | InputRichBlockButtons | InputRichBlockAnimation | InputRichBlockAudio | InputRichBlockDocument | InputRichBlockPhoto | InputRichBlockVideo | InputRichBlockVoiceNote | InputRichBlockThinking"
+            ]
         ]
     )
     """Content of the block."""
@@ -8948,7 +9046,9 @@ class InlineQuery(Model, kw_only=True):
     was sent from a secret chat."""
 
     location: Option[Location] = field(default=..., converter=From["Location | None"])
-    """Optional. Sender location, only for bots that request user location."""
+    """Optional. Sender location, only for bots that enabled user location requests
+    via @BotFather or using the parameter needs_inline_query_location of
+    the method setMySettings."""
 
 
 class InlineQueryResultsButton(Model, kw_only=True):
@@ -10332,7 +10432,7 @@ class ChosenInlineResult(Model, kw_only=True):
     """Object `ChosenInlineResult`, see the [documentation](https://core.telegram.org/bots/api#choseninlineresult).
 
     Represents a result of an inline query that was chosen by the user and sent to their chat partner.
-    Note: It is necessary to enable inline feedback via @BotFather in order to receive these objects in updates.
+    Note: It is necessary to enable inline feedback via @BotFather or using the parameter inline_feedback_share_denominator of the method setMySettings in order to receive these objects in updates.
     """
 
     result_id: str = field()
@@ -10345,7 +10445,9 @@ class ChosenInlineResult(Model, kw_only=True):
     """The query that was used to obtain the result."""
 
     location: Option[Location] = field(default=..., converter=From["Location | None"])
-    """Optional. Sender location, only for bots that require user location."""
+    """Optional. Sender location, only for bots that enabled user location requests
+    via @BotFather or using the parameter needs_inline_query_location of
+    the method setMySettings."""
 
     inline_message_id: Option[str] = field(default=..., converter=From[str | None])
     """Optional. Identifier of the sent inline message. Available only if there
@@ -11401,6 +11503,7 @@ __all__ = (
     "BotCommandScopeChatMember",
     "BotCommandScopeDefault",
     "BotDescription",
+    "BotFullInfo",
     "BotName",
     "BotShortDescription",
     "BotSubscriptionUpdated",
