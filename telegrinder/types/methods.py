@@ -16,7 +16,7 @@ type APIResult[T] = Result[T, APIError]
 
 
 class APIMethods:
-    """Telegram Bot API version `10.4`, released `November 9, 2026`."""
+    """Telegram Bot API version `10.5`, released `November 22, 2026`."""
 
     default_params = DEFAULT_PARAMETERS
 
@@ -162,11 +162,11 @@ class APIMethods:
         )
         return full_result(method_response, WebhookInfo)
 
-    async def get_me(self, **other: typing.Any) -> APIResult[User]:
+    async def get_me(self, **other: typing.Any) -> APIResult[BotFullInfo]:
         """Method `getMe`, see the [documentation](https://core.telegram.org/bots/api#getme)
 
         A simple method for testing your bot's authentication token. Requires
-        no parameters. Returns basic information about the bot in form of a User
+        no parameters. Returns information about the bot in form of a BotFullInfo
         object.
         """
 
@@ -174,7 +174,7 @@ class APIMethods:
             "getMe",
             get_params(locals()),
         )
-        return full_result(method_response, User)
+        return full_result(method_response, BotFullInfo)
 
     async def log_out(self, **other: typing.Any) -> APIResult[bool]:
         """Method `logOut`, see the [documentation](https://core.telegram.org/bots/api#logout)
@@ -3798,9 +3798,9 @@ class APIMethods:
     ) -> APIResult[bool]:
         """Method `answerCallbackQuery`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)
 
-        Use this method to send answers to callback queries sent from inline keyboards.
-        The answer will be displayed to the user as a notification at the top of the
-        chat screen or as an alert. On success, True is returned.
+        Use this method to send answers to callback queries sent from inline keyboards
+        or rich messages. The answer will be displayed to the user as a notification
+        at the top of the chat screen or as an alert. On success, True is returned.
 
         :param callback_query_id: Unique identifier for the query to be answered.
 
@@ -4002,6 +4002,87 @@ class APIMethods:
 
         method_response = await self.api.request_raw(
             "setManagedBotAccessSettings",
+            get_params(locals()),
+        )
+        return full_result(method_response, bool)
+
+    async def set_my_settings(
+        self,
+        *,
+        supports_inline_queries: bool | None = None,
+        inline_query_placeholder: str | None = None,
+        needs_inline_query_location: bool | None = None,
+        inline_feedback_share_denominator: int | None = None,
+        can_join_groups: bool | None = None,
+        can_read_all_group_messages: bool | None = None,
+        can_connect_to_business: bool | None = None,
+        can_manage_bots: bool | None = None,
+        supports_guest_queries: bool | None = None,
+        supports_join_request_queries: bool | None = None,
+        has_topics_enabled: bool | None = None,
+        allows_users_to_create_topics: bool | None = None,
+        has_topic_sidebar: bool | None = None,
+        can_communicate_with_bots: bool | None = None,
+        callback_query_mode: str | None = None,
+        **other: typing.Any,
+    ) -> APIResult[bool]:
+        """Method `setMySettings`, see the [documentation](https://core.telegram.org/bots/api#setmysettings)
+
+        Use this method to change settings of the bot. Settings that aren't specified
+        remain unchanged. Returns True on success.
+
+        :param supports_inline_queries: Pass True to enable inline mode for the bot or False to disable it.
+
+        :param inline_query_placeholder: New placeholder for inline queries, which is shown in the input field after \
+        the bot's username. Pass an empty string to use the default placeholder. \
+
+        :param needs_inline_query_location: Pass True to request the location of the user with every inline query to the \
+        bot or False to stop requesting it.
+
+        :param inline_feedback_share_denominator: Denominator of the share of chosen inline results received by the bot; the \
+        bot receives 1 out of inline_feedback_share_denominator chosen results. \
+        Must be one of 1, 10, 100, or 1000. Pass 0 to stop receiving chosen inline results. \
+
+        :param can_join_groups: Pass True to allow adding the bot to groups or False to disallow it.
+
+        :param can_read_all_group_messages: Pass True to disable privacy mode for the bot or False to enable it.
+
+        :param can_connect_to_business: Pass True to allow connecting the bot to user accounts to manage them or False \
+        to disallow it.
+
+        :param can_manage_bots: Pass True to allow creating other bots that will be controlled by the bot \
+        or False to disallow it.
+
+        :param supports_guest_queries: Pass True to allow guest queries to the bot from chats it isn't a member of \
+        or False to disallow them.
+
+        :param supports_join_request_queries: Pass True to allow assigning the bot to process join request queries or False \
+        to disallow it.
+
+        :param has_topics_enabled: Pass True to enable forum topic mode in private chats with the bot or False \
+        to disable it.
+
+        :param allows_users_to_create_topics: Pass True to allow users to create and delete topics in private chats with \
+        the bot or False to disallow it.
+
+        :param has_topic_sidebar: Pass True to show topics in private chats with the bot in a sidebar or False \
+        to stop showing them in a sidebar.
+
+        :param can_communicate_with_bots: Pass True to allow the bot to communicate with other bots in groups, private \
+        chats, and through business accounts or False to disallow it.
+
+        :param callback_query_mode: Mode in which the bot receives callback queries from buttons in messages \
+        sent by the bot. Must be one of `default` (the field message is always used \
+        and contains an InaccessibleMessage if the message is inaccessible to \
+        the bot), `auto` (the field inline_message_id is used instead of the field \
+        message if the message is inaccessible to the bot; the field message can \
+        still contain an inaccessible message if the message has just been deleted), \
+        or `inline` (the field inline_message_id is always used instead of the \
+        field message).
+        """
+
+        method_response = await self.api.request_raw(
+            "setMySettings",
             get_params(locals()),
         )
         return full_result(method_response, bool)

@@ -403,9 +403,9 @@ class CallbackQueryCute(BaseCute[CallbackQuery], MessageEditShortcuts, CallbackQ
     ) -> APIResult[bool]:
         """Shortcut `API.answer_callback_query()`, see the [documentation](https://core.telegram.org/bots/api#answercallbackquery)
 
-        Use this method to send answers to callback queries sent from inline keyboards.
-        The answer will be displayed to the user as a notification at the top of the
-        chat screen or as an alert. On success, True is returned.
+        Use this method to send answers to callback queries sent from inline keyboards
+        or rich messages. The answer will be displayed to the user as a notification
+        at the top of the chat screen or as an alert. On success, True is returned.
         :param callback_query_id: [`CUSTOM PARAMETER`] Unique identifier for the query to be answered.
 
         :param text: Text of the notification. If not specified, nothing will be shown to theuser, 0-200 characters.

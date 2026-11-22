@@ -30,6 +30,7 @@ __all__ = (
     "BotCommandScopeDefault",
     "BotCommandScopeType",
     "BotDescription",
+    "BotFullInfo",
     "BotName",
     "BotShortDescription",
     "BotSubscriptionUpdated",
